@@ -1,6 +1,6 @@
 from datetime import datetime
 from os import system as sys
-from build.build_properties import JarvisDatabase
+from build_properties import JarvisDatabase
 
 
 def publish_to_git():
@@ -15,7 +15,3 @@ def publish_to_git_with_comment(comment):
     sys('git add ..')
     sys(f'git commit -m \"{comment}\"')
     sys(f'git push origin release/{JarvisDatabase}')
-
-
-if __name__ == '__main__':
-    publish_to_git_with_comment("Test auto comment commit")
