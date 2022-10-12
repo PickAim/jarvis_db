@@ -1,4 +1,4 @@
-from BD.db_config import Base, engine
+from db_config import Base, engine
 
 
 def create_tables():

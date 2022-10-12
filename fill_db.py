@@ -1,12 +1,12 @@
 import asyncio
 import time
 
-from domain.data_providers.wildberries_data_provider import WildBerriesDataProvider
-from BD.db_config import SessionLocal
-from domain.db_fillers.db_filler import DbFiller
-from domain.db_fillers.async_db_filler import AsyncDbFiller
+from data_providers.wildberries_data_provider import WildBerriesDataProvider
+from db_config import SessionLocal
+from db_fillers.db_filler import DbFiller
+from db_fillers.async_db_filler import AsyncDbFiller
 from create_tables import create_tables
-from domain.data_providers.async_wildberries_data_provider import AsyncWildberriesDataProvider
+from data_providers.async_wildberries_data_provider import AsyncWildberriesDataProvider
 
 
 def fill_db():
