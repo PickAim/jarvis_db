@@ -10,5 +10,12 @@ def publish_to_git():
     sys(f'git push origin release/{JarvisDatabase}')
 
 
+def publish_to_git_with_comment(comment):
+    sys(f'git checkout -b release/{JarvisDatabase}')
+    sys('git add ..')
+    sys(f'git commit -m \"{comment}\"')
+    sys(f'git push origin release/{JarvisDatabase}')
+
+
 if __name__ == '__main__':
-    publish_to_git()
+    publish_to_git_with_comment("Test auto comment commit")

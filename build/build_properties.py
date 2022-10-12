@@ -1,1 +1,1 @@
-JarvisDatabase = '0.0.1'
+JarvisDatabase = '0.0.2'
