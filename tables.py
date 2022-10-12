@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Table, Index, Integer, String, \
     DateTime, Boolean, PrimaryKeyConstraint, ForeignKey
-from .db_config import Base
+from db_config import Base
 from datetime import datetime
 
 
