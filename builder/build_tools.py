@@ -40,7 +40,7 @@ def publish_to_git():
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
-    sys(f'git push origin release/{version}')
+    sys(f'git push -f origin release/{version}')
 
 
 def publish_to_git_with_comment(comment):
