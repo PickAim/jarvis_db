@@ -44,7 +44,7 @@ def publish_to_git_with_comment(comment):
 
 def build():
     with(open(__file__.replace(os.path.basename(__file__), '') + 'build.properties', 'r') as properties,
-         open(__file__.replace(os.path.basename(__file__), '') + 'dependencies.properties', 'r') as dependencies):
+         open(__file__.replace(os.path.basename(__file__), '') + 'dependency.properties', 'r') as dependencies):
         my_dir = __file__.replace(os.path.basename(__file__), '').replace(os.path.sep + 'builder', '')
         print(f'Installing requirements for {my_dir}')
         sys(f'pip install -r {os.path.join(my_dir, "requirements.txt")}')
