@@ -34,6 +34,7 @@ def publish_to_git():
     if out.__contains__('fatal'):
         sys(f'git checkout release/{version}')
     sys(f'git stash pop')
+
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
