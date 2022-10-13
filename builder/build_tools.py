@@ -36,8 +36,6 @@ def publish_to_git():
     sys(f'git stash pop')
     sys('git add ..')
     sys('git add .')
-    # else:
-    #     sys(f'git checkout release/{version}')\
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
     sys(f'git push origin release/{version}')
 
