@@ -35,7 +35,7 @@ def publish_to_git():
               stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
     if out.__contains__('fatal'):
         sys(f'git checkout release/{version}')
-    sys(f'git rebase --onto {saved_branch}')
+    sys(f'git rebase {saved_branch}')
     sys(f'git stash pop')
     sys('git add ..')
     sys('git add .')
