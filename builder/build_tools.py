@@ -45,11 +45,14 @@ def publish_to_git():
 
 def publish_to_git_with_comment(comment):
     version = get_my_version()
+    saved_branch = run(f' git rev-parse --abbrev-ref HEAD',
+                       stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout.replace('\n', '')
     sys(f'git stash')
     out = run(f'git switch -c release/{version}',
               stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
     if out.__contains__('fatal'):
         sys(f'git checkout release/{version}')
+    sys(f'git rebase {saved_branch}')
     sys(f'git stash pop')
     sys('git add ..')
     sys('git add .')
