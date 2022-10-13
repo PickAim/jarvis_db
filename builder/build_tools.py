@@ -1,4 +1,6 @@
 import os
+
+from subprocess import run, PIPE, STDOUT
 from datetime import datetime
 from os import system as sys
 from build_constants import _separator, element_name, component_dir
@@ -26,6 +28,9 @@ def get_my_name(url: str) -> str:
 
 def publish_to_git():
     version = get_my_version()
+    out = run(f'git switch -c release/{version}',
+        stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True)
+
     sys(f'git switch release/{version}')
     sys('git add ..')
     sys('git add .')
