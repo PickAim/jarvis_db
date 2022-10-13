@@ -26,7 +26,7 @@ def get_my_name(url: str) -> str:
 
 def publish_to_git():
     version = get_my_version()
-    sys(f'git checkout -b release/{version}')
+    sys(f'git switch -c release/{version}')
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
@@ -35,7 +35,7 @@ def publish_to_git():
 
 def publish_to_git_with_comment(comment):
     version = get_my_version()
-    sys(f'git checkout -b release/{version}')
+    sys(f'git switch -c release/{version}')
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"{comment}\"')
