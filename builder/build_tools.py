@@ -31,6 +31,7 @@ def publish_to_git():
     out = run(f'git switch -c release/{version}',
         stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True)
     sys(f'git switch release/{version}')
+
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
