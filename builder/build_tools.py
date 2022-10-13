@@ -28,10 +28,10 @@ def get_my_name(url: str) -> str:
 
 def publish_to_git():
     version = get_my_version()
-    out = run(f'git switch -c release/{version}',
-              stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
-    if out.__contains__('fatal'):
-        sys(f'git checkout release/{version}')
+    # out = run(f'git switch -c release/{version}',
+    #           stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
+    # if out.__contains__('fatal'):
+    sys(f'git checkout -b release/{version}')
     sys('git add ..')
     sys('git add .')
     # else:
