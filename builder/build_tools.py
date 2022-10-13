@@ -28,10 +28,12 @@ def get_my_name(url: str) -> str:
 
 def publish_to_git():
     version = get_my_version()
-    # out = run(f'git switch -c release/{version}',
-    #           stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
-    # if out.__contains__('fatal'):
-    sys(f'git checkout -b release/{version}')
+    sys(f'git stash')
+    out = run(f'git switch -c release/{version}',
+              stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
+    if out.__contains__('fatal'):
+        sys(f'git checkout release/{version}')
+    sys(f'git stash pop')
     sys('git add ..')
     sys('git add .')
     # else:
@@ -42,7 +44,12 @@ def publish_to_git():
 
 def publish_to_git_with_comment(comment):
     version = get_my_version()
-    sys(f'git switch release/{version}')
+    sys(f'git stash')
+    out = run(f'git switch -c release/{version}',
+              stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
+    if out.__contains__('fatal'):
+        sys(f'git checkout release/{version}')
+    sys(f'git stash pop')
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"{comment}\"')
