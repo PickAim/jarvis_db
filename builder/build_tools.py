@@ -29,9 +29,11 @@ def get_my_name(url: str) -> str:
 def publish_to_git():
     version = get_my_version()
     out = run(f'git switch -c release/{version}',
-        stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True)
-    sys(f'git switch release/{version}')
-
+              stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
+    if not out.__contains__('fatal'):
+        sys(f'git switch release/{version}')
+    # else:
+    #     sys(f'git checkout release/{version}')
     sys('git add ..')
     sys('git add .')
     sys(f'git commit -m \"[Auto: {datetime.now()}] publish {version}\"')
@@ -66,7 +68,7 @@ def build():
                 dir_name = get_my_name(depends_dict[prop_name])
                 sys(f'mkdir {os.path.join(component_dir, dir_name)}')
                 sys(f'git clone --branch release/{props_dict[prop_name]} {depends_dict[prop_name]} '
-                       f'{os.path.join(component_dir, dir_name)}')
+                    f'{os.path.join(component_dir, dir_name)}')
                 sys(f'rd /s /q {os.path.join(component_dir, dir_name)}\\.git')
                 sys(f'rd /s /q {os.path.join(component_dir, dir_name)}\\builder')
                 sys(f'del /q {os.path.join(component_dir, dir_name)}\\.gitignore')
