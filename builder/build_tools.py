@@ -67,6 +67,9 @@ def build():
         sys(f'rd /s /q {component_dir}')
         sys(f'mkdir {component_dir}')
         props = properties.readlines()
+
+
+
         props_dict = {prop.split(_separator)[0]: prop.split(_separator)[1].replace('\n', '')
                       for prop in props}
         depends = dependencies.readlines()
