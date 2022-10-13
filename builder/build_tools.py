@@ -57,9 +57,10 @@ def publish_to_git_with_comment(comment):
 def build():
     with(open(__file__.replace(os.path.basename(__file__), '') + 'build.properties', 'r') as properties,
          open(__file__.replace(os.path.basename(__file__), '') + 'dependency.properties', 'r') as dependencies):
-        my_dir = __file__.replace(os.path.basename(__file__), '').replace(os.path.sep + 'builder', '')
+        my_dir = __file__.replace(os.path.basename(__file__), '').replace('builder', '')
         print(f'Installing requirements for {my_dir}')
-        sys(f'pip install -r {os.path.join(my_dir, "requirements.txt")}')
+        run(f'pip install -r {os.path.join(my_dir, "requirements.txt")}',
+            stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True)
         sys(f'rd /s /q {component_dir}')
         sys(f'mkdir {component_dir}')
         props = properties.readlines()
@@ -75,6 +76,8 @@ def build():
                 sys(f'git clone --branch release/{props_dict[prop_name]} {depends_dict[prop_name]} '
                     f'{os.path.join(component_dir, dir_name)}')
                 sys(f'rd /s /q {os.path.join(component_dir, dir_name)}\\.git')
-                sys(f'rd /s /q {os.path.join(component_dir, dir_name)}\\builder')
                 sys(f'del /q {os.path.join(component_dir, dir_name)}\\.gitignore')
                 sys(f'del /q {os.path.join(component_dir, dir_name)}\\README.md')
+                sys(f'python {os.path.join(component_dir, dir_name, "builder", "build.py")}')
+
+                sys(f'rd /s /q {os.path.join(component_dir, dir_name)}\\builder')
