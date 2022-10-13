@@ -47,6 +47,7 @@ def build():
          open(__file__.replace(os.path.basename(__file__), '') + 'dependencies.properties', 'r') as dependencies):
         my_dir = __file__.replace(os.path.basename(__file__), '').replace(os.path.sep + 'builder', '')
         print(f'Installing requirements for {my_dir}')
+        print(component_dir)
         sys(f'pip install -r {os.path.join(my_dir, "requirements.txt")}')
         sys(f'rd /s /q {component_dir}')
         sys(f'mkdir {component_dir}')
