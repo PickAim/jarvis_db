@@ -29,7 +29,7 @@ def get_my_name(url: str) -> str:
 def publish_to_git():
     version = get_my_version()
     saved_branch = run(f' git rev-parse --abbrev-ref HEAD',
-              stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout.replace('\n', '')
+                       stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout.replace('\n', '')
     sys(f'git stash')
     out = run(f'git switch -c release/{version}',
               stdout=PIPE, stderr=STDOUT, universal_newlines=True, shell=True).stdout
@@ -70,8 +70,6 @@ def build():
         sys(f'rd /s /q {component_dir}')
         sys(f'mkdir {component_dir}')
         props = properties.readlines()
-
-
 
         props_dict = {prop.split(_separator)[0]: prop.split(_separator)[1].replace('\n', '')
                       for prop in props}
