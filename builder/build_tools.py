@@ -72,7 +72,7 @@ def build():
         props = properties.readlines()
         props_dict = {}
         for prop in props:
-            if prop != "":
+            if prop.__contains__(_separator):
                 props_dict = {prop.split(_separator)[0]: prop.split(_separator)[1].replace('\n', '')}
         depends = dependencies.readlines()
         depends_dict = {dependency.split(_separator)[0]: dependency.split(_separator)[1].replace('\n', '')
