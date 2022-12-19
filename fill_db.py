@@ -32,7 +32,7 @@ async def fill_db_async():
 
 
 if __name__ == '__main__':
-    # fixes Windows event loop probem
+    # fix Windows event loop problem
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     start = time.time()
     asyncio.run(fill_db_async())
