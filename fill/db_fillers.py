@@ -7,7 +7,10 @@ from jdu.request.downloading.wildberries import SyncWildBerriesDataProvider, Asy
 
 
 class DBFiller(ABC):
+    pass
 
+
+class WildberriesDbFiller(DBFiller):
     @abstractmethod
     def fill_categories(self):
         pass
@@ -25,7 +28,7 @@ class DBFiller(ABC):
         pass
 
 
-class SyncDBFiller(DBFiller):
+class SyncWildberriesDBFiller(WildberriesDbFiller):
 
     def __init__(self, api: SyncWildBerriesDataProvider, session_maker: sessionmaker):
         self.__api: SyncWildBerriesDataProvider = api
@@ -95,7 +98,7 @@ class SyncDBFiller(DBFiller):
                 session.add_all(db_histories)
 
 
-class AsyncDbFiller(DBFiller):
+class AsyncWildberriesDbFiller(WildberriesDbFiller):
 
     def __init__(self, api: AsyncWildberriesDataProvider, session_maker: sessionmaker) -> None:
         self.__api: AsyncWildberriesDataProvider = api
