@@ -1,7 +1,7 @@
 import asyncio
 from abc import ABC, abstractmethod
 from sqlalchemy.orm import sessionmaker
-from tables import Category, Niche, Product, ProductCostHistory
+from jarvis_db.tables import Category, Niche, Product, ProductCostHistory
 
 from jdu.request.downloading.wildberries import SyncWildBerriesDataProvider, AsyncWildberriesDataProvider
 

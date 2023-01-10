@@ -3,7 +3,7 @@ import time
 
 from jdu.request.downloading.wildberries import SyncWildBerriesDataProvider, AsyncWildberriesDataProvider
 from db_config import SessionLocal
-from fill.db_fillers import SyncWildberriesDBFiller, AsyncWildberriesDbFiller
+from jarvis_db.fill.db_fillers import SyncWildberriesDBFiller, AsyncWildberriesDbFiller
 from create_tables import create_tables
 
 
