@@ -1,7 +1,7 @@
 import asyncio
 from abc import ABC, abstractmethod
 from sqlalchemy.orm import sessionmaker
-from jarvis_db.tables import Category, Niche, Product, ProductCostHistory
+from jarvis_db.tables import Category, Niche, ProductCard, ProductCostHistory
 
 from jdu.request.downloading.wildberries import SyncWildBerriesDataProvider, AsyncWildberriesDataProvider
 
@@ -70,7 +70,7 @@ class SyncWildberriesDBFiller(WildberriesDbFiller):
                     Niche.name == niche).first().id
                 products = self.__api.get_products_by_niche(niche, pages)
                 for product in products:
-                    db_products.append(Product(
+                    db_products.append(ProductCard(
                         id=product[1],
                         name=product[0],
                         niche_id=niche_id
@@ -83,8 +83,8 @@ class SyncWildberriesDBFiller(WildberriesDbFiller):
                 db_histories = []
                 niche_id = session.query(Niche).filter(
                     Niche.name == niche).first().id
-                products: list[Product] = session.query(
-                    Product).filter(Product.niche_id == niche_id).all()
+                products: list[ProductCard] = session.query(
+                    ProductCard).filter(ProductCard.niche_id == niche_id).all()
                 for product in products:
                     histories = self.__api.get_product_price_history(
                         product.id)
@@ -141,7 +141,7 @@ class AsyncWildberriesDbFiller(WildberriesDbFiller):
                 ).first().id
                 products = await self.__api.get_products_by_niche(niche, pages)
                 for product in products:
-                    db_products.append(Product(
+                    db_products.append(ProductCard(
                         id=product[1],
                         name=product[0],
                         niche_id=niche_id
@@ -154,8 +154,8 @@ class AsyncWildberriesDbFiller(WildberriesDbFiller):
                 db_histories = []
                 niche_id = session.query(Niche).filter(
                     Niche.name == niche).first().id
-                products: list[Product] = session.query(
-                    Product).filter(Product.niche_id == niche_id).all()
+                products: list[ProductCard] = session.query(
+                    ProductCard).filter(ProductCard.niche_id == niche_id).all()
                 tasks = []
                 for product in products:
                     tasks.append(asyncio.create_task(
