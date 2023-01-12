@@ -4,6 +4,7 @@ from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 from jarvis_db.db_config import Base
 from datetime import datetime
 
@@ -29,12 +30,11 @@ class Pay(Base):
     is_auto = Column(Boolean, nullable=False)
     payment_key = Column(String(255), nullable=False)
 
-
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False, unique=True)
-
+    niches = relationship('Niche', back_populates='category')
 
 class Niche(Base):
     __tablename__ = 'niches'
@@ -42,6 +42,7 @@ class Niche(Base):
     name = Column(String(255), nullable=False)
     category_id = Column(Integer(), ForeignKey(
         f'{Category.__tablename__}.id'))
+    category = relationship('Category', back_populates='niches')
     commission = Column(Integer, nullable=False)
     return_percent = Column(Integer, nullable=False)
     update_date = Column(DateTime(), nullable=False, default=datetime.now)
@@ -90,7 +91,6 @@ class ProductCard(Base):
     cost = Column(Integer)
     market_place_id = Column(Integer, ForeignKey(f'{MarketPlace.__tablename__}.id'))
     niche_id = Column(Integer(), ForeignKey(f'{Niche.__tablename__}.id'))
-
 
 class ProductCostHistory(Base):
     __tablename__ = 'product_cost_histories'
