@@ -4,7 +4,7 @@ from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
-from db_config import Base
+from jarvis_db.db_config import Base
 from datetime import datetime
 
 
@@ -117,7 +117,7 @@ class Result(Base):
     id = Column(Integer, primary_key=True)
 
 class FrequencyRequest(Base):
-    ___tablename__ = 'frequency_requests'
+    __tablename__ = 'frequency_requests'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Request.__tablename__}.id'))
     search_str = Column(String(255))
