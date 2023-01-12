@@ -1,0 +1,38 @@
+import unittest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from jarvis_db.db_config import Base
+from jarvis_db import tables
+from jarvis_db.repositores.market.infrastructure import CategoryRepository
+from jorm.market.infrastructure import Category
+from jorm.market.infrastructure import Niche
+
+class CategoryRepositoryTest(unittest.TestCase):
+    def setUp(self) -> None:
+        engine = create_engine('sqlite://')
+        Session = sessionmaker(bind=engine)
+        Base.metadata.create_all(engine)
+        self.__session = Session
+
+    def test_add(self):
+
+        niches_count = 10
+        name = 'cat1'
+        niches = [Niche(f'n{i}', i, i + 1, i * 1.5, []) for i in range(niches_count)]
+        category = Category(name, {
+            niche.name : niche for niche in niches
+        })
+        with self.__session() as session, session.begin():
+            repository = CategoryRepository(session)
+            repository.add(category)
+        with self.__session() as session:
+            db_category = session.query(tables.Category)\
+                .join(tables.Category.niches)\
+                .filter(tables.Category.name == name)\
+                .one()
+            self.assertTrue(db_category is not None)
+            self.assertEqual(db_category.name, name)
+            self.assertEqual(len(db_category.niches), niches_count)
+
+if __name__ == '__main__':
+    unittest.main()

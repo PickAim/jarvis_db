@@ -26,7 +26,7 @@ class Pay(Base):
     __tablename__ = 'pays'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
-    payment_date = Column(DateTime, nullable=False, default=datetime.now)
+    payment_date = Column(DateTime(), nullable=False, default=datetime.now)
     is_auto = Column(Boolean, nullable=False)
     payment_key = Column(String(255), nullable=False)
 
