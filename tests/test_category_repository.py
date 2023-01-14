@@ -15,7 +15,6 @@ class CategoryRepositoryTest(unittest.TestCase):
         self.__session = Session
 
     def test_add(self):
-
         niches_count = 10
         name = 'cat1'
         niches = [Niche(f'n{i}', i, i + 1, i * 1.5, []) for i in range(niches_count)]
@@ -33,6 +32,27 @@ class CategoryRepositoryTest(unittest.TestCase):
             self.assertTrue(db_category is not None)
             self.assertEqual(db_category.name, name)
             self.assertEqual(len(db_category.niches), niches_count)
+    
+    def test_fetch_all(self):
+        categories_to_add = 10
+        niches_per_category = [i + 1 for i in range(categories_to_add)]
+        db_categories = [tables.Category(
+            name=f'cat{i}',
+            niches=[tables.Niche(
+                name=f'niche_cat{i}_n_{j}',
+                commission=j * 10,
+                return_percent=(j + 1) * 10
+                )
+                for j in range(item)]
+            )
+        for i, item in enumerate(niches_per_category)]
+        with self.__session() as session, session.begin():
+            session.add_all(db_categories)
+        with self.__session() as session:
+            repository = CategoryRepository(session)
+            categories = repository.fetch_all()
+        self.assertEqual(len(categories), categories_to_add)
+
 
 if __name__ == '__main__':
     unittest.main()

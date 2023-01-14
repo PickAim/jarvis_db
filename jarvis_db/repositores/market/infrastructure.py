@@ -14,7 +14,7 @@ class CategoryRepository:
     def add(self, category: Category):
         db_niches = [
             tables.Niche(
-                name=niche.name.lower(),
+                name=niche.name,
                 commission=int(niche.commission * 100),
                 return_percent=int(niche.returned_percent * 100)
             ) for niche in category.niches.values()
@@ -24,6 +24,21 @@ class CategoryRepository:
             niches=db_niches
         )
         self.__session.add(db_category)
+
+    def fetch_all(self) -> list[Category]:
+        db_categories = self.__session.query(tables.Category).\
+            join(tables.Category.niches).all()
+        categories = [Category(
+            category.name,
+            {niche.name:Niche(
+                name=niche.name,
+                commission=float(niche.commission / 100),
+                returned_percent=float(niche.return_percent / 100),
+                logistic_price=0,
+                products=[]
+            ) for niche in category.niches}
+            ) for category in db_categories]
+        return categories
 
 class AddressRepository:
     pass
