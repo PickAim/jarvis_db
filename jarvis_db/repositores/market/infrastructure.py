@@ -14,7 +14,7 @@ class CategoryRepository:
     def add(self, category: Category):
         db_niches = [
             tables.Niche(
-                name=niche.name,
+                name=niche.name.lower(),
                 commission=int(niche.commission * 100),
                 return_percent=int(niche.returned_percent * 100)
             ) for niche in category.niches.values()
