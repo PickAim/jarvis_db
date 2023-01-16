@@ -11,9 +11,9 @@ from jorm.market.infrastructure import Niche
 class CategoryRepositoryTest(unittest.TestCase):
     def setUp(self) -> None:
         engine = create_engine('sqlite://')
-        Session = sessionmaker(bind=engine)
+        session = sessionmaker(bind=engine)
         Base.metadata.create_all(engine)
-        self.__session = Session
+        self.__session = session
 
     def test_add(self):
         niches_count = 10

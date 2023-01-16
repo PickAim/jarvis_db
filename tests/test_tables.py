@@ -8,9 +8,9 @@ from jarvis_db.db_config import Base
 class TableTest(unittest.TestCase):
     def setUp(self):
         engine = create_engine('sqlite://')
-        Session = sessionmaker(bind=engine)
+        session = sessionmaker(bind=engine)
         Base.metadata.create_all(engine)
-        self.__session = Session
+        self.__session = session
 
     def test_table_access(self):
         items_to_add = 10
