@@ -2,7 +2,7 @@ import asyncio
 import time
 
 from jdu.request.downloading.wildberries import SyncWildBerriesDataProvider, AsyncWildberriesDataProvider
-from db_config import Session
+from db_config import session
 from jarvis_db.fill.db_fillers import SyncWildberriesDBFiller, AsyncWildberriesDbFiller
 from create_tables import create_tables
 
@@ -11,7 +11,7 @@ def fill_db():
     key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NJRCI6IjZkNDVmMmRjLTQ5ODEtNDFlOS1hMzRkLTlhNDA5YmY2MGZiMSJ9' \
           '.1VoUp9Od9dzSWSNVSQjQnRujUvqOUY4oxO-pZXAqI1Q '
     wildberries_api = SyncWildBerriesDataProvider(key)
-    filler = SyncWildberriesDBFiller(wildberries_api, Session)
+    filler = SyncWildberriesDBFiller(wildberries_api, session)
     create_tables()
     filler.fill_categories()
     filler.fill_niches()
@@ -24,7 +24,7 @@ async def fill_db_async():
           '.1VoUp9Od9dzSWSNVSQjQnRujUvqOUY4oxO-pZXAqI1Q '
     async with AsyncWildberriesDataProvider(key) as api:
         create_tables()
-        filler = AsyncWildberriesDbFiller(api, Session)
+        filler = AsyncWildberriesDbFiller(api, session)
         await filler.fill_categories()
         await filler.fill_niches()
         await filler.fill_niche_products('Автобаферы')

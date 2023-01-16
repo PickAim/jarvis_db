@@ -3,14 +3,16 @@ from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
 from jarvis_db import tables
 
+
 class NicheRepository:
-    def addNiche(niche: Niche):
+    def add(niche: Niche):
         pass
+
 
 class CategoryRepository:
     def __init__(self, session: Session):
         self.__session = session
-    
+
     def add(self, category: Category):
         db_niches = [
             tables.Niche(
@@ -30,22 +32,24 @@ class CategoryRepository:
             join(tables.Category.niches).all()
         categories = [Category(
             category.name,
-            {niche.name:Niche(
+            {niche.name: Niche(
                 name=niche.name,
                 commission=float(niche.commission / 100),
                 returned_percent=float(niche.return_percent / 100),
                 logistic_price=0,
                 products=[]
             ) for niche in category.niches}
-            ) for category in db_categories]
+        ) for category in db_categories]
         return categories
+
 
 class AddressRepository:
     pass
 
+
 class WarehouseRepository:
     pass
 
+
 class MarketPlaceRepository:
     pass
-

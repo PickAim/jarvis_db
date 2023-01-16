@@ -15,12 +15,14 @@ class User(Base):
     name = Column(String(255), nullable=False)
     profit_tax = Column(Integer, nullable=False)
 
+
 class Account(Base):
     __tablename__ = 'accounts'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
     login = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+
 
 class Pay(Base):
     __tablename__ = 'pays'
@@ -30,11 +32,13 @@ class Pay(Base):
     is_auto = Column(Boolean, nullable=False)
     payment_key = Column(String(255), nullable=False)
 
+
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False, unique=True)
     niches = relationship('Niche', back_populates='category')
+
 
 class Niche(Base):
     __tablename__ = 'niches'
@@ -47,6 +51,7 @@ class Niche(Base):
     return_percent = Column(Integer, nullable=False)
     update_date = Column(DateTime(), nullable=False, default=datetime.now)
 
+
 class Address(Base):
     __tablename__ = 'addresses'
     id = Column(Integer, primary_key=True)
@@ -55,6 +60,7 @@ class Address(Base):
     street = Column(String(255), nullable=False)
     number = Column(String(60), nullable=False)
     corpus = Column(String(60), nullable=False)
+
 
 class Warehouse(Base):
     __tablename__ = 'warehouses'
@@ -70,17 +76,21 @@ class Warehouse(Base):
     additional_storage_commission = Column(Integer)
     monopalette_storage_commission = Column(Integer)
 
+
 class MarketPlace(Base):
     __tablename__ = 'marketplaces'
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
 
+
 class MarketPlaceInfo(Base):
     __tablename__ = 'marketplace_info'
     id = Column(Integer, primary_key=True)
-    marketplace_id = Column(Integer, ForeignKey(f'{MarketPlace.__tablename__}.id'))
+    marketplace_id = Column(Integer, ForeignKey(
+        f'{MarketPlace.__tablename__}.id'))
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
     api_key = Column(String(255))
+
 
 class ProductCard(Base):
     __tablename__ = 'products_cards'
@@ -89,8 +99,10 @@ class ProductCard(Base):
     article = Column(Integer, nullable=False)
     name = Column(String(255))
     cost = Column(Integer)
-    market_place_id = Column(Integer, ForeignKey(f'{MarketPlace.__tablename__}.id'))
+    market_place_id = Column(Integer, ForeignKey(
+        f'{MarketPlace.__tablename__}.id'))
     niche_id = Column(Integer(), ForeignKey(f'{Niche.__tablename__}.id'))
+
 
 class ProductCostHistory(Base):
     __tablename__ = 'product_cost_histories'
@@ -99,12 +111,15 @@ class ProductCostHistory(Base):
     date = Column(DateTime(), nullable=False, default=datetime.now)
     product_id = Column(Integer, ForeignKey(f'{ProductCard.__tablename__}.id'))
 
+
 class StorageInfo(Base):
     __tablename__ = 'storage_info'
     id = Column(Integer, primary_key=True)
-    product_card_id = Column(Integer, ForeignKey(f'{ProductCard.__tablename__}.id'))
+    product_card_id = Column(Integer, ForeignKey(
+        f'{ProductCard.__tablename__}.id'))
     warehouse_id = Column(Integer, ForeignKey(f'{Warehouse.__tablename__}.id'))
     leftover = Column(Integer)
+
 
 class Request(Base):
     __tablename__ = 'requests'
@@ -112,15 +127,18 @@ class Request(Base):
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
     date = Column(DateTime(), default=datetime.now)
 
+
 class Result(Base):
     __tablename__ = 'results'
     id = Column(Integer, primary_key=True)
+
 
 class FrequencyRequest(Base):
     __tablename__ = 'frequency_requests'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Request.__tablename__}.id'))
     search_str = Column(String(255))
+
 
 class EconomyRequest(Base):
     __tablename__ = 'economy_requests'
@@ -131,12 +149,14 @@ class EconomyRequest(Base):
     transit_cost = Column(Integer)
     transit_count = Column(Integer)
 
+
 class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Result.__tablename__}.id'))
     cost = Column(Integer)
     frequency = Column(Integer)
+
 
 class EcomonyResult(Base):
     __tablename__ = 'ecomony_results'

@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from jarvis_db.tables import Category
 from jarvis_db.db_config import Base
 
+
 class TableTest(unittest.TestCase):
     def setUp(self):
         engine = create_engine('sqlite://')
@@ -19,6 +20,7 @@ class TableTest(unittest.TestCase):
         with self.__session() as session:
             result = session.query(Category).all()
         self.assertEqual(len(result), items_to_add)
+
 
 if __name__ == '__main__':
     unittest.main()
