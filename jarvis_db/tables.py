@@ -95,9 +95,8 @@ class MarketPlaceInfo(Base):
 class ProductCard(Base):
     __tablename__ = 'products_cards'
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    article = Column(Integer, nullable=False)
     name = Column(String(255))
+    article = Column(Integer, nullable=False)
     cost = Column(Integer)
     market_place_id = Column(Integer, ForeignKey(
         f'{MarketPlace.__tablename__}.id'))
