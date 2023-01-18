@@ -17,7 +17,9 @@ class CategoryRepository:
         db_niches = [
             tables.Niche(
                 name=niche.name,
-                commission=int(niche.commission * 100),
+                matketplace_commission=int(niche.commission * 100),
+                client_commission=0,
+                partial_client_commission=0,
                 return_percent=int(niche.returned_percent * 100)
             ) for niche in category.niches.values()
         ]
@@ -34,7 +36,7 @@ class CategoryRepository:
             category.name,
             {niche.name: Niche(
                 name=niche.name,
-                commission=float(niche.commission / 100),
+                commission=float(niche.matketplace_commission / 100),
                 returned_percent=float(niche.return_percent / 100),
                 logistic_price=0,
                 products=[]

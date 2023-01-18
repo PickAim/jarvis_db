@@ -42,7 +42,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             name=f'cat{i}',
             niches=[tables.Niche(
                 name=f'niche_cat{i}_n_{j}',
-                commission=j * 10,
+                matketplace_commission=j * 10,
                 return_percent=(j + 1) * 10
             )
                 for j in range(item)]
