@@ -1,12 +1,26 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
 from jarvis_db import tables
 
 
 class NicheRepository:
-    def add(niche: Niche):
-        pass
+    def __init__(self, session: Session):
+        self.__session = session
+
+    def add_by_category_name(self, niche: Niche, category_name: str):
+        category = self.__session.query(tables.Category)\
+            .outerjoin(tables.Category.niches)\
+            .filter(tables.Category.name == category_name)\
+            .one()
+        category.niches.append(tables.Niche(
+            name=niche.name,
+            matketplace_commission=int(niche.commission * 100),
+            client_commission=0,
+            partial_client_commission=0,
+            return_percent=int(niche.returned_percent * 100)
+        ))
 
 
 class CategoryRepository:
