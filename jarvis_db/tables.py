@@ -43,13 +43,15 @@ class Category(Base):
 class Niche(Base):
     __tablename__ = 'niches'
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255))
     category_id = Column(Integer(), ForeignKey(
         f'{Category.__tablename__}.id'))
     category = relationship('Category', back_populates='niches')
-    commission = Column(Integer, nullable=False)
-    return_percent = Column(Integer, nullable=False)
-    update_date = Column(DateTime(), nullable=False, default=datetime.now)
+    matketplace_commission = Column(Integer)
+    partial_client_commission = Column(Integer)
+    client_commission = Column(Integer)
+    return_percent = Column(Integer)
+    update_date = Column(DateTime(), default=datetime.now)
 
 
 class Address(Base):
