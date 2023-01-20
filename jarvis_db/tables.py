@@ -72,17 +72,17 @@ class Warehouse(Base):
     type = Column(Integer, nullable=False)
     name = Column(String(255), nullable=False)
     addresss_id = Column(Integer, ForeignKey(f'{Address.__tablename__}.id'))
-    logistic_to_customer_commission = Column(Integer)
-    logistic_from_customer_commission = Column(Integer)
-    basic_storage_commission = Column(Integer)
-    additional_storage_commission = Column(Integer)
-    monopalette_storage_commission = Column(Integer)
+    logistic_to_customer_commission = Column(Integer, nullable=False)
+    logistic_from_customer_commission = Column(Integer, nullable=False)
+    basic_storage_commission = Column(Integer, nullable=False)
+    additional_storage_commission = Column(Integer, nullable=False)
+    monopalette_storage_commission = Column(Integer, nullable=False)
 
 
 class MarketPlace(Base):
     __tablename__ = 'marketplaces'
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
 
 
 class MarketPlaceInfo(Base):
@@ -91,15 +91,15 @@ class MarketPlaceInfo(Base):
     marketplace_id = Column(Integer, ForeignKey(
         f'{MarketPlace.__tablename__}.id'))
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
-    api_key = Column(String(255))
+    api_key = Column(String(255), nullable=False)
 
 
 class ProductCard(Base):
     __tablename__ = 'products_cards'
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
     article = Column(Integer, nullable=False)
-    cost = Column(Integer)
+    cost = Column(Integer, nullable=False)
     market_place_id = Column(Integer, ForeignKey(
         f'{MarketPlace.__tablename__}.id'))
     niche_id = Column(Integer(), ForeignKey(f'{Niche.__tablename__}.id'))
@@ -119,14 +119,14 @@ class StorageInfo(Base):
     product_card_id = Column(Integer, ForeignKey(
         f'{ProductCard.__tablename__}.id'))
     warehouse_id = Column(Integer, ForeignKey(f'{Warehouse.__tablename__}.id'))
-    leftover = Column(Integer)
+    leftover = Column(Integer, nullable=False)
 
 
 class Request(Base):
     __tablename__ = 'requests'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey(f'{User.__tablename__}.id'))
-    date = Column(DateTime(), default=datetime.now)
+    date = Column(DateTime(), nullable=False, default=datetime.now)
 
 
 class Result(Base):
@@ -138,7 +138,7 @@ class FrequencyRequest(Base):
     __tablename__ = 'frequency_requests'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Request.__tablename__}.id'))
-    search_str = Column(String(255))
+    search_str = Column(String(255), nullable=False)
 
 
 class EconomyRequest(Base):
@@ -146,29 +146,29 @@ class EconomyRequest(Base):
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Request.__tablename__}.id'))
     niche_id = Column(Integer, ForeignKey(f'{Niche.__tablename__}.id'))
-    prime_cost = Column(Integer)
-    transit_cost = Column(Integer)
-    transit_count = Column(Integer)
+    prime_cost = Column(Integer, nullable=False)
+    transit_cost = Column(Integer, nullable=False)
+    transit_count = Column(Integer, nullable=False)
 
 
 class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Result.__tablename__}.id'))
-    cost = Column(Integer)
-    frequency = Column(Integer)
+    cost = Column(Integer, nullable=False)
+    frequency = Column(Integer, nullable=False)
 
 
 class EcomonyResult(Base):
     __tablename__ = 'ecomony_results'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Result.__tablename__}.id'))
-    buy_cost = Column(Integer)
-    pack_cost = Column(Integer)
-    marketplace_commission = Column(Integer)
-    logistic_price = Column(Integer)
-    margin = Column(Integer)
-    recomended_price = Column(Integer)
-    transit_profit = Column(Integer)
-    roi = Column(Integer)
-    transit_margin_percent = Column(Integer)
+    buy_cost = Column(Integer, nullable=False)
+    pack_cost = Column(Integer, nullable=False)
+    marketplace_commission = Column(Integer, nullable=False)
+    logistic_price = Column(Integer, nullable=False)
+    margin = Column(Integer, nullable=False)
+    recomended_price = Column(Integer, nullable=False)
+    transit_profit = Column(Integer, nullable=False)
+    roi = Column(Integer, nullable=False)
+    transit_margin_percent = Column(Integer, nullable=False)
