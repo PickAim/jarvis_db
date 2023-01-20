@@ -18,7 +18,7 @@ class TableTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             session.add_all(categories)
         with self.__session() as session:
-            result = session.query(Category).all()
+            result: list[Category] = session.query(Category).all()
         self.assertEqual(len(result), items_to_add)
 
 

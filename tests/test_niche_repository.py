@@ -30,7 +30,7 @@ class NicheRepositoryTest(unittest.TestCase):
             repository = NicheRepository(session)
             repository.add_by_category_name(niche, category_name)
         with self.__session() as session:
-            db_category = session.query(db.Category)\
+            db_category: db.Category = session.query(db.Category)\
                 .join(db.Category.niches)\
                 .filter(db.Category.name == category_name)\
                 .one()

@@ -11,7 +11,7 @@ class NicheRepository:
         self.__session = session
 
     def add_by_category_name(self, niche: Niche, category_name: str):
-        category = self.__session.query(tables.Category)\
+        category: Category = self.__session.query(tables.Category)\
             .outerjoin(tables.Category.niches)\
             .filter(tables.Category.name == category_name)\
             .one()
@@ -51,7 +51,7 @@ class CategoryRepository:
         self.__session.add(db_category)
 
     def fetch_all(self) -> list[Category]:
-        db_categories = self.__session.query(tables.Category).\
+        db_categories: list[Category] = self.__session.query(tables.Category).\
             join(tables.Category.niches).all()
         categories = [Category(
             category.name,

@@ -32,7 +32,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             repository = CategoryRepository(session)
             repository.add(category)
         with self.__session() as session:
-            db_category = session.query(tables.Category)\
+            db_category: tables.Category = session.query(tables.Category)\
                 .join(tables.Category.niches)\
                 .filter(tables.Category.name == name)\
                 .one()
