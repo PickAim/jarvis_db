@@ -13,7 +13,7 @@ class NicheRepository:
     def add_by_category_name(self, niche: Niche, category_name: str):
         category: tables.Category = self.__session.query(tables.Category)\
             .outerjoin(tables.Category.niches)\
-            .filter(tables.Category.name == category_name)\
+            .filter(func.lower(tables.Category.name) == func.lower(category_name))\
             .one()
         category.niches.append(tables.Niche(
             name=niche.name,
