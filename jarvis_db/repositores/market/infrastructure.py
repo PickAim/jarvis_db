@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
+from jorm.market.infrastructure import HandlerType
 from jarvis_db import tables
 
 
@@ -16,9 +17,12 @@ class NicheRepository:
             .one()
         category.niches.append(tables.Niche(
             name=niche.name,
-            matketplace_commission=int(niche.commission * 100),
-            client_commission=0,
-            partial_client_commission=0,
+            matketplace_commission=int(
+                niche.commissions[HandlerType.MARKETPLACE] * 100),
+            client_commission=int(
+                niche.commissions[HandlerType.CLIENT] * 100),
+            partial_client_commission=int(
+                niche.commissions[HandlerType.PARTIAL_CLIENT] * 100),
             return_percent=int(niche.returned_percent * 100)
         ))
 
@@ -31,9 +35,12 @@ class CategoryRepository:
         db_niches = [
             tables.Niche(
                 name=niche.name,
-                matketplace_commission=int(niche.commission * 100),
-                client_commission=0,
-                partial_client_commission=0,
+                matketplace_commission=int(
+                    niche.commissions[HandlerType.MARKETPLACE] * 100),
+                client_commission=int(
+                    niche.commissions[HandlerType.CLIENT] * 100),
+                partial_client_commission=int(
+                    niche.commissions[HandlerType.PARTIAL_CLIENT] * 100),
                 return_percent=int(niche.returned_percent * 100)
             ) for niche in category.niches.values()
         ]
@@ -50,9 +57,15 @@ class CategoryRepository:
             category.name,
             {niche.name: Niche(
                 name=niche.name,
-                commission=float(niche.matketplace_commission / 100),
+                commissions={
+                    HandlerType.MARKETPLACE: float(
+                        niche.matketplace_commission / 100),
+                    HandlerType.CLIENT: float(
+                        niche.client_commission / 100),
+                    HandlerType.PARTIAL_CLIENT: float(
+                        niche.partial_client_commission / 100)
+                },
                 returned_percent=float(niche.return_percent / 100),
-                logistic_price=0,
                 products=[]
             ) for niche in category.niches}
         ) for category in db_categories]

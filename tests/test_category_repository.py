@@ -6,6 +6,7 @@ from jarvis_db import tables
 from jarvis_db.repositores.market.infrastructure import CategoryRepository
 from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
+from jorm.market.infrastructure import HandlerType
 
 
 class CategoryRepositoryTest(unittest.TestCase):
@@ -18,7 +19,11 @@ class CategoryRepositoryTest(unittest.TestCase):
     def test_add(self):
         niches_count = 10
         name = 'cat1'
-        niches = [Niche(f'n{i}', i, i + 1, i * 1.5, [])
+        niches = [Niche(f'n{i}',
+                        {commission: 0.1 * index for index,
+                            commission in enumerate(list(HandlerType))},
+                        i * 0.2,
+                        [])
                   for i in range(niches_count)]
         category = Category(name, {
             niche.name: niche for niche in niches
@@ -43,6 +48,8 @@ class CategoryRepositoryTest(unittest.TestCase):
             niches=[tables.Niche(
                 name=f'niche_cat{i}_n_{j}',
                 matketplace_commission=j * 10,
+                client_commission=j * 20,
+                partial_client_commission=j * 30,
                 return_percent=(j + 1) * 10
             )
                 for j in range(item)]
