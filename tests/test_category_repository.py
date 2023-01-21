@@ -61,7 +61,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             repository = CategoryRepository(session)
             categories = repository.fetch_all()
         self.assertEqual(len(categories), categories_to_add)
-        for category, expected_niches in zip(categories, niches_per_category):
+        for category, expected_niches in zip(categories, niches_per_category, strict=True):
             self.assertEqual(len(category.niches), expected_niches)
 
 
