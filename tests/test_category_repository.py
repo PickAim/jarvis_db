@@ -4,6 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from jarvis_db.db_config import Base
 from jarvis_db import tables
 from jarvis_db.repositores.market.infrastructure import CategoryRepository
+from jarvis_db.repositores.mappers.market.infrastructure import CategoryJormToTableMapper
+from jarvis_db.repositores.mappers.market.infrastructure import CategoryTableToJormMapper
+from jarvis_db.repositores.mappers.market.infrastructure import NicheJormToTableMapper
+from jarvis_db.repositores.mappers.market.infrastructure import NicheTableToJormMapper
 from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
 from jorm.market.infrastructure import HandlerType
@@ -29,7 +33,8 @@ class CategoryRepositoryTest(unittest.TestCase):
             niche.name: niche for niche in niches
         })
         with self.__session() as session, session.begin():
-            repository = CategoryRepository(session)
+            repository = CategoryRepository(session, CategoryTableToJormMapper(
+                NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
             repository.add(category)
         with self.__session() as session:
             db_category: tables.Category = session.query(tables.Category)\
@@ -58,7 +63,8 @@ class CategoryRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             session.add_all(db_categories)
         with self.__session() as session:
-            repository = CategoryRepository(session)
+            repository = CategoryRepository(session, CategoryTableToJormMapper(
+                NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
             categories = repository.fetch_all()
         self.assertEqual(len(categories), categories_to_add)
         for category, expected_niches in zip(categories, niches_per_category, strict=True):

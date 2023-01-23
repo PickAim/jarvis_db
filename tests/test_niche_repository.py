@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from jarvis_db.db_config import Base
 from jarvis_db import tables as db
 from jarvis_db.repositores.market.infrastructure import NicheRepository
+from jarvis_db.repositores.mappers.market.infrastructure import NicheJormToTableMapper
 from jorm.market.infrastructure import Niche
 from jorm.market.infrastructure import HandlerType
 
@@ -27,7 +28,7 @@ class NicheRepositoryTest(unittest.TestCase):
             HandlerType.PARTIAL_CLIENT: 0.3
         }, 0.2, [])
         with self.__session() as session, session.begin():
-            repository = NicheRepository(session)
+            repository = NicheRepository(session, NicheJormToTableMapper())
             repository.add_by_category_name(niche, category_name)
         with self.__session() as session:
             db_category: db.Category = session.query(db.Category)\
