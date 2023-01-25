@@ -10,10 +10,10 @@ class NicheJormToTableMapper(Mapper[Niche, tables.Niche]):
             name=value.name,
             matketplace_commission=int(
                 value.commissions[HandlerType.MARKETPLACE] * 100),
-            client_commission=int(
-                value.commissions[HandlerType.CLIENT] * 100),
             partial_client_commission=int(
                 value.commissions[HandlerType.PARTIAL_CLIENT] * 100),
+            client_commission=int(
+                value.commissions[HandlerType.CLIENT] * 100),
             return_percent=int(value.returned_percent * 100)
         )
 
@@ -25,10 +25,10 @@ class NicheTableToJormMapper(Mapper[tables.Niche, Niche]):
             commissions={
                 HandlerType.MARKETPLACE: float(
                     value.matketplace_commission / 100),
-                HandlerType.CLIENT: float(
-                    value.client_commission / 100),
                 HandlerType.PARTIAL_CLIENT: float(
-                    value.partial_client_commission / 100)
+                    value.partial_client_commission / 100),
+                HandlerType.CLIENT: float(
+                    value.client_commission / 100)
             },
             returned_percent=float(value.return_percent / 100)
         )
