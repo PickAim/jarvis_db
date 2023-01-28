@@ -45,6 +45,20 @@ class CategoryRepositoryTest(unittest.TestCase):
             self.assertEqual(db_category.name, name)
             self.assertEqual(len(db_category.niches), niches_count)
 
+    def test_add_all(self):
+        categories_to_add = 10
+        categories = [Category(f'category_{i}', {})
+                      for i in range(1, categories_to_add + 1)]
+        with self.__session() as session, session.begin():
+            repository = CategoryRepository(
+                session, CategoryTableToJormMapper(NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
+            repository.add_all(categories)
+        with self.__session() as session:
+            db_categories: list[tables.Category] = session.query(
+                tables.Category).all()
+            for jorm_category, db_category in zip(categories, db_categories, strict=True):
+                self.assertEqual(jorm_category.name, db_category.name)
+
     def test_fetch_all(self):
         categories_to_add = 10
         niches_per_category = [i + 1 for i in range(categories_to_add)]
