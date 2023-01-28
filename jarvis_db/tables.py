@@ -99,16 +99,41 @@ class Address(Base):
         )
 
 
+class Marketplace(Base):
+    __tablename__ = 'marketplaces'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    warehouses = relationship('Warehouse', back_populates='owner')
+
+    def __repr__(self) -> str:
+        return f'Marketplace(id={self.id!r}, name={self.name!r})'
+
+
+class MarketplaceInfo(Base):
+    __tablename__ = 'marketplace_info'
+    id = Column(Integer, primary_key=True)
+    marketplace_id = Column(Integer, ForeignKey(
+        f'{Marketplace.__tablename__}.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey(
+        f'{User.__tablename__}.id'), nullable=False)
+    api_key = Column(String(255), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'MarketplaceInfo(id={self.id!r}, api_key={self.api_key!r})'
+
+
 class Warehouse(Base):
     __tablename__ = 'warehouses'
     id = Column(Integer, primary_key=True)
     owner_id = Column(Integer, ForeignKey(
-        f'{User.__tablename__}.id'), nullable=False)
+        f'{Marketplace.__tablename__}.id'), nullable=False)
+    owner = relationship('Marketplace', back_populates='warehouses')
     global_id = Column(Integer, nullable=False)
     type = Column(Integer, nullable=False)
     name = Column(String(255), nullable=False)
     addresss_id = Column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
+    address = relationship('Address', uselist=False)
     logistic_to_customer_commission = Column(Integer, nullable=False)
     logistic_from_customer_commission = Column(Integer, nullable=False)
     basic_storage_commission = Column(Integer, nullable=False)
@@ -128,28 +153,6 @@ class Warehouse(Base):
             f'monopalette_storage_commission={self.monopalette_storage_commission!r}'
             ')'
         )
-
-
-class Marketplace(Base):
-    __tablename__ = 'marketplaces'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-
-    def __repr__(self) -> str:
-        return f'Marketplace(id={self.id!r}, name={self.name!r})'
-
-
-class MarketplaceInfo(Base):
-    __tablename__ = 'marketplace_info'
-    id = Column(Integer, primary_key=True)
-    marketplace_id = Column(Integer, ForeignKey(
-        f'{Marketplace.__tablename__}.id'), nullable=False)
-    user_id = Column(Integer, ForeignKey(
-        f'{User.__tablename__}.id'), nullable=False)
-    api_key = Column(String(255), nullable=False)
-
-    def __repr__(self) -> str:
-        return f'MarketplaceInfo(id={self.id!r}, api_key={self.api_key!r})'
 
 
 class ProductCard(Base):

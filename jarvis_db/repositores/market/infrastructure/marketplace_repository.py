@@ -1,2 +1,25 @@
-class MarketPlaceRepository:
-    pass
+from sqlalchemy.orm import Session
+from jarvis_db.core import Mapper
+from jarvis_db import tables
+from jorm.market.infrastructure import Marketplace
+
+
+class MarketplaceRepository:
+    def __init__(self, session: Session,
+                 to_jorm_mapper: Mapper[tables.Marketplace, Marketplace],
+                 to_table_mapper: Mapper[Marketplace, tables.Marketplace]):
+        self.__session = session
+        self.__to_jorm_mapper = to_jorm_mapper
+        self.__to_table_mapper = to_table_mapper
+
+    def add(self, marketplace: Marketplace):
+        self.__session.add(self.__to_table_mapper.map(marketplace))
+
+    def add_all(self, marketplaces: list[Marketplace]):
+        self.__session.add_all((self.__to_table_mapper.map(
+            marketplace) for marketplace in marketplaces))
+
+    def fetch_all(self) -> list[Marketplace]:
+        db_marketplaces: tables.Marketplace = self.__session.query(
+            tables.Marketplace).all()
+        return [self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces]
