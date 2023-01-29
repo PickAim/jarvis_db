@@ -9,7 +9,7 @@ class NicheJormToTableMapper(Mapper[Niche, tables.Niche]):
     def map(self, value: Niche) -> tables.Niche:
         return tables.Niche(
             name=value.name,
-            matketplace_commission=int(
+            marketplace_commission=int(
                 value.commissions[HandlerType.MARKETPLACE] * 100),
             partial_client_commission=int(
                 value.commissions[HandlerType.PARTIAL_CLIENT] * 100),

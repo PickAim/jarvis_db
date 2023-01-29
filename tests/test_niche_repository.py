@@ -79,7 +79,7 @@ class NicheRepositoryTest(unittest.TestCase):
         db_category = db.Category(name=category_name)
         niches_to_add = 10
         db_niches: list[db.Niche] = [db.Niche(name=f'niche_{i}_cat1',
-                                              matketplace_commission=0.01 * i,
+                                              marketplace_commission=0.01 * i,
                                               partial_client_commission=0.02 * i,
                                               client_commission=0.03 * i,
                                               return_percent=0.04 * i)
