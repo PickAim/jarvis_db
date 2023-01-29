@@ -22,7 +22,7 @@ class MarketplaceCategoryTest(unittest.TestCase):
             repository = MarketplaceRepository(
                 session, MarketplaceTableToJormMapper(), MarketplaceJormToTableMapper())
             repository.add(marketplace)
-        with self.__session() as sesssion:
+        with self.__session() as session:
             db_marketplace: tables.Marketplace = session.query(
                 tables.Marketplace).one()
             self.assertEqual(marketplace.name, db_marketplace.name)
