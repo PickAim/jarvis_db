@@ -1,0 +1,2 @@
+class AddressRepository:
+    pass
