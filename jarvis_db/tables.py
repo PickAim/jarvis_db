@@ -249,7 +249,7 @@ class FrequencyResult(Base):
 
 
 class EconomyResult(Base):
-    __tablename__ = 'ecomony_results'
+    __tablename__ = 'economy_results'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Result.__tablename__}.id'))
     buy_cost = Column(Integer, nullable=False)
