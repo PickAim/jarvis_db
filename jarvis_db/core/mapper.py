@@ -1,7 +1,7 @@
-from typing import TypeVar
-from typing import Generic
 from abc import ABC
 from abc import abstractmethod
+from typing import Generic
+from typing import TypeVar
 
 I = TypeVar('I')
 O = TypeVar('O')

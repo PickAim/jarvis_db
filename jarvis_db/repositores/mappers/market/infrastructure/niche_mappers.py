@@ -1,7 +1,8 @@
-from jarvis_db.core import Mapper
-from jorm.market.infrastructure import Niche
 from jorm.market.infrastructure import HandlerType
+from jorm.market.infrastructure import Niche
+
 from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class NicheJormToTableMapper(Mapper[Niche, tables.Niche]):
@@ -24,7 +25,7 @@ class NicheTableToJormMapper(Mapper[tables.Niche, Niche]):
             name=value.name,
             commissions={
                 HandlerType.MARKETPLACE: float(
-                    value.matketplace_commission / 100),
+                    value.marketplace_commission / 100),
                 HandlerType.PARTIAL_CLIENT: float(
                     value.partial_client_commission / 100),
                 HandlerType.CLIENT: float(

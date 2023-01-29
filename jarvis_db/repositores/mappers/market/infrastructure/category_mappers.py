@@ -1,7 +1,8 @@
-from jarvis_db.core import Mapper
 from jorm.market.infrastructure import Category
 from jorm.market.infrastructure import Niche
+
 from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class CategoryJormToTableMapper(Mapper[Category, tables.Category]):

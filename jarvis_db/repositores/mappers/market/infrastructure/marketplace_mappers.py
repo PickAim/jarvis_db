@@ -1,6 +1,7 @@
-from jarvis_db.core import Mapper
 from jorm.market.infrastructure import Marketplace
+
 from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class MarketplaceJormToTableMapper(Mapper[Marketplace, tables.Marketplace]):

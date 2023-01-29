@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session
-from jarvis_db.core import Mapper
 from jorm.market.infrastructure import Category
+from sqlalchemy.orm import Session
+
 from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class CategoryRepository:
@@ -20,6 +21,6 @@ class CategoryRepository:
             (self.__to_table_mapper.map(category) for category in categories))
 
     def fetch_all(self) -> list[Category]:
-        db_categories: list[tables.Category] = self.__session.query(tables.Category).\
+        db_categories: list[tables.Category] = self.__session.query(tables.Category). \
             join(tables.Category.niches).all()
         return [self.__to_jorm_mapper.map(category) for category in db_categories]

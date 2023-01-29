@@ -1,12 +1,14 @@
+from datetime import datetime
+
+from sqlalchemy import Boolean
 from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import DateTime
-from sqlalchemy import Boolean
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+
 from jarvis_db.db_config import Base
-from datetime import datetime
 
 
 class User(Base):
@@ -59,7 +61,7 @@ class Niche(Base):
     category_id = Column(Integer(), ForeignKey(
         f'{Category.__tablename__}.id'))
     category = relationship('Category', back_populates='niches')
-    matketplace_commission = Column(Integer, nullable=False)
+    marketplace_commission = Column(Integer, nullable=False)
     partial_client_commission = Column(Integer, nullable=False)
     client_commission = Column(Integer, nullable=False)
     return_percent = Column(Integer, nullable=False)
@@ -69,7 +71,7 @@ class Niche(Base):
         return (
             f'Niche(id={self.id!r}, '
             f'name={self.name!r}, '
-            f'matketplace_commission={self.matketplace_commission!r}, '
+            f'marketplace_commission={self.marketplace_commission!r}, '
             f'partial_client_commission={self.partial_client_commission!r}, '
             f'client_commission={self.client_commission!r}, '
             f'return_percent={self.return_percent!r}, '
@@ -131,7 +133,7 @@ class Warehouse(Base):
     global_id = Column(Integer, nullable=False)
     type = Column(Integer, nullable=False)
     name = Column(String(255), nullable=False)
-    addresss_id = Column(Integer, ForeignKey(
+    address_id = Column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
     address = relationship('Address', uselist=False)
     logistic_to_customer_commission = Column(Integer, nullable=False)
@@ -246,7 +248,7 @@ class FrequencyResult(Base):
         return f'FrequencyResult(id={self.id!r}, cost={self.cost!r}, frequency={self.frequency!r})'
 
 
-class EcomonyResult(Base):
+class EconomyResult(Base):
     __tablename__ = 'ecomony_results'
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey(f'{Result.__tablename__}.id'))
@@ -255,19 +257,19 @@ class EcomonyResult(Base):
     marketplace_commission = Column(Integer, nullable=False)
     logistic_price = Column(Integer, nullable=False)
     margin = Column(Integer, nullable=False)
-    recomended_price = Column(Integer, nullable=False)
+    recommended_price = Column(Integer, nullable=False)
     transit_profit = Column(Integer, nullable=False)
     roi = Column(Integer, nullable=False)
     transit_margin_percent = Column(Integer, nullable=False)
 
     def __repr__(self) -> str:
         return (
-            f'EcomonyResult(id={self.id!r}, '
+            f'EconomyResult(id={self.id!r}, '
             f'buy_cost={self.buy_cost!r}, '
             f'pack_cost={self.pack_cost!r}, '
             f'marketplace_commission={self.marketplace_commission!r}, '
             f'logistic_price={self.logistic_price!r}, '
-            f'recomended_price={self.recomended_price!r}, '
+            f'recommended_price={self.recommended_price!r}, '
             f'transit_profit={self.transit_profit!r}, '
             f'roi={self.roi!r}, '
             f'transit_margin_percent={self.transit_margin_percent!r}, '

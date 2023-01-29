@@ -23,12 +23,11 @@ class CategoryRepositoryTest(unittest.TestCase):
     def test_add(self):
         niches_count = 10
         name = 'cat1'
-        niches = [Niche(f'n{i}',
-                        {commission: 0.1 * index for index,
-                            commission in enumerate(list(HandlerType))},
-                        i * 0.2,
-                        [])
-                  for i in range(niches_count)]
+        niches = [
+            Niche(f'n{i}',
+                  {commission: 0.1 * index for index, commission in enumerate(list(HandlerType))},
+                  i * 0.2)
+            for i in range(niches_count)]
         category = Category(name, {
             niche.name: niche for niche in niches
         })
@@ -37,9 +36,9 @@ class CategoryRepositoryTest(unittest.TestCase):
                 NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
             repository.add(category)
         with self.__session() as session:
-            db_category: tables.Category = session.query(tables.Category)\
-                .join(tables.Category.niches)\
-                .filter(tables.Category.name == name)\
+            db_category: tables.Category = session.query(tables.Category) \
+                .join(tables.Category.niches) \
+                .filter(tables.Category.name == name) \
                 .one()
             self.assertTrue(db_category is not None)
             self.assertEqual(db_category.name, name)
@@ -51,7 +50,8 @@ class CategoryRepositoryTest(unittest.TestCase):
                       for i in range(1, categories_to_add + 1)]
         with self.__session() as session, session.begin():
             repository = CategoryRepository(
-                session, CategoryTableToJormMapper(NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
+                session, CategoryTableToJormMapper(NicheTableToJormMapper()),
+                CategoryJormToTableMapper(NicheJormToTableMapper()))
             repository.add_all(categories)
         with self.__session() as session:
             db_categories: list[tables.Category] = session.query(

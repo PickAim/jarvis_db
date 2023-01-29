@@ -72,7 +72,7 @@ class NicheRepositoryTest(unittest.TestCase):
                 self.assertEqual(
                     int(niche.commissions[HandlerType.PARTIAL_CLIENT] * 100), db_niche.partial_client_commission)
                 self.assertEqual(
-                    int(niche.commissions[HandlerType.MARKETPLACE] * 100), db_niche.matketplace_commission)
+                    int(niche.commissions[HandlerType.MARKETPLACE] * 100), db_niche.marketplace_commission)
 
     def test_fetch_all_by_category(self):
         category_name = 'cat1'

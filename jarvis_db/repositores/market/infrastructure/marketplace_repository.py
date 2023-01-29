@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session
-from jarvis_db.core import Mapper
-from jarvis_db import tables
 from jorm.market.infrastructure import Marketplace
+from sqlalchemy.orm import Session
+
+from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class MarketplaceRepository:
