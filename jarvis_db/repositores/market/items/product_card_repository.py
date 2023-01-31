@@ -1,0 +1,2 @@
+class ProductCardRepository:
+    pass
