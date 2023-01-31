@@ -21,6 +21,6 @@ class MarketplaceRepository:
             marketplace) for marketplace in marketplaces))
 
     def fetch_all(self) -> list[Marketplace]:
-        db_marketplaces: list[tables.Marketplace] = self.__session.query(
+        db_marketplaces = self.__session.query(
             tables.Marketplace).all()
         return [self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces]

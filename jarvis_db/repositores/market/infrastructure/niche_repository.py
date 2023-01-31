@@ -15,14 +15,14 @@ class NicheRepository:
         self.__to_table_mapper = to_table_mapper
 
     def add_by_category_name(self, niche: Niche, category_name: str):
-        category: tables.Category = self.__session.query(tables.Category) \
+        category = self.__session.query(tables.Category) \
             .outerjoin(tables.Category.niches) \
             .filter(func.lower(tables.Category.name) == func.lower(category_name)) \
             .one()
         category.niches.append(self.__to_table_mapper.map(niche))
 
     def add_all_by_category_name(self, niches: list[Niche], category_name: str):
-        category: tables.Category = self.__session.query(tables.Category) \
+        category = self.__session.query(tables.Category) \
             .outerjoin(tables.Category.niches) \
             .filter(func.lower(tables.Category.name) == func.lower(category_name)) \
             .one()
@@ -30,7 +30,7 @@ class NicheRepository:
             [self.__to_table_mapper.map(niche) for niche in niches])
 
     def fetch_niches_by_category(self, category: str) -> list[Niche]:
-        db_niches: list[tables.Niche] = self.__session.query(tables.Niche) \
+        db_niches = self.__session.query(tables.Niche) \
             .join(tables.Niche.category) \
             .filter(func.lower(tables.Category.name) == func.lower(category)) \
             .all()
