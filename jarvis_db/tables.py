@@ -52,49 +52,6 @@ class Pay(Base):
         return f'Pay(id={self.id!r}, payment_date={self.payment_date!r}, is_auto={self.is_auto!r})'
 
 
-class Category(Base):
-    __tablename__ = 'categories'
-    id: Mapped[id] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    niches: Mapped[list['Niche']] = relationship(
-        'Niche', back_populates='category')
-
-    def __repr__(self) -> str:
-        return f'Category(id={self.id}, name={self.name!r})'
-
-
-class Niche(Base):
-    __tablename__ = 'niches'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255))
-    category_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
-        f'{Category.__tablename__}.id'))
-    category: Mapped[Category] = relationship(
-        'Category', back_populates='niches')
-    marketplace_commission: Mapped[int] = mapped_column(
-        Integer, nullable=False)
-    partial_client_commission: Mapped[int] = mapped_column(
-        Integer, nullable=False)
-    client_commission: Mapped[int] = mapped_column(Integer, nullable=False)
-    return_percent: Mapped[int] = mapped_column(Integer, nullable=False)
-    update_date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
-    products: Mapped['ProductCard'] = relationship(
-        'ProductCard', back_populates='niche')
-
-    def __repr__(self) -> str:
-        return (
-            f'Niche(id={self.id!r}, '
-            f'name={self.name!r}, '
-            f'marketplace_commission={self.marketplace_commission!r}, '
-            f'partial_client_commission={self.partial_client_commission!r}, '
-            f'client_commission={self.client_commission!r}, '
-            f'return_percent={self.return_percent!r}, '
-            f'update_date={self.update_date!r}'
-            ')'
-        )
-
-
 class Address(Base):
     __tablename__ = 'addresses'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -119,9 +76,11 @@ class Address(Base):
 class Marketplace(Base):
     __tablename__ = 'marketplaces'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     warehouses: Mapped[list['Warehouse']] = relationship(
         'Warehouse', back_populates='owner')
+    categories: Mapped[list['Category']] = relationship(
+        'Category', back_populates='marketplace')
 
     def __repr__(self) -> str:
         return f'Marketplace(id={self.id!r}, name={self.name!r})'
@@ -138,6 +97,53 @@ class MarketplaceInfo(Base):
 
     def __repr__(self) -> str:
         return f'MarketplaceInfo(id={self.id!r}, api_key={self.api_key!r})'
+
+
+class Category(Base):
+    __tablename__ = 'categories'
+    id: Mapped[id] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    niches: Mapped[list['Niche']] = relationship(
+        'Niche', back_populates='category')
+    marketplace_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Marketplace.id), nullable=False)
+    marketplace: Mapped[Marketplace] = relationship(
+        Marketplace, back_populates='categories')
+
+    def __repr__(self) -> str:
+        return f'Category(id={self.id}, name={self.name!r})'
+
+
+class Niche(Base):
+    __tablename__ = 'niches'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    category_id: Mapped[int] = mapped_column(
+        Integer(), ForeignKey(Category.id))
+    category: Mapped[Category] = relationship(
+        'Category', back_populates='niches')
+    marketplace_commission: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    partial_client_commission: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    client_commission: Mapped[int] = mapped_column(Integer, nullable=False)
+    return_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    update_date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.now)
+    products: Mapped['ProductCard'] = relationship(
+        'ProductCard', back_populates='niche')
+
+    def __repr__(self) -> str:
+        return (
+            f'Niche(id={self.id!r}, '
+            f'name={self.name!r}, '
+            f'marketplace_commission={self.marketplace_commission!r}, '
+            f'partial_client_commission={self.partial_client_commission!r}, '
+            f'client_commission={self.client_commission!r}, '
+            f'return_percent={self.return_percent!r}, '
+            f'update_date={self.update_date!r}'
+            ')'
+        )
 
 
 class Warehouse(Base):

@@ -12,14 +12,18 @@ class CategoryRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add(self, category: Category):
-        self.__session.add(self.__to_table_mapper.map(category))
+    def add_category_to_marketplace(self, category: Category, marketpace_name: str):
+        marketplace = self.__session.query(tables.Marketplace).filter(
+            tables.Marketplace.name.ilike(marketpace_name)).one()
+        marketplace.categories.append(self.__to_table_mapper.map(category))
 
-    def add_all(self, categories: list[Category]):
-        self.__session.add_all(
-            (self.__to_table_mapper.map(category) for category in categories))
+    def add_all_categories_to_marketplace(self, categories: list[Category], marketpace_name: str):
+        marketplace = self.__session.query(tables.Marketplace).filter(
+            tables.Marketplace.name.ilike(marketpace_name)).one()
+        marketplace.categories.extend((self.__to_table_mapper.map(
+            category) for category in categories))
 
-    def fetch_all(self) -> list[Category]:
-        db_categories = self.__session.query(tables.Category). \
-            join(tables.Category.niches).all()
-        return [self.__to_jorm_mapper.map(category) for category in db_categories]
+    def fetch_marketplace_categories(self, marketplace_name: str) -> list[Category]:
+        marketplace = self.__session.query(tables.Marketplace).join(tables.Marketplace.categories).filter(
+            tables.Marketplace.name.ilike(marketplace_name)).one()
+        return [self.__to_jorm_mapper.map(category) for category in marketplace.categories]
