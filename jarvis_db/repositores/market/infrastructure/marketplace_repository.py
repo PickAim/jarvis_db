@@ -6,9 +6,11 @@ from jarvis_db.core import Mapper
 
 
 class MarketplaceRepository:
-    def __init__(self, session: Session,
-                 to_jorm_mapper: Mapper[tables.Marketplace, Marketplace],
-                 to_table_mapper: Mapper[Marketplace, tables.Marketplace]):
+    def __init__(
+            self, session: Session,
+            to_jorm_mapper: Mapper[tables.Marketplace, Marketplace],
+            to_table_mapper: Mapper[Marketplace, tables.Marketplace]
+    ):
         self.__session = session
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper

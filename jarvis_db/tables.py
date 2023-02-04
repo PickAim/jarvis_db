@@ -130,7 +130,7 @@ class Niche(Base):
     return_percent: Mapped[int] = mapped_column(Integer, nullable=False)
     update_date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.now)
-    products: Mapped['ProductCard'] = relationship(
+    products: Mapped[list['ProductCard']] = relationship(
         'ProductCard', back_populates='niche')
 
     def __repr__(self) -> str:
@@ -191,10 +191,6 @@ class ProductCard(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     article: Mapped[int] = mapped_column(Integer, nullable=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
-    market_place_id: Mapped[int] = mapped_column(Integer, ForeignKey(
-        f'{Marketplace.__tablename__}.id'))
-    marketplace: Mapped[Marketplace] = relationship(
-        'Marketplace', uselist=False)
     niche_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
         f'{Niche.__tablename__}.id'), nullable=False)
     niche: Mapped[Niche] = relationship('Niche', back_populates='products')
