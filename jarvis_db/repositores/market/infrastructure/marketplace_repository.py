@@ -1,6 +1,6 @@
-from jorm.market.infrastructure import Marketplace
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-
+from jorm.market.infrastructure import Marketplace
 from jarvis_db import tables
 from jarvis_db.core import Mapper
 
@@ -23,6 +23,7 @@ class MarketplaceRepository:
             marketplace) for marketplace in marketplaces))
 
     def fetch_all(self) -> list[Marketplace]:
-        db_marketplaces = self.__session.query(
-            tables.Marketplace).all()
+        db_marketplaces = self.__session.execute(
+            select(tables.Marketplace)
+        ).scalars().all()
         return [self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces]
