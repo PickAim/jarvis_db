@@ -29,9 +29,9 @@ class CategoryRepository:
             category) for category in categories))
 
     def fetch_marketplace_categories(self, marketplace_name: str) -> list[Category]:
-        marketplace = self.__session.execute(
-            select(tables.Marketplace)
-            .join(tables.Marketplace.categories)
+        db_categories = self.__session.execute(
+            select(tables.Category)
+            .join(tables.Category.marketplace)
             .where(tables.Marketplace.name.ilike(marketplace_name))
-        ).scalar_one()
-        return [self.__to_jorm_mapper.map(category) for category in marketplace.categories]
+        ).scalars().all()
+        return [self.__to_jorm_mapper.map(category) for category in db_categories]
