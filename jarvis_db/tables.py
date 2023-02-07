@@ -4,7 +4,8 @@ from sqlalchemy import (
     DateTime,
     Integer,
     String,
-    ForeignKey
+    ForeignKey,
+    UniqueConstraint
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -110,6 +111,8 @@ class Category(Base):
     marketplace: Mapped[Marketplace] = relationship(
         Marketplace, back_populates='categories')
 
+    __table_args__ = (UniqueConstraint(name, marketplace_id),)
+
     def __repr__(self) -> str:
         return f'Category(id={self.id}, name={self.name!r})'
 
@@ -132,6 +135,8 @@ class Niche(Base):
         DateTime(), nullable=False, default=datetime.now)
     products: Mapped[list['ProductCard']] = relationship(
         'ProductCard', back_populates='niche')
+
+    __table_args__ = (UniqueConstraint(name, category_id),)
 
     def __repr__(self) -> str:
         return (
@@ -194,6 +199,8 @@ class ProductCard(Base):
     niche_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
         f'{Niche.__tablename__}.id'), nullable=False)
     niche: Mapped[Niche] = relationship('Niche', back_populates='products')
+
+    __table_args__ = (UniqueConstraint(name, article, niche_id),)
 
     def __repr__(self) -> str:
         return f'ProductCard(id={self.id!r}, name={self.name!r}, article={self.article!r}, cost={self.cost!r})'
