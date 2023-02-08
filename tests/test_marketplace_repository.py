@@ -4,8 +4,12 @@ from sqlalchemy.orm import sessionmaker
 from jarvis_db.db_config import Base
 from jarvis_db import tables
 from jarvis_db.repositores.market.infrastructure import MarketplaceRepository
-from jarvis_db.repositores.mappers.market.infrastructure import MarketplaceJormToTableMapper
-from jarvis_db.repositores.mappers.market.infrastructure import MarketplaceTableToJormMapper
+from jarvis_db.repositores.mappers.market.infrastructure import (
+    MarketplaceJormToTableMapper,
+    MarketplaceTableToJormMapper,
+    WarehouseJormToTableMapper,
+    WarehouseTableToJormMapper
+)
 from jorm.market.infrastructure import Marketplace
 
 
@@ -20,7 +24,8 @@ class MarketplaceCategoryTest(unittest.TestCase):
         marketplace = Marketplace('marketplace1')
         with self.__session() as session, session.begin():
             repository = MarketplaceRepository(
-                session, MarketplaceTableToJormMapper(), MarketplaceJormToTableMapper())
+                session, MarketplaceTableToJormMapper(WarehouseTableToJormMapper()),
+                MarketplaceJormToTableMapper(WarehouseJormToTableMapper()))
             repository.add(marketplace)
         with self.__session() as session:
             db_marketplace: tables.Marketplace = session.query(
@@ -33,7 +38,8 @@ class MarketplaceCategoryTest(unittest.TestCase):
             f'marketplace_{i}') for i in range(1, marketplaces_to_add + 1)]
         with self.__session() as session, session.begin():
             repository = MarketplaceRepository(
-                session, MarketplaceTableToJormMapper(), MarketplaceJormToTableMapper())
+                session, MarketplaceTableToJormMapper(WarehouseTableToJormMapper()),
+                MarketplaceJormToTableMapper(WarehouseJormToTableMapper()))
             repository.add_all(marketplaces)
         with self.__session() as session:
             db_marketplaces: list[tables.Marketplace] = session.query(

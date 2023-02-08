@@ -10,9 +10,9 @@ class CategoryJormToTableMapper(Mapper[Category, tables.Category]):
         self.__niche_jorm_mapper = niche_jorm_mapper
 
     def map(self, value: Category) -> tables.Category:
-        db_nihes = [self.__niche_jorm_mapper.map(
+        db_niches = [self.__niche_jorm_mapper.map(
             niche) for niche in value.niches.values()]
-        return tables.Category(name=value.name, niches=db_nihes)
+        return tables.Category(name=value.name, niches=db_niches)
 
 
 class CategoryTableToJormMapper(Mapper[tables.Category, Category]):

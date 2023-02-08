@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeBase
 
 engine = create_engine('sqlite://')
-session = sessionmaker(bind=engine)
+session = sessionmaker(bind=engine, autoflush=False)
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass

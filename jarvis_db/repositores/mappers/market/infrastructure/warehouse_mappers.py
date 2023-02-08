@@ -1,7 +1,6 @@
 from jorm.market.infrastructure import Address
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse
-
 from jarvis_db import tables
 from jarvis_db.core import Mapper
 
@@ -18,7 +17,7 @@ class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
             additional_storage_commission=int(
                 value.additional_storage_commission * 100),
             monopalette_storage_commission=value.mono_palette_storage_commission,
-            type=int(value.handler_type)
+            type=value.handler_type.value
         )
 
 

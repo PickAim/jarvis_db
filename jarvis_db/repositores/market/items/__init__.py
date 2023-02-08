@@ -1,0 +1,1 @@
+from jarvis_db.repositores.market.items.product_card_repository import ProductCardRepository

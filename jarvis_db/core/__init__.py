@@ -1,1 +1,1 @@
-from .mapper import Mapper
+from jarvis_db.core.mapper import Mapper
