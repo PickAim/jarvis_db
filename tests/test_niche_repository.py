@@ -20,10 +20,10 @@ class NicheRepositoryTest(unittest.TestCase):
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.create_all(engine)
         marketplace_name = 'marketplace1'
-        db_marketpace = db.Marketplace(name=marketplace_name)
+        db_marketplace = db.Marketplace(name=marketplace_name)
         category_name = 'cat1'
         db_category = db.Category(
-            name=category_name, marketplace=db_marketpace)
+            name=category_name, marketplace=db_marketplace)
         with session() as s, s.begin():
             s.add(db_category)
         self.__marketplace_name = marketplace_name
