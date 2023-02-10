@@ -2,9 +2,13 @@ from jarvis_calc.database_interactors.db_access import DBAccessProvider
 
 from jorm.market.infrastructure import Warehouse, Niche
 from jorm.market.person import User, Account
+from jorm.server.token.types import TokenType
 
 
 class ConcreteDBAccessProvider(DBAccessProvider):
+    def get_token_rnd_part(self, user_id: int, imprint: str, token_type: TokenType) -> str:
+        pass
+
     def get_user_by_account(self, account: Account) -> User:
         pass
 
