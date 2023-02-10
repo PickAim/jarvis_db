@@ -45,7 +45,7 @@ class Pay(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f'{User.__tablename__}.id'))
     payment_date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
     is_auto: Mapped[bool] = mapped_column(Boolean, nullable=False)
     payment_key: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -132,7 +132,7 @@ class Niche(Base):
     client_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     return_percent: Mapped[int] = mapped_column(Integer, nullable=False)
     update_date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
     products: Mapped[list['ProductCard']] = relationship(
         'ProductCard', back_populates='niche')
 
@@ -164,7 +164,9 @@ class Warehouse(Base):
     address_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
     address: Mapped[Address] = relationship('Address', uselist=False)
-    logistic_to_customer_commission: Mapped[int] = mapped_column(
+    basic_logistic_to_customer_commission: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    additional_logistic_to_customer_commission: Mapped[int] = mapped_column(
         Integer, nullable=False)
     logistic_from_customer_commission: Mapped[int] = mapped_column(
         Integer, nullable=False)
@@ -181,7 +183,7 @@ class Warehouse(Base):
             f'global_id={self.global_id!r}, '
             f'type={self.type!r}, '
             f'name={self.name!r}, '
-            f'logistic_to_customer_commission={self.logistic_to_customer_commission!r}, '
+            f'logistic_to_customer_commission={self.basic_logistic_to_customer_commission!r}, '
             f'logistic_from_customer_commission={self.logistic_from_customer_commission!r}, '
             f'basic_storage_commission={self.basic_storage_commission!r}, '
             f'additional_storage_commission={self.additional_storage_commission!r}, '
@@ -211,7 +213,7 @@ class ProductCostHistory(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cost: Mapped[int] = mapped_column(Integer(), nullable=False)
     date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{ProductCard.__tablename__}.id'), nullable=False)
     product: Mapped[ProductCard] = relationship('ProductCard', uselist=False)
@@ -239,7 +241,7 @@ class Request(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f'{User.__tablename__}.id'))
     date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
 
     def __repr__(self) -> str:
         return f'Request(id={self.id!r}, date={self.date!r})'
