@@ -1,20 +1,15 @@
 import unittest
+
+from jorm.market.infrastructure import Category, HandlerType, Niche
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from jarvis_db.db_config import Base
+
 from jarvis_db import tables
-from jarvis_db.repositores.market.infrastructure import CategoryRepository
+from jarvis_db.db_config import Base
 from jarvis_db.repositores.mappers.market.infrastructure import (
-    CategoryJormToTableMapper,
-    CategoryTableToJormMapper,
-    NicheJormToTableMapper,
-    NicheTableToJormMapper
-)
-from jorm.market.infrastructure import (
-    Category,
-    Niche,
-    HandlerType
-)
+    CategoryJormToTableMapper, CategoryTableToJormMapper,
+    NicheJormToTableMapper, NicheTableToJormMapper)
+from jarvis_db.repositores.market.infrastructure import CategoryRepository
 
 
 class CategoryRepositoryTest(unittest.TestCase):

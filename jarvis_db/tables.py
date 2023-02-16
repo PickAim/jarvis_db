@@ -1,18 +1,9 @@
 from datetime import datetime
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    Integer,
-    String,
-    ForeignKey,
-    UniqueConstraint
-)
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship
-)
-from sqlalchemy.orm import Mapped
+
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String,
+                        UniqueConstraint)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from jarvis_db.db_config import Base
 
 
@@ -102,7 +93,7 @@ class MarketplaceInfo(Base):
 
 class Category(Base):
     __tablename__ = 'categories'
-    id: Mapped[id] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     niches: Mapped[list['Niche']] = relationship(
         'Niche', back_populates='category')
@@ -154,9 +145,9 @@ class Niche(Base):
 class Warehouse(Base):
     __tablename__ = 'warehouses'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey(
-        f'{Marketplace.__tablename__}.id'), nullable=False)
-    owner: Mapped[int] = relationship(
+    owner_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Marketplace.id), nullable=False)
+    owner: Mapped[Marketplace] = relationship(
         'Marketplace', back_populates='warehouses')
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)

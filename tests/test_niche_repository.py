@@ -1,17 +1,14 @@
 import unittest
+
+from jorm.market.infrastructure import HandlerType, Niche
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from jarvis_db.db_config import Base
+
 from jarvis_db import tables as db
-from jarvis_db.repositores.market.infrastructure import NicheRepository
+from jarvis_db.db_config import Base
 from jarvis_db.repositores.mappers.market.infrastructure import (
-    NicheJormToTableMapper,
-    NicheTableToJormMapper
-)
-from jorm.market.infrastructure import (
-    Niche,
-    HandlerType
-)
+    NicheJormToTableMapper, NicheTableToJormMapper)
+from jarvis_db.repositores.market.infrastructure import NicheRepository
 
 
 class NicheRepositoryTest(unittest.TestCase):
@@ -97,7 +94,7 @@ class NicheRepositoryTest(unittest.TestCase):
                 niche) for niche in db_niches]
         with self.__session() as session:
             repository = NicheRepository(
-                session, to_jorm_mapper, NicheTableToJormMapper())
+                session, to_jorm_mapper, NicheJormToTableMapper())
             niches = repository.fetch_niches_by_category(
                 self.__category_name, self.__marketplace_name)
             for expected, actual in zip(expected_niches, niches, strict=True):

@@ -1,20 +1,14 @@
 import unittest
-from sqlalchemy import (
-    create_engine,
-    select
-)
+
+from jorm.market.items import Product, ProductHistory
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
+
 from jarvis_db import tables
-from jarvis_db.repositores.mappers.market.items import (
-    ProductTableToJormMapper,
-    ProductJormToTableMapper
-)
 from jarvis_db.db_config import Base
+from jarvis_db.repositores.mappers.market.items import (
+    ProductJormToTableMapper, ProductTableToJormMapper)
 from jarvis_db.repositores.market.items import ProductCardRepository
-from jorm.market.items import (
-    Product,
-    ProductHistory
-)
 
 
 class ProductCardRepositoryTest(unittest.TestCase):

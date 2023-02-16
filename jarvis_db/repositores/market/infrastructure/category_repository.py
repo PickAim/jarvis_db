@@ -1,6 +1,7 @@
+from jorm.market.infrastructure import Category
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from jorm.market.infrastructure import Category
+
 from jarvis_db import tables
 from jarvis_db.core import Mapper
 

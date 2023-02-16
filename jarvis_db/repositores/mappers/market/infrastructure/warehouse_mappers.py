@@ -6,7 +6,6 @@ from jarvis_db.core import Mapper
 
 
 class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
-    # TODO how to store logistic_to_customer_commission
     def map(self, value: Warehouse) -> tables.Warehouse:
         return tables.Warehouse(
             global_id=value.global_id,
@@ -18,7 +17,14 @@ class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
             additional_storage_commission=int(
                 value.additional_storage_commission * 100),
             monopalette_storage_commission=value.mono_palette_storage_commission,
-            type=value.handler_type.value
+            type=value.handler_type.value,
+            address=tables.Address(
+                country='',
+                region='',
+                street='',
+                number='',
+                corpus=''
+            )
         )
 
 
