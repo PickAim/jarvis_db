@@ -7,27 +7,28 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from jarvis_db.db_config import Base
 
 
-class User(Base):
-    __tablename__ = 'users'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    profit_tax: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    def __repr__(self) -> str:
-        return f'User(id={self.id!r}, name={self.name!r}, profit_tax={self.profit_tax!r})'
-
-
 class Account(Base):
     __tablename__ = 'accounts'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[str] = mapped_column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'))
     login: Mapped[str] = mapped_column(
         String(255), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
         return f'Account(id={self.id!r}, login={self.login!r}, password={self.password!r})'
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    profit_tax: Mapped[int] = mapped_column(Integer, nullable=False)
+    account_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Account.id), nullable=False)
+    account: Mapped[Account] = relationship(Account, uselist=False)
+
+    def __repr__(self) -> str:
+        return f'User(id={self.id!r}, name={self.name!r}, profit_tax={self.profit_tax!r})'
 
 
 class Pay(Base):
