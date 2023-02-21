@@ -19,7 +19,7 @@ class AccountRepositoryTest(unittest.TestCase):
         self.__session = session
 
     def test_add(self):
-        account = Account('user#1', "12312")
+        account = Account('user#1', "12312", "user@mail.com")
         with self.__session() as session, session.begin():
             repository = AccountRepository(
                 session, AccountTableToJormMapper(), AccountJormToTableMapper())
@@ -28,12 +28,13 @@ class AccountRepositoryTest(unittest.TestCase):
             db_account = session.execute(
                 select(tables.Account)
             ).scalar_one()
-            self.assertEqual(account.login, db_account.login)
+            self.assertEqual(account.phone, db_account.phone)
+            self.assertEqual(account.email, db_account.email)
             self.assertEqual(account.hashed_password, db_account.password)
 
     def test_add_all(self):
         account_to_add = 10
-        accounts = [Account(f'user#{i}', f'{i}{i + 1}{i + 3}{i + 4}')
+        accounts = [Account(f'user#{i}', f'{i}{i + 1}{i + 3}{i + 4}', f'user{i}@mail.org')
                     for i in range(1, account_to_add + 1)]
         with self.__session() as session, session.begin():
             repository = AccountRepository(
@@ -44,5 +45,6 @@ class AccountRepositoryTest(unittest.TestCase):
                 select(tables.Account)
             ).scalars().all()
             for account, db_account in zip(accounts, db_accounts, strict=True):
-                self.assertEqual(account.login, db_account.login)
+                self.assertEqual(account.phone, db_account.phone)
+                self.assertEqual(account.email, db_account.email)
                 self.assertEqual(account.hashed_password, db_account.password)

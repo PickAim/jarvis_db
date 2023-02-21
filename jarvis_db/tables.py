@@ -10,12 +10,13 @@ from jarvis_db.db_config import Base
 class Account(Base):
     __tablename__ = 'accounts'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    login: Mapped[str] = mapped_column(
+    phone: Mapped[str] = mapped_column(
         String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
-        return f'Account(id={self.id!r}, login={self.login!r}, password={self.password!r})'
+        return f'Account(id={self.id!r}, login={self.phone!r}, password={self.password!r})'
 
 
 class User(Base):
