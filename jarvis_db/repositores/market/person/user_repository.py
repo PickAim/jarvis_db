@@ -19,12 +19,10 @@ class UserRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add(self, user: User):
-        self.__session.add(self.__to_table_mapper.map(user))
-
-    def add_all(self, users: Iterable[User]):
-        self.__session.add_all(
-            (self.__to_table_mapper.map(user) for user in users))
+    def add_to_account(self, user: User, account_id: int):
+        db_user = self.__to_table_mapper.map(user)
+        db_user.account_id = account_id
+        self.__session.add(db_user)
 
     def fetch_all(self) -> list[User]:
         db_users = self.__session.execute(
