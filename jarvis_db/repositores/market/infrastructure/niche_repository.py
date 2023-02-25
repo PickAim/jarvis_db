@@ -37,6 +37,17 @@ class NicheRepository:
         category.niches.extend(
             [self.__to_table_mapper.map(niche) for niche in niches])
 
+    def find_by_name(self, niche_name: str, category_name: str, marketplace_name: str) -> Niche:
+        db_niche = self.__session.execute(
+            select(tables.Niche)
+            .join(tables.Niche.category)
+            .join(tables.Category.marketplace)
+            .where(tables.Marketplace.name.ilike(marketplace_name))
+            .where(tables.Category.name.ilike(category_name))
+            .where(tables.Niche.name.ilike(niche_name))
+        ).scalar_one()
+        return self.__to_jorm_mapper.map(db_niche)
+
     def fetch_niches_by_category(self, category_name: str, marketplace_name: str) -> list[Niche]:
         db_niches = self.__session.execute(
             select(tables.Niche)
