@@ -228,31 +228,14 @@ class StorageInfo(Base):
         return f'StorageInfo(id={self.id!r}, leftover={self.leftover!r})'
 
 
-class Request(Base):
-    __tablename__ = 'requests'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'))
-    date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.utcnow)
-
-    def __repr__(self) -> str:
-        return f'Request(id={self.id!r}, date={self.date!r})'
-
-
-class Result(Base):
-    __tablename__ = 'results'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
-    def __repr__(self) -> str:
-        return f'Result(id={self.id!r})'
-
-
 class FrequencyRequest(Base):
     __tablename__ = 'frequency_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Request.__tablename__}.id'))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id))
+    user: Mapped[User] = relationship(User, uselist=False)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow)
     search_str: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
@@ -262,10 +245,14 @@ class FrequencyRequest(Base):
 class EconomyRequest(Base):
     __tablename__ = 'economy_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Request.__tablename__}.id'))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id))
+    user: Mapped[User] = relationship(User, uselist=False)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow)
     niche_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Niche.__tablename__}.id'))
+        Integer, ForeignKey(Niche.id))
+    niche: Mapped[Niche] = relationship(Niche, uselist=False)
     prime_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_count: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -277,8 +264,6 @@ class EconomyRequest(Base):
 class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Result.__tablename__}.id'))
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -289,8 +274,6 @@ class FrequencyResult(Base):
 class EconomyResult(Base):
     __tablename__ = 'economy_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Result.__tablename__}.id'))
     buy_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     marketplace_commission: Mapped[int] = mapped_column(
