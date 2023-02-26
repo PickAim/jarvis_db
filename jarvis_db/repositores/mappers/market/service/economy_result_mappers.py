@@ -31,6 +31,6 @@ class EconomyResultTableToJormMapper(Mapper[tables.EconomyResult, EconomyResult]
             roi=value.roi,
             transit_margin_percent=value.transit_margin_percent,
             transit_profit=value.transit_profit,
-            storage_price=0,
+            storage_price=value.storage_price,
             request=Request(datetime.utcnow())
         )

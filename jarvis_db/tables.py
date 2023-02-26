@@ -253,6 +253,7 @@ class EconomyRequest(Base):
     niche_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Niche.id))
     niche: Mapped[Niche] = relationship(Niche, uselist=False)
+    pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     prime_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_count: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -285,6 +286,7 @@ class EconomyResult(Base):
     roi: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_margin_percent: Mapped[int] = mapped_column(
         Integer, nullable=False)
+    storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
 
     def __repr__(self) -> str:
         return (
