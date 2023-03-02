@@ -14,7 +14,7 @@ class FrequencyResultJormToTableMapper(Mapper[FrequencyResult, tables.FrequencyR
         )
 
 
-class FrequncyResultTableToJormMapper(Mapper[tables.FrequencyResult, FrequencyResult]):
+class FrequencyResultTableToJormMapper(Mapper[tables.FrequencyResult, FrequencyResult]):
     def map(self, value: tables.FrequencyResult) -> FrequencyResult:
         return FrequencyResult(
             request=Request(datetime.utcnow()),
