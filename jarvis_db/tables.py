@@ -97,12 +97,12 @@ class Category(Base):
     __tablename__ = 'categories'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    niches: Mapped[list['Niche']] = relationship(
-        'Niche', back_populates='category')
     marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id), nullable=False)
     marketplace: Mapped[Marketplace] = relationship(
         Marketplace, back_populates='categories')
+    niches: Mapped[list['Niche']] = relationship(
+        'Niche', back_populates='category')
 
     __table_args__ = (UniqueConstraint(name, marketplace_id),)
 
@@ -201,12 +201,13 @@ class ProductCard(Base):
         return f'ProductCard(id={self.id!r}, name={self.name!r}, article={self.article!r}, cost={self.cost!r})'
 
 
-class ProductCostHistory(Base):
+class ProductHistory(Base):
     __tablename__ = 'product_cost_histories'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cost: Mapped[int] = mapped_column(Integer(), nullable=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow)
+    leftover: Mapped[int] = mapped_column(Integer, nullable=False)
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{ProductCard.__tablename__}.id'), nullable=False)
     product: Mapped[ProductCard] = relationship('ProductCard', uselist=False)
