@@ -16,44 +16,32 @@ class NicheRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add_by_category_name(self, niche: Niche, category_name: str, marketplace_name: str):
-        category = self.__session.execute(
-            select(tables.Category)
-            .join(tables.Category.marketplace)
-            .outerjoin(tables.Category.niches)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
-        ).scalar_one()
-        category.niches.append(self.__to_table_mapper.map(niche))
+    def add_by_category_name(self, niche: Niche, category_id: int):
+        db_niche = self.__to_table_mapper.map(niche)
+        db_niche.category_id = category_id
+        self.__session.add(db_niche)
 
-    def add_all_by_category_name(self, niches: list[Niche], category_name: str, marketplace_name: str):
-        category = self.__session.execute(
+    def add_all_by_category_name(self, niches: list[Niche], category_id: int):
+        db_category = self.__session.execute(
             select(tables.Category)
-            .join(tables.Category.marketplace)
-            .outerjoin(tables.Category.niches)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
+            .where(tables.Category.id == category_id)
         ).scalar_one()
-        category.niches.extend(
-            [self.__to_table_mapper.map(niche) for niche in niches])
+        db_category.niches.extend(
+            (self.__to_table_mapper.map(niche) for niche in niches))
 
-    def find_by_name(self, niche_name: str, category_name: str, marketplace_name: str) -> Niche:
+    def find_by_name(self, niche_name: str, category_id: int) -> Niche:
         db_niche = self.__session.execute(
             select(tables.Niche)
             .join(tables.Niche.category)
-            .join(tables.Category.marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
+            .where(tables.Category.id == category_id)
             .where(tables.Niche.name.ilike(niche_name))
         ).scalar_one()
         return self.__to_jorm_mapper.map(db_niche)
 
-    def fetch_niches_by_category(self, category_name: str, marketplace_name: str) -> list[Niche]:
+    def fetch_niches_by_category(self, category_id: int) -> list[Niche]:
         db_niches = self.__session.execute(
             select(tables.Niche)
             .join(tables.Niche.category)
-            .join(tables.Category.marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
+            .where(tables.Category.id == category_id)
         ).scalars().all()
         return [self.__to_jorm_mapper.map(niche) for niche in db_niches]

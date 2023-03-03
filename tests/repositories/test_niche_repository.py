@@ -17,15 +17,13 @@ class NicheRepositoryTest(unittest.TestCase):
         engine = create_engine('sqlite://')
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.create_all(engine)
-        marketplace_name = 'marketplace1'
-        db_marketplace = tables.Marketplace(name=marketplace_name)
-        category_name = 'cat1'
+        category_id = 1
+        db_marketplace = tables.Marketplace(name='marketplace_1')
         db_category = tables.Category(
-            name=category_name, marketplace=db_marketplace)
+            id=category_id, name='category_1', marketplace=db_marketplace)
         with session() as s, s.begin():
             s.add(db_category)
-        self.__marketplace_name = marketplace_name
-        self.__category_name = category_name
+        self.__category_id = category_id
         self.__session = session
 
     def test_add_niche_by_category_name(self):
@@ -39,12 +37,12 @@ class NicheRepositoryTest(unittest.TestCase):
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
             repository.add_by_category_name(
-                niche, self.__category_name, self.__marketplace_name)
+                niche, self.__category_id)
         with self.__session() as session:
             db_category: tables.Category = session.execute(
                 select(tables.Category)
                 .join(tables.Category.niches)
-                .filter(tables.Category.name == self.__category_name)
+                .where(tables.Category.id == self.__category_id)
             ).scalar_one()
             self.assertEqual(len(db_category.niches), 1)
             db_niche = db_category.niches[0]
@@ -62,12 +60,12 @@ class NicheRepositoryTest(unittest.TestCase):
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
             repository.add_all_by_category_name(
-                niches, self.__category_name, self.__marketplace_name)
+                niches, self.__category_id)
         with self.__session() as session:
             db_niches = session.execute(
                 select(tables.Niche)
                 .join(tables.Niche.category)
-                .where(tables.Category.name == self.__category_name)
+                .where(tables.Category.id == self.__category_id)
             ).scalars().all()
             self.assertEqual(len(db_niches), niches_to_add)
             for niche, db_niche in zip(niches, db_niches, strict=True):
@@ -84,21 +82,17 @@ class NicheRepositoryTest(unittest.TestCase):
     def test_find_by_name(self):
         niche_name = 'niche_1_cat1'
         with self.__session() as session, session.begin():
-            db_category = session.execute(
-                select(tables.Category)
-                .where(tables.Category.name == self.__category_name)
-            ).scalar_one()
             session.add(tables.Niche(name=niche_name,
                                      marketplace_commission=0.01,
                                      partial_client_commission=0.02,
                                      client_commission=0.03,
                                      return_percent=0.04,
-                                     category=db_category))
+                                     category_id=self.__category_id))
         with self.__session() as session:
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
             niche = repository.find_by_name(
-                niche_name, self.__category_name, self.__marketplace_name)
+                niche_name, self.__category_id)
             self.assertEqual(niche_name, niche.name)
 
     def test_fetch_all_by_category(self):
@@ -110,7 +104,10 @@ class NicheRepositoryTest(unittest.TestCase):
                                                       return_percent=0.04 * i)
                                          for i in range(1, niches_to_add + 1)]
         with self.__session() as session, session.begin():
-            db_category = session.query(tables.Category).one()
+            db_category = session.execute(
+                select(tables.Category)
+                .where(tables.Category.id == self.__category_id)
+            ).scalar_one()
             db_category.niches = db_niches
             to_jorm_mapper = NicheTableToJormMapper()
             expected_niches = [to_jorm_mapper.map(
@@ -119,7 +116,7 @@ class NicheRepositoryTest(unittest.TestCase):
             repository = NicheRepository(
                 session, to_jorm_mapper, NicheJormToTableMapper())
             niches = repository.fetch_niches_by_category(
-                self.__category_name, self.__marketplace_name)
+                self.__category_id)
             for expected, actual in zip(expected_niches, niches, strict=True):
                 self.assertEqual(expected, actual)
 
