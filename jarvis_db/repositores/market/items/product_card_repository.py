@@ -15,54 +15,22 @@ class ProductCardRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add_product_to_niche(
-        self,
-        product: Product,
-        niche_name: str,
-        category_name: str,
-        marketplace_name: str
-    ):
-        niche = self.__session.execute(
-            select(tables.Niche)
-            .join(tables.Niche.category)
-            .join(tables.Category.marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
-            .where(tables.Niche.name.ilike(niche_name))
-        ).scalar_one()
-        niche.products.append(self.__to_table_mapper.map(product))
+    def add_product_to_niche(self, product: Product, niche_id: int):
+        db_product = self.__to_table_mapper.map(product)
+        db_product.niche_id = niche_id
+        self.__session.add(db_product)
 
-    def add_products_to_niche(
-        self,
-        products: list[Product],
-        niche_name: str,
-        category_name: str,
-        marketplace_name: str
-    ):
+    def add_products_to_niche(self, products: list[Product], niche_id: int):
         niche = self.__session.execute(
             select(tables.Niche)
-            .join(tables.Niche.category)
-            .join(tables.Category.marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
-            .where(tables.Category.name.ilike(category_name))
-            .where(tables.Niche.name.ilike(niche_name))
+            .where(tables.Niche.id == niche_id)
         ).scalar_one()
         niche.products.extend((self.__to_table_mapper.map(product)
                               for product in products))
 
-    def fetch_all_in_niche(
-        self,
-        niche_name: str,
-        category_name: str,
-        marketplace_name: str
-    ) -> list[Product]:
+    def fetch_all_in_niche(self, niche_id: int) -> list[Product]:
         products = self.__session.execute(
             select(tables.ProductCard)
-            .join(tables.ProductCard.niche)
-            .where(tables.Niche.name.ilike(niche_name))
-            .join(tables.Niche.category)
-            .where(tables.Category.name.ilike(category_name))
-            .join(tables.Category.marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
+            .where(tables.ProductCard.niche_id == niche_id)
         ).scalars().all()
         return [self.__to_jorm_mapper.map(product) for product in products]
