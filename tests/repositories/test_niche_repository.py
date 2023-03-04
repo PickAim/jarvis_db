@@ -36,7 +36,7 @@ class NicheRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
-            repository.add_by_category_name(
+            repository.add(
                 niche, self.__category_id)
         with self.__session() as session:
             db_category: tables.Category = session.execute(
@@ -59,7 +59,7 @@ class NicheRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
-            repository.add_all_by_category_name(
+            repository.add_all(
                 niches, self.__category_id)
         with self.__session() as session:
             db_niches = session.execute(

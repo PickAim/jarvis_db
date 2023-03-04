@@ -16,12 +16,12 @@ class NicheRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add_by_category_name(self, niche: Niche, category_id: int):
+    def add(self, niche: Niche, category_id: int):
         db_niche = self.__to_table_mapper.map(niche)
         db_niche.category_id = category_id
         self.__session.add(db_niche)
 
-    def add_all_by_category_name(self, niches: list[Niche], category_id: int):
+    def add_all(self, niches: list[Niche], category_id: int):
         db_category = self.__session.execute(
             select(tables.Category)
             .where(tables.Category.id == category_id)
