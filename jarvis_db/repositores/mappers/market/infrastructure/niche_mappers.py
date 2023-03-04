@@ -1,5 +1,4 @@
-from jorm.market.infrastructure import HandlerType
-from jorm.market.infrastructure import Niche
+from jorm.market.infrastructure import HandlerType, Niche
 
 from jarvis_db import tables
 from jarvis_db.core import Mapper

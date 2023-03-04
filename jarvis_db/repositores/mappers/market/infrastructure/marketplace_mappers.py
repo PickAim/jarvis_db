@@ -1,5 +1,5 @@
-from jorm.market.infrastructure import Marketplace
-from jorm.market.infrastructure import Warehouse
+from jorm.market.infrastructure import Marketplace, Warehouse
+
 from jarvis_db import tables
 from jarvis_db.core import Mapper
 

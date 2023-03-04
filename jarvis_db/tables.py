@@ -1,19 +1,22 @@
 from datetime import datetime
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    Integer,
-    String,
-    ForeignKey,
-    UniqueConstraint
-)
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship
-)
-from sqlalchemy.orm import Mapped
+
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String,
+                        UniqueConstraint)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from jarvis_db.db_config import Base
+
+
+class Account(Base):
+    __tablename__ = 'accounts'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    phone: Mapped[str] = mapped_column(
+        String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'Account(id={self.id!r}, login={self.phone!r}, password={self.password!r})'
 
 
 class User(Base):
@@ -21,22 +24,12 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     profit_tax: Mapped[int] = mapped_column(Integer, nullable=False)
+    account_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Account.id), nullable=False)
+    account: Mapped[Account] = relationship(Account, uselist=False)
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, name={self.name!r}, profit_tax={self.profit_tax!r})'
-
-
-class Account(Base):
-    __tablename__ = 'accounts'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[str] = mapped_column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'))
-    login: Mapped[str] = mapped_column(
-        String(255), nullable=False, unique=True)
-    password: Mapped[str] = mapped_column(String(255), nullable=False)
-
-    def __repr__(self) -> str:
-        return f'Account(id={self.id!r}, login={self.login!r}, password={self.password!r})'
 
 
 class Pay(Base):
@@ -45,7 +38,7 @@ class Pay(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f'{User.__tablename__}.id'))
     payment_date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
     is_auto: Mapped[bool] = mapped_column(Boolean, nullable=False)
     payment_key: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -102,14 +95,14 @@ class MarketplaceInfo(Base):
 
 class Category(Base):
     __tablename__ = 'categories'
-    id: Mapped[id] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    niches: Mapped[list['Niche']] = relationship(
-        'Niche', back_populates='category')
     marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id), nullable=False)
     marketplace: Mapped[Marketplace] = relationship(
         Marketplace, back_populates='categories')
+    niches: Mapped[list['Niche']] = relationship(
+        'Niche', back_populates='category')
 
     __table_args__ = (UniqueConstraint(name, marketplace_id),)
 
@@ -132,7 +125,7 @@ class Niche(Base):
     client_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     return_percent: Mapped[int] = mapped_column(Integer, nullable=False)
     update_date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
     products: Mapped[list['ProductCard']] = relationship(
         'ProductCard', back_populates='niche')
 
@@ -154,9 +147,9 @@ class Niche(Base):
 class Warehouse(Base):
     __tablename__ = 'warehouses'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey(
-        f'{Marketplace.__tablename__}.id'), nullable=False)
-    owner: Mapped[int] = relationship(
+    owner_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Marketplace.id), nullable=False)
+    owner: Mapped[Marketplace] = relationship(
         'Marketplace', back_populates='warehouses')
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -164,7 +157,9 @@ class Warehouse(Base):
     address_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
     address: Mapped[Address] = relationship('Address', uselist=False)
-    logistic_to_customer_commission: Mapped[int] = mapped_column(
+    basic_logistic_to_customer_commission: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    additional_logistic_to_customer_commission: Mapped[int] = mapped_column(
         Integer, nullable=False)
     logistic_from_customer_commission: Mapped[int] = mapped_column(
         Integer, nullable=False)
@@ -181,7 +176,7 @@ class Warehouse(Base):
             f'global_id={self.global_id!r}, '
             f'type={self.type!r}, '
             f'name={self.name!r}, '
-            f'logistic_to_customer_commission={self.logistic_to_customer_commission!r}, '
+            f'logistic_to_customer_commission={self.basic_logistic_to_customer_commission!r}, '
             f'logistic_from_customer_commission={self.logistic_from_customer_commission!r}, '
             f'basic_storage_commission={self.basic_storage_commission!r}, '
             f'additional_storage_commission={self.additional_storage_commission!r}, '
@@ -206,12 +201,13 @@ class ProductCard(Base):
         return f'ProductCard(id={self.id!r}, name={self.name!r}, article={self.article!r}, cost={self.cost!r})'
 
 
-class ProductCostHistory(Base):
+class ProductHistory(Base):
     __tablename__ = 'product_cost_histories'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cost: Mapped[int] = mapped_column(Integer(), nullable=False)
     date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
+        DateTime(), nullable=False, default=datetime.utcnow)
+    leftover: Mapped[int] = mapped_column(Integer, nullable=False)
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{ProductCard.__tablename__}.id'), nullable=False)
     product: Mapped[ProductCard] = relationship('ProductCard', uselist=False)
@@ -233,31 +229,14 @@ class StorageInfo(Base):
         return f'StorageInfo(id={self.id!r}, leftover={self.leftover!r})'
 
 
-class Request(Base):
-    __tablename__ = 'requests'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'))
-    date: Mapped[datetime] = mapped_column(
-        DateTime(), nullable=False, default=datetime.now)
-
-    def __repr__(self) -> str:
-        return f'Request(id={self.id!r}, date={self.date!r})'
-
-
-class Result(Base):
-    __tablename__ = 'results'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-
-    def __repr__(self) -> str:
-        return f'Result(id={self.id!r})'
-
-
 class FrequencyRequest(Base):
     __tablename__ = 'frequency_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Request.__tablename__}.id'))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id))
+    user: Mapped[User] = relationship(User, uselist=False)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow)
     search_str: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
@@ -267,10 +246,15 @@ class FrequencyRequest(Base):
 class EconomyRequest(Base):
     __tablename__ = 'economy_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Request.__tablename__}.id'))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id))
+    user: Mapped[User] = relationship(User, uselist=False)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow)
     niche_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Niche.__tablename__}.id'))
+        Integer, ForeignKey(Niche.id))
+    niche: Mapped[Niche] = relationship(Niche, uselist=False)
+    pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     prime_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_count: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -282,8 +266,6 @@ class EconomyRequest(Base):
 class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Result.__tablename__}.id'))
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -294,8 +276,6 @@ class FrequencyResult(Base):
 class EconomyResult(Base):
     __tablename__ = 'economy_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    parent_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f'{Result.__tablename__}.id'))
     buy_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     marketplace_commission: Mapped[int] = mapped_column(
@@ -307,6 +287,7 @@ class EconomyResult(Base):
     roi: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_margin_percent: Mapped[int] = mapped_column(
         Integer, nullable=False)
+    storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
 
     def __repr__(self) -> str:
         return (

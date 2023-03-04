@@ -1,5 +1,5 @@
 from jarvis_db.core import Mapper
-from jorm.market.items import Product
+from jorm.market.items import Product, ProductHistory
 from jarvis_db import tables
 
 
@@ -17,5 +17,6 @@ class ProductTableToJormMapper(Mapper[tables.ProductCard, Product]):
         return Product(
             name=value.name,
             article=value.article,
-            cost=value.cost
+            cost=value.cost,
+            history=ProductHistory([])
         )
