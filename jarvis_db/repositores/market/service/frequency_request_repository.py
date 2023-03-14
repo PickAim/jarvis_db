@@ -1,9 +1,9 @@
+from jorm.market.service import FrequencyRequest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from jarvis_db import tables
 
+from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
-from jorm.market.service import FrequencyRequest
 
 
 class FrequencyRequestRepository:
@@ -21,10 +21,10 @@ class FrequencyRequestRepository:
         db_requst.user_id = user_id
         self.__session.add(db_requst)
 
-    def fetch_user_requests(self, user_id: int) -> list[FrequencyRequest]:
+    def fetch_user_requests(self, user_id: int) -> dict[int, FrequencyRequest]:
         db_requests = self.__session.execute(
             select(tables.FrequencyRequest)
             .join(tables.FrequencyRequest.user)
             .where(tables.User.id == user_id)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(request) for request in db_requests]
+        return {request.id: self.__to_jorm_mapper.map(request) for request in db_requests}
