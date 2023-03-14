@@ -1,5 +1,5 @@
-from unicodedata import category
 import unittest
+from unicodedata import category
 
 from jorm.market.infrastructure import HandlerType, Niche
 from sqlalchemy import create_engine, select
@@ -91,7 +91,7 @@ class NicheRepositoryTest(unittest.TestCase):
         with self.__session() as session:
             repository = NicheRepository(
                 session, NicheTableToJormMapper(), NicheJormToTableMapper())
-            niche = repository.find_by_name(
+            niche, _ = repository.find_by_name(
                 niche_name, self.__category_id)
             self.assertEqual(niche_name, niche.name)
 
@@ -117,7 +117,7 @@ class NicheRepositoryTest(unittest.TestCase):
                 session, to_jorm_mapper, NicheJormToTableMapper())
             niches = repository.fetch_niches_by_category(
                 self.__category_id)
-            for expected, actual in zip(expected_niches, niches, strict=True):
+            for expected, actual in zip(expected_niches, niches.values(), strict=True):
                 self.assertEqual(expected, actual)
 
 
