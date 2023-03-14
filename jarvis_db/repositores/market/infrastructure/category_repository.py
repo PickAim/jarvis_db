@@ -1,3 +1,5 @@
+from unicodedata import category
+
 from jorm.market.infrastructure import Category
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -29,10 +31,10 @@ class CategoryRepository:
         db_marketplace.categories.extend((self.__to_table_mapper.map(
             category) for category in categories))
 
-    def fetch_marketplace_categories(self, marketplace_id: int) -> list[Category]:
+    def fetch_marketplace_categories(self, marketplace_id: int) -> dict[int, Category]:
         db_categories = self.__session.execute(
             select(tables.Category)
             .join(tables.Category.marketplace)
             .where(tables.Marketplace.id == marketplace_id)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(category) for category in db_categories]
+        return {category.id: self.__to_jorm_mapper.map(category) for category in db_categories}

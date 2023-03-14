@@ -92,7 +92,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             categories = repository.fetch_marketplace_categories(
                 self.__marketplace_id)
         self.assertEqual(len(categories), categories_to_add)
-        for category, expected_niches in zip(categories, niches_per_category, strict=True):
+        for category, expected_niches in zip(categories.values(), niches_per_category, strict=True):
             self.assertEqual(len(category.niches), expected_niches)
 
 
