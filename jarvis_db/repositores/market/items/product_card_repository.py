@@ -1,6 +1,9 @@
+from typing import Iterable
+
+from jorm.market.items import Product
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from jorm.market.items import Product
+
 from jarvis_db import tables
 from jarvis_db.core import Mapper
 
@@ -20,7 +23,7 @@ class ProductCardRepository:
         db_product.niche_id = niche_id
         self.__session.add(db_product)
 
-    def add_products_to_niche(self, products: list[Product], niche_id: int):
+    def add_products_to_niche(self, products: Iterable[Product], niche_id: int):
         niche = self.__session.execute(
             select(tables.Niche)
             .where(tables.Niche.id == niche_id)
@@ -28,9 +31,9 @@ class ProductCardRepository:
         niche.products.extend((self.__to_table_mapper.map(product)
                               for product in products))
 
-    def fetch_all_in_niche(self, niche_id: int) -> list[Product]:
+    def fetch_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         products = self.__session.execute(
             select(tables.ProductCard)
             .where(tables.ProductCard.niche_id == niche_id)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(product) for product in products]
+        return {product.id: self.__to_jorm_mapper.map(product) for product in products}
