@@ -28,7 +28,7 @@ class AccountRepositoryTest(unittest.TestCase):
             db_account = session.execute(
                 select(tables.Account)
             ).scalar_one()
-            self.assertEqual(account.phone, db_account.phone)
+            self.assertEqual(account.phone_number, db_account.phone)
             self.assertEqual(account.email, db_account.email)
             self.assertEqual(account.hashed_password, db_account.password)
 
@@ -45,6 +45,6 @@ class AccountRepositoryTest(unittest.TestCase):
                 select(tables.Account)
             ).scalars().all()
             for account, db_account in zip(accounts, db_accounts, strict=True):
-                self.assertEqual(account.phone, db_account.phone)
+                self.assertEqual(account.phone_number, db_account.phone)
                 self.assertEqual(account.email, db_account.email)
                 self.assertEqual(account.hashed_password, db_account.password)

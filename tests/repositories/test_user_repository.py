@@ -18,7 +18,7 @@ class UserRepositoryTest(unittest.TestCase):
         Base.metadata.create_all(engine)
         account = Account('1231', 'user@mail.org', 'qwerty')
         with session() as s, s.begin():
-            s.add(tables.Account(phone=account.phone,
+            s.add(tables.Account(phone=account.phone_number,
                   email=account.email, password=account.hashed_password))
         with session() as s:
             db_account = s.execute(

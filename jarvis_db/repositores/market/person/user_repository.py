@@ -28,7 +28,7 @@ class UserRepository:
         db_user = self.__session.execute(
             select(tables.User)
             .join(tables.User.account)
-            .where(tables.Account.email == account.email, tables.Account.phone == account.phone)
+            .where(tables.Account.email == account.email, tables.Account.phone == account.phone_number)
         ).scalar_one()
         return self.__to_jorm_mapper.map(db_user)
 
