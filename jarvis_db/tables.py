@@ -153,7 +153,7 @@ class Warehouse(Base):
         'Marketplace', back_populates='warehouses')
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     address_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
     address: Mapped[Address] = relationship('Address', uselist=False)

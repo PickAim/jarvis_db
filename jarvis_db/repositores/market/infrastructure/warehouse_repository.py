@@ -33,6 +33,19 @@ class WarehouseRepository:
         db_marketplace.warehouses.extend(
             (self.__to_table_mapper.map(warehouse) for warehouse in warehouses))
 
+    def find_by_name(self, name: str) -> tuple[Warehouse, int]:
+        db_warehouse = self.__session.execute(
+            select(tables.Warehouse)
+            .where(tables.Warehouse.name.ilike(name))
+        ).scalar_one()
+        return self.__to_jorm_mapper.map(db_warehouse), db_warehouse.id
+
+    def find_all(self) -> dict[int, Warehouse]:
+        db_warehouses = self.__session.execute(
+            select(tables.Warehouse)
+        ).scalars().all()
+        return {warehouse.id: self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses}
+
     def find_all_by_marketplace_name(self, marketplace_id: int) -> dict[int, Warehouse]:
         db_warehouses = self.__session.execute(
             select(tables.Warehouse)
