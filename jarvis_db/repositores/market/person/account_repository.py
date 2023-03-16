@@ -26,15 +26,15 @@ class AccountRepository:
         self.__session.add_all(
             (self.__to_table_mapper.map(account) for account in accounts))
 
-    def find_by_email(self, email: str) -> Account:
-        db_user = self.__session.execute(
+    def find_by_email(self, email: str) -> tuple[Account, int]:
+        db_account = self.__session.execute(
             select(tables.Account)
             .where(tables.Account.email == email)
         ).scalar_one()
-        return self.__to_jorm_mapper.map(db_user)
-
-    def fetch_all(self) -> list[Account]:
+        return self.__to_jorm_mapper.map(db_account), db_account.id
+    
+    def find_all(self) -> dict[int, Account]:
         db_accounts = self.__session.execute(
             select(tables.Account)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(account) for account in db_accounts]
+        return {account.id: self.__to_jorm_mapper.map(account) for account in db_accounts}

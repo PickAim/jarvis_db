@@ -5,7 +5,7 @@ from jarvis_db.repositores.market.infrastructure import (NicheRepository,
                                                          WarehouseRepository)
 
 
-class JormCollectorImlp(JORMCollector):
+class JormCollectorImpl(JORMCollector):
     def __init__(self, niche_repository: NicheRepository, warehouse_repository: WarehouseRepository):
         self.__niche_repository = niche_repository
         self.__warehouse_repository = warehouse_repository

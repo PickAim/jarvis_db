@@ -55,5 +55,5 @@ class UserRepositoryTest(unittest.TestCase):
         with self.__session() as session:
             repository = UserRepository(
                 session, UserTableToJormMapper(), UserJormToTableMapper())
-            user = repository.find_by_account(self.__account)
+            user, _ = repository.find_by_account(self.__account)
             self.assertEqual(user_name, user.name)
