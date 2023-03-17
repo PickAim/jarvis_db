@@ -29,19 +29,19 @@ class NicheRepository:
         db_category.niches.extend(
             (self.__to_table_mapper.map(niche) for niche in niches))
 
-    def find_by_name(self, niche_name: str, category_id: int) -> Niche:
+    def find_by_name(self, niche_name: str, category_id: int) -> tuple[Niche, int]:
         db_niche = self.__session.execute(
             select(tables.Niche)
             .join(tables.Niche.category)
             .where(tables.Category.id == category_id)
             .where(tables.Niche.name.ilike(niche_name))
         ).scalar_one()
-        return self.__to_jorm_mapper.map(db_niche)
+        return self.__to_jorm_mapper.map(db_niche), db_niche.id
 
-    def fetch_niches_by_category(self, category_id: int) -> list[Niche]:
+    def fetch_niches_by_category(self, category_id: int) -> dict[int, Niche]:
         db_niches = self.__session.execute(
             select(tables.Niche)
             .join(tables.Niche.category)
             .where(tables.Category.id == category_id)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(niche) for niche in db_niches]
+        return {niche.id: self.__to_jorm_mapper.map(niche) for niche in db_niches}

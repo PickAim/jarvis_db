@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from jorm.market.infrastructure import Marketplace
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -19,12 +21,12 @@ class MarketplaceRepository:
     def add(self, marketplace: Marketplace):
         self.__session.add(self.__to_table_mapper.map(marketplace))
 
-    def add_all(self, marketplaces: list[Marketplace]):
+    def add_all(self, marketplaces: Iterable[Marketplace]):
         self.__session.add_all((self.__to_table_mapper.map(
             marketplace) for marketplace in marketplaces))
 
-    def fetch_all(self) -> list[Marketplace]:
+    def fetch_all(self) -> dict[int, Marketplace]:
         db_marketplaces = self.__session.execute(
             select(tables.Marketplace)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces]
+        return {marketplace.id: self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces}

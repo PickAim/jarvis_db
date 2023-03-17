@@ -20,8 +20,8 @@ class FrequencyResultRepository:
     def add(self, result: FrequencyResult):
         self.__session.add(self.__to_table_mapper.map(result))
 
-    def fetch_all(self) -> list[FrequencyResult]:
+    def fetch_all(self) -> dict[int, FrequencyResult]:
         db_results = self.__session.execute(
             select(tables.FrequencyResult)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(result) for result in db_results]
+        return {result.id: self.__to_jorm_mapper.map(result) for result in db_results}

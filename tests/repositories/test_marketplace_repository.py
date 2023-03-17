@@ -12,7 +12,7 @@ from jarvis_db.repositores.mappers.market.infrastructure import (
 from jarvis_db.repositores.market.infrastructure import MarketplaceRepository
 
 
-class MarketplaceCategoryTest(unittest.TestCase):
+class MarketplaceRepositoryTest(unittest.TestCase):
     def setUp(self):
         engine = create_engine('sqlite://')
         session = sessionmaker(bind=engine)
@@ -47,6 +47,20 @@ class MarketplaceCategoryTest(unittest.TestCase):
                 tables.Marketplace).all()
             for jorm_marketplace, db_marketplace in zip(marketplaces, db_marketplaces, strict=True):
                 self.assertTrue(jorm_marketplace.name, db_marketplace.name)
+
+    def test_fetch_all(self):
+        marketplaces_to_add = 10
+        with self.__session() as session, session.begin():
+            db_marketplaces = [tables.Marketplace(
+                name=f'markeplace_{i}') for i in range(1, marketplaces_to_add + 1)]
+            session.add_all(db_marketplaces)
+        with self.__session() as session:
+            repository = MarketplaceRepository(
+                session, MarketplaceTableToJormMapper(
+                    WarehouseTableToJormMapper()),
+                MarketplaceJormToTableMapper(WarehouseJormToTableMapper()))
+            marketplaces = repository.fetch_all()
+            self.assertEqual(marketplaces_to_add, len(marketplaces))
 
 
 if __name__ == '__main__':

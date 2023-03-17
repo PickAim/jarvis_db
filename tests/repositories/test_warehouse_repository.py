@@ -1,7 +1,6 @@
 import unittest
 
-from jorm.market.infrastructure import (Address, HandlerType, Marketplace,
-                                        Warehouse)
+from jorm.market.infrastructure import Address, HandlerType, Warehouse
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
@@ -9,8 +8,7 @@ from jarvis_db import tables
 from jarvis_db.db_config import Base
 from jarvis_db.repositores.mappers.market.infrastructure import (
     WarehouseJormToTableMapper, WarehouseTableToJormMapper)
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import \
-    WarehouseRepository
+from jarvis_db.repositores.market.infrastructure import WarehouseRepository
 
 
 class WarehouseRepositoryTest(unittest.TestCase):
@@ -18,10 +16,10 @@ class WarehouseRepositoryTest(unittest.TestCase):
         engine = create_engine('sqlite://')
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.create_all(engine)
-        marketplace_name = 'marketplace#1'
+        marketplace_id = 1
         with session() as s, s.begin():
-            s.add(tables.Marketplace(name=marketplace_name))
-        self.__marketplace_name = marketplace_name
+            s.add(tables.Marketplace(id=marketplace_id, name='marketplace#1'))
+        self.__marketplace_id = marketplace_id
         self.__session = session
 
     def test_add(self):
@@ -29,13 +27,13 @@ class WarehouseRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             repository = WarehouseRepository(
                 session, WarehouseTableToJormMapper(), WarehouseJormToTableMapper())
-            repository.add_by_marketplace_name(
-                warehouse, self.__marketplace_name)
+            repository.add(
+                warehouse, self.__marketplace_id)
         with self.__session() as session:
             db_warehouse = session.execute(
                 select(tables.Warehouse)
                 .join(tables.Warehouse.owner)
-                .where(tables.Marketplace.name == self.__marketplace_name)
+                .where(tables.Marketplace.id == self.__marketplace_id)
             ).scalar_one()
             self.assertEqual(warehouse.name, db_warehouse.name)
 
@@ -47,13 +45,13 @@ class WarehouseRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             repository = WarehouseRepository(
                 session, WarehouseTableToJormMapper(), WarehouseJormToTableMapper())
-            repository.add_all_by_marketplace_name(
-                warehouses, self.__marketplace_name)
+            repository.add_all(
+                warehouses, self.__marketplace_id)
         with self.__session() as session:
             db_warehouses = session.execute(
                 select(tables.Warehouse)
                 .join(tables.Warehouse.owner)
-                .where(tables.Marketplace.name == self.__marketplace_name)
+                .where(tables.Marketplace.id == self.__marketplace_id)
             ).scalars().all()
             for warehouse, db_warehouse in zip(warehouses, db_warehouses, strict=True):
                 self.assertEqual(warehouse.name, db_warehouse.name)

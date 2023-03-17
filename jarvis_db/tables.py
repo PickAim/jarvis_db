@@ -153,7 +153,7 @@ class Warehouse(Base):
         'Marketplace', back_populates='warehouses')
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     address_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{Address.__tablename__}.id'), nullable=False)
     address: Mapped[Address] = relationship('Address', uselist=False)
@@ -247,7 +247,7 @@ class EconomyRequest(Base):
     __tablename__ = 'economy_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(User.id))
+        Integer, ForeignKey(User.id), nullable=False)
     user: Mapped[User] = relationship(User, uselist=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow)
@@ -266,6 +266,10 @@ class EconomyRequest(Base):
 class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    request_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(FrequencyRequest.id))
+    request: Mapped[FrequencyRequest] = relationship(
+        FrequencyRequest, uselist=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
 

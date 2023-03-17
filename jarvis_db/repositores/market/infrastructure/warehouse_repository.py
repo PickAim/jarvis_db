@@ -18,25 +18,38 @@ class WarehouseRepository:
         self.__to_jorm_mapper = to_jorm_mapper
         self.__to_table_mapper = to_table_mapper
 
-    def add_by_marketplace_name(self, warehouse: Warehouse, marketplace_name: str):
+    def add(self, warehouse: Warehouse, marketplace_id: int):
         db_marketplace = self.__session.execute(
             select(tables.Marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
+            .where(tables.Marketplace.id == marketplace_id)
         ).scalar_one()
         db_marketplace.warehouses.append(self.__to_table_mapper.map(warehouse))
 
-    def add_all_by_marketplace_name(self, warehouses: Iterable[Warehouse], marketplace_name: str):
+    def add_all(self, warehouses: Iterable[Warehouse], marketplace_id: int):
         db_marketplace = self.__session.execute(
             select(tables.Marketplace)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
+            .where(tables.Marketplace.id == marketplace_id)
         ).scalar_one()
         db_marketplace.warehouses.extend(
             (self.__to_table_mapper.map(warehouse) for warehouse in warehouses))
 
-    def fetch_all_by_marketplace_name(self, marketplace_name: str) -> list[Warehouse]:
+    def find_by_name(self, name: str) -> tuple[Warehouse, int]:
+        db_warehouse = self.__session.execute(
+            select(tables.Warehouse)
+            .where(tables.Warehouse.name.ilike(name))
+        ).scalar_one()
+        return self.__to_jorm_mapper.map(db_warehouse), db_warehouse.id
+
+    def find_all(self) -> dict[int, Warehouse]:
+        db_warehouses = self.__session.execute(
+            select(tables.Warehouse)
+        ).scalars().all()
+        return {warehouse.id: self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses}
+
+    def find_all_by_marketplace_name(self, marketplace_id: int) -> dict[int, Warehouse]:
         db_warehouses = self.__session.execute(
             select(tables.Warehouse)
             .join(tables.Warehouse.owner)
-            .where(tables.Marketplace.name.ilike(marketplace_name))
+            .where(tables.Marketplace.id == marketplace_id)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses]
+        return {warehouse.id: self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses}

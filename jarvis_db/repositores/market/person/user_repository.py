@@ -24,16 +24,23 @@ class UserRepository:
         db_user.account_id = account_id
         self.__session.add(db_user)
 
-    def find_by_account(self, account: Account) -> User:
+    def find_by_id(self, id: int) -> tuple[User, int]:
+        db_user = self.__session.execute(
+            select(tables.User)
+            .where(tables.User.id == id)
+        ).scalar_one()
+        return self.__to_jorm_mapper.map(db_user), db_user.id
+
+    def find_by_account(self, account: Account) -> tuple[User, int]:
         db_user = self.__session.execute(
             select(tables.User)
             .join(tables.User.account)
-            .where(tables.Account.email == account.email, tables.Account.phone == account.phone)
+            .where(tables.Account.email == account.email, tables.Account.phone == account.phone_number)
         ).scalar_one()
-        return self.__to_jorm_mapper.map(db_user)
+        return self.__to_jorm_mapper.map(db_user), db_user.id
 
-    def fetch_all(self) -> list[User]:
+    def fetch_all(self) -> dict[int, User]:
         db_users = self.__session.execute(
             select(tables.User)
         ).scalars().all()
-        return [self.__to_jorm_mapper.map(user) for user in db_users]
+        return {user.id: self.__to_jorm_mapper.map(user) for user in db_users}
