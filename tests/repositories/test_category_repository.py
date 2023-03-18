@@ -38,7 +38,7 @@ class CategoryRepositoryTest(unittest.TestCase):
         with self.__session() as session, session.begin():
             repository = CategoryRepository(session, CategoryTableToJormMapper(
                 NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
-            repository.add_category_to_marketplace(
+            repository.add(
                 category, self.__marketplace_id)
         with self.__session() as session:
             db_category = session.execute(
@@ -59,7 +59,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             repository = CategoryRepository(
                 session, CategoryTableToJormMapper(NicheTableToJormMapper()),
                 CategoryJormToTableMapper(NicheJormToTableMapper()))
-            repository.add_all_categories_to_marketplace(
+            repository.add_all(
                 categories, self.__marketplace_id)
         with self.__session() as session:
             db_categories = session.execute(
@@ -67,6 +67,19 @@ class CategoryRepositoryTest(unittest.TestCase):
             ).scalars().all()
             for jorm_category, db_category in zip(categories, db_categories, strict=True):
                 self.assertEqual(jorm_category.name, db_category.name)
+
+    def test_find_by_name(self):
+        category_name = 'category_1'
+        with self.__session() as session, session.begin():
+            db_category = tables.Category(
+                name=category_name, marketplace_id=self.__marketplace_id)
+            session.add(db_category)
+        with self.__session() as session:
+            repository = CategoryRepository(session, CategoryTableToJormMapper(
+                NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
+            category, _ = repository.find_by_name(
+                category_name, self.__marketplace_id)
+            self.assertEqual(category_name, category.name)
 
     def test_fetch_all(self):
         categories_to_add = 10
@@ -89,7 +102,7 @@ class CategoryRepositoryTest(unittest.TestCase):
         with self.__session() as session:
             repository = CategoryRepository(session, CategoryTableToJormMapper(
                 NicheTableToJormMapper()), CategoryJormToTableMapper(NicheJormToTableMapper()))
-            categories = repository.fetch_marketplace_categories(
+            categories = repository.find_all(
                 self.__marketplace_id)
         self.assertEqual(len(categories), categories_to_add)
         for category, expected_niches in zip(categories.values(), niches_per_category, strict=True):
