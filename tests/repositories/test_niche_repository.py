@@ -1,5 +1,4 @@
 import unittest
-from unicodedata import category
 
 from jorm.market.infrastructure import HandlerType, Niche
 from sqlalchemy import create_engine, select
@@ -17,12 +16,15 @@ class NicheRepositoryTest(unittest.TestCase):
         engine = create_engine('sqlite://')
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.create_all(engine)
+        marketplace_id = 1
         category_id = 1
-        db_marketplace = tables.Marketplace(name='marketplace_1')
+        db_marketplace = tables.Marketplace(
+            id=marketplace_id, name='marketplace_1')
         db_category = tables.Category(
             id=category_id, name='category_1', marketplace=db_marketplace)
         with session() as s, s.begin():
             s.add(db_category)
+        self.__marketplace_id = marketplace_id
         self.__category_id = category_id
         self.__session = session
 
@@ -117,6 +119,27 @@ class NicheRepositoryTest(unittest.TestCase):
                 session, to_jorm_mapper, NicheJormToTableMapper())
             niches = repository.fetch_niches_by_category(
                 self.__category_id)
+            for expected, actual in zip(expected_niches, niches.values(), strict=True):
+                self.assertEqual(expected, actual)
+
+    def test_find_by_marketplace(self):
+        with self.__session() as session, session.begin():
+            niches_to_add = 10
+            db_niches: list[tables.Niche] = [tables.Niche(name=f'niche_{i}_cat1',
+                                                          category_id=self.__category_id,
+                                                          marketplace_commission=0.01 * i,
+                                                          partial_client_commission=0.02 * i,
+                                                          client_commission=0.03 * i,
+                                                          return_percent=0.04 * i)
+                                             for i in range(1, niches_to_add + 1)]
+            session.add_all(db_niches)
+            to_jorm_mapper = NicheTableToJormMapper()
+            expected_niches = [to_jorm_mapper.map(
+                niche) for niche in db_niches]
+        with self.__session() as session:
+            repository = NicheRepository(
+                session, to_jorm_mapper, NicheJormToTableMapper())
+            niches = repository.find_by_marketplace(self.__marketplace_id)
             for expected, actual in zip(expected_niches, niches.values(), strict=True):
                 self.assertEqual(expected, actual)
 

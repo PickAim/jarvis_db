@@ -45,3 +45,12 @@ class NicheRepository:
             .where(tables.Category.id == category_id)
         ).scalars().all()
         return {niche.id: self.__to_jorm_mapper.map(niche) for niche in db_niches}
+
+    def find_by_marketplace(self, marketplace_id: int) -> dict[int, Niche]:
+        db_niches = self.__session.execute(
+            select(tables.Niche)
+            .join(tables.Niche.category)
+            .join(tables.Category.marketplace)
+            .where(tables.Marketplace.id == marketplace_id)
+        ).scalars().all()
+        return {niche.id: self.__to_jorm_mapper.map(niche) for niche in db_niches}
