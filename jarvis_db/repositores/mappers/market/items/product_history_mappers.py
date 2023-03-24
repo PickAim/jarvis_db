@@ -9,8 +9,7 @@ class ProductHistoryJormToTableMapper(Mapper[ProductHistoryUnit, tables.ProductH
     def map(self, value: ProductHistoryUnit) -> tables.ProductHistory:
         return tables.ProductHistory(
             cost=value.cost,
-            date=value.unit_date,
-            leftover=value.leftover.get_all_leftovers()
+            date=value.unit_date
         )
 
 
