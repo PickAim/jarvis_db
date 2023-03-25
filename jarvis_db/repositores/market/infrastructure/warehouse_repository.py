@@ -40,6 +40,15 @@ class WarehouseRepository:
         ).scalar_one()
         return self.__to_jorm_mapper.map(db_warehouse), db_warehouse.id
 
+    def find_by_gloabl_id(self, global_id: int, marketplace_id: int) -> tuple[Warehouse, int]:
+        db_warehouse = self.__session.execute(
+            select(tables.Warehouse)
+            .join(tables.Warehouse.owner)
+            .where(tables.Marketplace.id == marketplace_id)
+            .where(tables.Warehouse.global_id == global_id)
+        ).scalar_one()
+        return self.__to_jorm_mapper.map(db_warehouse), db_warehouse.id
+
     def find_all(self) -> dict[int, Warehouse]:
         db_warehouses = self.__session.execute(
             select(tables.Warehouse)

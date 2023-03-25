@@ -8,6 +8,8 @@ from sqlalchemy.orm import sessionmaker
 
 from jarvis_db import tables
 from jarvis_db.db_config import Base
+from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
+    LeftoverJormToTableMapper, LeftoverTableToJormMapper)
 from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
     ProductHistoryJormToTableMapper, ProductHistoryTableToJormMapper)
 from jarvis_db.repositores.market.items.product_hisory_repository import \
@@ -20,6 +22,8 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.create_all(engine)
         product_id = 1
+        warehouse_id = 1
+        warehouse_global_id = 20
         with session() as s, s.begin():
             marketplace_id = 1
             db_marketplace = tables.Marketplace(
@@ -42,15 +46,39 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
                 cost=1,
                 niche=db_niche
             )
+            db_address = tables.Address(
+                country='AS',
+                region='QS',
+                street='DD',
+                number='HH',
+                corpus='YU'
+            )
+            db_warehouse = tables.Warehouse(
+                id=warehouse_id,
+                owner_id=marketplace_id,
+                global_id=warehouse_global_id,
+                type=0,
+                name='qwerty',
+                address=db_address,
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0
+            )
             s.add(db_product)
+            s.add(db_warehouse)
+        self.__warehouse_id = warehouse_id
         self.__product_id = product_id
+        self.__warehouse_global_id = warehouse_global_id
         self.__session = session
 
     def test_add(self):
         unit = ProductHistoryUnit(10, datetime.utcnow(), StorageDict())
         with self.__session() as session, session.begin():
             repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
+                session, ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()), ProductHistoryJormToTableMapper(LeftoverJormToTableMapper()))
             repository.add_product_history(unit, self.__product_id)
         with self.__session() as session:
             db_units = session.execute(
@@ -69,7 +97,7 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
             i * 10, datetime.utcnow(), StorageDict()) for i in range(1, 11)]
         with self.__session() as session, session.begin():
             repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
+                session, ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()), ProductHistoryJormToTableMapper(LeftoverJormToTableMapper()))
             repository.add_all_product_histories(units, self.__product_id)
         with self.__session() as session:
             db_units = session.execute(
@@ -84,16 +112,19 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
 
     def test_fetct_histories(self):
         expected_units = [ProductHistoryUnit(
-            i * 10, datetime.utcnow(), StorageDict()) for i in range(1, 11)]
-        to_table_mapper = ProductHistoryJormToTableMapper()
+            i * 10, datetime.utcnow(), StorageDict({self.__warehouse_global_id: {'abc': 1, 'def': 2}})) for i in range(1, 11)]
+        to_table_mapper = ProductHistoryJormToTableMapper(
+            LeftoverJormToTableMapper())
         with self.__session() as session, session.begin():
             db_units = [to_table_mapper.map(unit) for unit in expected_units]
             for db_unit in db_units:
                 db_unit.product_id = self.__product_id
+                for leftover in db_unit.leftovers:
+                    leftover.warehouse_id = self.__warehouse_id
             session.add_all(db_units)
         with self.__session() as session:
             repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
+                session, ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()), ProductHistoryJormToTableMapper(LeftoverJormToTableMapper()))
             actual_units = repository.get_product_history(
                 self.__product_id).history
             for actual_unit, expected_unit in zip(actual_units, expected_units, strict=True):
