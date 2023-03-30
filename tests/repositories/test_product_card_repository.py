@@ -1,12 +1,6 @@
 import unittest
 
-from jorm.market.items import Product, ProductHistory
-from sqlalchemy import select
-
 from jarvis_db import tables
-from jarvis_db.repositores.mappers.market.items import (
-    ProductJormToTableMapper, ProductTableToJormMapper)
-from jarvis_db.repositores.market.items import ProductCardRepository
 from tests.db_context import DbContext
 
 
