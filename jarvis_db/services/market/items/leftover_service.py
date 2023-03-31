@@ -24,7 +24,8 @@ class LeftoverService:
         marketplace_id = self.__product_history_service.find_by_id(
             history_id).product.niche.category.marketplace_id
         warehouse_gid_map = {
-            gid: self.__warehouse_repository.find_by_global_id(gid, marketplace_id).id for gid in leftover_create_request.keys()}
+            gid: self.__warehouse_repository.find_by_global_id(gid, marketplace_id).id for gid in
+            leftover_create_request.keys()}
         leftovers = []
         for gid, warehouse_leftovers in leftover_create_request.items():
             leftovers.extend((Leftover(

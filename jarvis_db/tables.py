@@ -202,7 +202,7 @@ class ProductCard(Base):
 
 
 class ProductHistory(Base):
-    __tablename__ = 'product_cost_histories'
+    __tablename__ = 'product_histories'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cost: Mapped[int] = mapped_column(Integer(), nullable=False)
     date: Mapped[datetime] = mapped_column(
