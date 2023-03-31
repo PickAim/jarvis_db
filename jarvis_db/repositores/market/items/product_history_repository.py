@@ -17,12 +17,6 @@ class ProductHistoryRepository(AlchemyRepository[ProductHistory]):
         ).scalar_one()
 
     def find_product_histories(self, product_id: int) -> list[ProductHistory]:
-        stmt = str((select(ProductHistory)
-                    .outerjoin(ProductHistory.leftovers)
-                    .join(Leftover.warehouse)
-                    .where(ProductHistory.product_id == product_id)
-                    .distinct()))
-        print(stmt)
         db_history_units = self._session.execute(
             select(ProductHistory)
             .outerjoin(ProductHistory.leftovers)

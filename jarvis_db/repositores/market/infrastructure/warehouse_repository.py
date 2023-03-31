@@ -13,7 +13,10 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
         ).scalar_one()
         return warehouse
 
-    def find_by_global_id(self, global_id: int, marketplace_id: int) -> Warehouse:
+    def find_by_global_id(
+            self,
+            global_id: int,
+            marketplace_id: int) -> Warehouse:
         warehouse = self._session.execute(
             select(Warehouse)
             .join(Warehouse.owner)
