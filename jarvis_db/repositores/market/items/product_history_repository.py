@@ -13,14 +13,20 @@ class ProductHistoryRepository(AlchemyRepository[ProductHistory]):
             .join(ProductCard.niche)
             .join(Niche.category)
             .join(Category.marketplace)
+            .outerjoin(ProductHistory.leftovers)
+            .outerjoin(Warehouse, Leftover.warehouse_id == Warehouse.id)
             .where(ProductHistory.id == id)
         ).scalar_one()
 
     def find_product_histories(self, product_id: int) -> list[ProductHistory]:
         db_history_units = self._session.execute(
             select(ProductHistory)
+            .join(ProductHistory.product)
+            .join(ProductCard.niche)
+            .join(Niche.category)
+            .join(Category.marketplace)
             .outerjoin(ProductHistory.leftovers)
-            .join(Warehouse, Leftover.warehouse_id == Warehouse.id)
+            .outerjoin(Warehouse, Leftover.warehouse_id == Warehouse.id)
             .where(ProductHistory.product_id == product_id)
             .distinct()
         ).scalars().all()

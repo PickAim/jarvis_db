@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from jarvis_db.tables import *
 
 from jarvis_db.db_config import Base
 

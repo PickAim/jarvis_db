@@ -1,23 +1,18 @@
 import unittest
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from jarvis_db import tables
-from jarvis_db.db_config import Base
 from jarvis_db.repositores.market.items.product_history_repository import \
     ProductHistoryRepository
+from tests.db_context import DbContext
 
 
 class ProductHistoryRepositoryTest(unittest.TestCase):
     def setUp(self):
-        engine = create_engine('sqlite://')
-        session = sessionmaker(bind=engine, autoflush=False)
-        Base.metadata.create_all(engine)
+        self.__db_context = DbContext()
         product_id = 1
         warehouse_id = 1
         warehouse_global_id = 20
-        with session() as s, s.begin():
+        with self.__db_context.session() as s, s.begin():
             marketplace_id = 1
             db_marketplace = tables.Marketplace(
                 id=marketplace_id, name='marketplace_1')
@@ -62,17 +57,15 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
             )
             s.add(db_product)
             s.add(db_warehouse)
-        self.__warehouse_id = warehouse_id
         self.__product_id = product_id
-        self.__warehouse_global_id = warehouse_global_id
-        self.__session = session
 
     def test_find_product_histories(self):
-        with self.__session() as session, session.begin():
+        with self.__db_context.session() as session, session.begin():
             histories_to_add = 10
-            session.add_all([tables.ProductHistory(
-                cost=10, product_id=self.__product_id) for _ in range(histories_to_add)])
-        with self.__session() as session:
+            histories = [tables.ProductHistory(
+                cost=10, product_id=self.__product_id) for _ in range(histories_to_add)]
+            session.add_all(histories)
+        with self.__db_context.session() as session:
             repository = ProductHistoryRepository(session)
             histories = repository.find_product_histories(self.__product_id)
             self.assertEqual(histories_to_add, len(histories))
