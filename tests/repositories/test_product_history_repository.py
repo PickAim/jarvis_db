@@ -30,7 +30,8 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
             db_product = tables.ProductCard(
                 id=product_id,
                 name='product_1',
-                article=1,
+                global_id=1,
+                rating=10,
                 cost=1,
                 niche=db_niche
             )
