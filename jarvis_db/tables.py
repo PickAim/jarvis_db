@@ -189,31 +189,50 @@ class ProductCard(Base):
     __tablename__ = 'products_cards'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    article: Mapped[int] = mapped_column(Integer, nullable=False)
+    global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)
     niche_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
         f'{Niche.__tablename__}.id'), nullable=False)
     niche: Mapped[Niche] = relationship('Niche', back_populates='products')
 
-    __table_args__ = (UniqueConstraint(name, article, niche_id),)
+    __table_args__ = (UniqueConstraint(name, global_id, niche_id),)
 
     def __repr__(self) -> str:
-        return f'ProductCard(id={self.id!r}, name={self.name!r}, article={self.article!r}, cost={self.cost!r})'
+        return f'ProductCard(id={self.id!r}, name={self.name!r}, global_id={self.global_id!r}, cost={self.cost!r})'
 
 
 class ProductHistory(Base):
-    __tablename__ = 'product_cost_histories'
+    __tablename__ = 'product_histories'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cost: Mapped[int] = mapped_column(Integer(), nullable=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow)
-    leftover: Mapped[int] = mapped_column(Integer, nullable=False)
+    leftovers: Mapped[list['Leftover']] = relationship(
+        'Leftover', back_populates='product_history')
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey(
         f'{ProductCard.__tablename__}.id'), nullable=False)
     product: Mapped[ProductCard] = relationship('ProductCard', uselist=False)
 
     def __repr__(self) -> str:
         return f'ProductCostHistory(id={self.id!r}, cost={self.cost!r}, date={self.date!r})'
+
+
+class Leftover(Base):
+    __tablename__ = 'leftovers'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    type: Mapped[str] = mapped_column(String(100), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    warehouse_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Warehouse.id), nullable=False)
+    warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
+    product_history_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(ProductHistory.id), nullable=False)
+    product_history: Mapped[ProductHistory] = relationship(
+        ProductHistory, back_populates='leftovers')
+
+    def __repr__(self) -> str:
+        return f'Leftover(id={self.id!r}, type={self.type!r}, quantity={self.quantity!r})'
 
 
 class StorageInfo(Base):

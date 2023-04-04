@@ -1,32 +1,24 @@
-from typing import Iterable
-
-from jorm.market.infrastructure import Marketplace
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from jarvis_db import tables
-from jarvis_db.core import Mapper
+from jarvis_db.repositores.alchemy_repository import AlchemyRepository
+from jarvis_db.tables import Marketplace
 
 
-class MarketplaceRepository:
-    def __init__(
-            self, session: Session,
-            to_jorm_mapper: Mapper[tables.Marketplace, Marketplace],
-            to_table_mapper: Mapper[Marketplace, tables.Marketplace]
-    ):
-        self.__session = session
-        self.__to_jorm_mapper = to_jorm_mapper
-        self.__to_table_mapper = to_table_mapper
-
-    def add(self, marketplace: Marketplace):
-        self.__session.add(self.__to_table_mapper.map(marketplace))
-
-    def add_all(self, marketplaces: Iterable[Marketplace]):
-        self.__session.add_all((self.__to_table_mapper.map(
-            marketplace) for marketplace in marketplaces))
-
-    def fetch_all(self) -> dict[int, Marketplace]:
-        db_marketplaces = self.__session.execute(
-            select(tables.Marketplace)
+class MarketplaceRepository(AlchemyRepository):
+    def find_all(self) -> list[Marketplace]:
+        db_marketplaces = self._session.execute(
+            select(Marketplace)
+            .outerjoin(Marketplace.warehouses)
+            .outerjoin(Marketplace.categories)
+            .distinct()
         ).scalars().all()
-        return {marketplace.id: self.__to_jorm_mapper.map(marketplace) for marketplace in db_marketplaces}
+        return list(db_marketplaces)
+
+    def find_by_name(self, marketplace_name: str) -> Marketplace:
+        return self._session.execute(
+            select(Marketplace)
+            .outerjoin(Marketplace.warehouses)
+            .outerjoin(Marketplace.categories)
+            .where(Marketplace.name == marketplace_name)
+            .distinct()
+        ).scalar_one()

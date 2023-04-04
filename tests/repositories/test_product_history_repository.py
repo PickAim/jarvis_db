@@ -1,26 +1,18 @@
 import unittest
-from datetime import datetime
-
-from jorm.market.items import ProductHistoryUnit
-from jorm.support.types import StorageDict
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
 
 from jarvis_db import tables
-from jarvis_db.db_config import Base
-from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
-    ProductHistoryJormToTableMapper, ProductHistoryTableToJormMapper)
-from jarvis_db.repositores.market.items.product_hisory_repository import \
+from jarvis_db.repositores.market.items.product_history_repository import \
     ProductHistoryRepository
+from tests.db_context import DbContext
 
 
 class ProductHistoryRepositoryTest(unittest.TestCase):
     def setUp(self):
-        engine = create_engine('sqlite://')
-        session = sessionmaker(bind=engine, autoflush=False)
-        Base.metadata.create_all(engine)
+        self.__db_context = DbContext()
         product_id = 1
-        with session() as s, s.begin():
+        warehouse_id = 1
+        warehouse_global_id = 20
+        with self.__db_context.session() as s, s.begin():
             marketplace_id = 1
             db_marketplace = tables.Marketplace(
                 id=marketplace_id, name='marketplace_1')
@@ -38,66 +30,43 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
             db_product = tables.ProductCard(
                 id=product_id,
                 name='product_1',
-                article=1,
+                global_id=1,
+                rating=10,
                 cost=1,
                 niche=db_niche
             )
+            db_address = tables.Address(
+                country='AS',
+                region='QS',
+                street='DD',
+                number='HH',
+                corpus='YU'
+            )
+            db_warehouse = tables.Warehouse(
+                id=warehouse_id,
+                owner_id=marketplace_id,
+                global_id=warehouse_global_id,
+                type=0,
+                name='qwerty',
+                address=db_address,
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0
+            )
             s.add(db_product)
+            s.add(db_warehouse)
         self.__product_id = product_id
-        self.__session = session
 
-    def test_add(self):
-        unit = ProductHistoryUnit(10, datetime.utcnow(), StorageDict())
-        with self.__session() as session, session.begin():
-            repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
-            repository.add_product_history(unit, self.__product_id)
-        with self.__session() as session:
-            db_units = session.execute(
-                select(tables.ProductHistory)
-                .join(tables.ProductCard)
-                .where(tables.ProductCard.id == self.__product_id)
-            ).scalars().all()
-            self.assertEqual(len(db_units), 1)
-            db_unit = db_units[0]
-            self.assertEqual(unit.cost, db_unit.cost)
-            self.assertEqual(unit.unit_date, db_unit.date)
-            # TODO self.assertEqual(unit.leftover, db_unit.leftover)
-
-    def test_add_all(self):
-        units = [ProductHistoryUnit(
-            i * 10, datetime.utcnow(), StorageDict()) for i in range(1, 11)]
-        with self.__session() as session, session.begin():
-            repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
-            repository.add_all_product_histories(units, self.__product_id)
-        with self.__session() as session:
-            db_units = session.execute(
-                select(tables.ProductHistory)
-                .join(tables.ProductCard)
-                .where(tables.ProductCard.id == self.__product_id)
-            ).scalars().all()
-            for unit, db_unit in zip(units, db_units, strict=True):
-                self.assertEqual(unit.cost, db_unit.cost)
-                self.assertEqual(unit.unit_date, db_unit.date)
-                # TODO self.assertEqual(unit.leftover, db_unit.leftover)
-
-    def test_fetct_histories(self):
-        expected_units = [ProductHistoryUnit(
-            i * 10, datetime.utcnow(), StorageDict()) for i in range(1, 11)]
-        to_table_mapper = ProductHistoryJormToTableMapper()
-        with self.__session() as session, session.begin():
-            db_units = [to_table_mapper.map(unit) for unit in expected_units]
-            for db_unit in db_units:
-                db_unit.product_id = self.__product_id
-            session.add_all(db_units)
-        with self.__session() as session:
-            repository = ProductHistoryRepository(
-                session, ProductHistoryTableToJormMapper(), ProductHistoryJormToTableMapper())
-            actual_units = repository.get_product_history(
-                self.__product_id).history
-            for actual_unit, expected_unit in zip(actual_units, expected_units, strict=True):
-                self.assertEqual(expected_unit.cost, actual_unit.cost)
-                self.assertEqual(expected_unit.leftover, actual_unit.leftover)
-                self.assertEqual(expected_unit.unit_date,
-                                 actual_unit.unit_date)
+    def test_find_product_histories(self):
+        with self.__db_context.session() as session, session.begin():
+            histories_to_add = 10
+            histories = [tables.ProductHistory(
+                cost=10, product_id=self.__product_id) for _ in range(histories_to_add)]
+            session.add_all(histories)
+        with self.__db_context.session() as session:
+            repository = ProductHistoryRepository(session)
+            histories = repository.find_product_histories(self.__product_id)
+            self.assertEqual(histories_to_add, len(histories))

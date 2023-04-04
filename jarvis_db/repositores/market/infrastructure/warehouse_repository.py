@@ -1,55 +1,40 @@
-from typing import Iterable
-
-from jorm.market.infrastructure import Warehouse
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from jarvis_db import tables
-from jarvis_db.core.mapper import Mapper
+from jarvis_db.repositores.alchemy_repository import AlchemyRepository
+from jarvis_db.tables import Marketplace, Warehouse
 
 
-class WarehouseRepository:
-    def __init__(
-            self, session: Session,
-            to_jorm_mapper: Mapper[tables.Warehouse, Warehouse],
-            to_table_mapper: Mapper[Warehouse, tables.Warehouse]
-    ):
-        self.__session = session
-        self.__to_jorm_mapper = to_jorm_mapper
-        self.__to_table_mapper = to_table_mapper
+class WarehouseRepository(AlchemyRepository[Warehouse]):
 
-    def add(self, warehouse: Warehouse, marketplace_id: int):
-        db_marketplace = self.__session.execute(
-            select(tables.Marketplace)
-            .where(tables.Marketplace.id == marketplace_id)
+    def find_by_name(self, name: str) -> Warehouse:
+        warehouse = self._session.execute(
+            select(Warehouse)
+            .where(Warehouse.name.ilike(name))
         ).scalar_one()
-        db_marketplace.warehouses.append(self.__to_table_mapper.map(warehouse))
+        return warehouse
 
-    def add_all(self, warehouses: Iterable[Warehouse], marketplace_id: int):
-        db_marketplace = self.__session.execute(
-            select(tables.Marketplace)
-            .where(tables.Marketplace.id == marketplace_id)
+    def find_by_global_id(
+            self,
+            global_id: int,
+            marketplace_id: int) -> Warehouse:
+        warehouse = self._session.execute(
+            select(Warehouse)
+            .join(Warehouse.owner)
+            .where(Marketplace.id == marketplace_id)
+            .where(Warehouse.global_id == global_id)
         ).scalar_one()
-        db_marketplace.warehouses.extend(
-            (self.__to_table_mapper.map(warehouse) for warehouse in warehouses))
+        return warehouse
 
-    def find_by_name(self, name: str) -> tuple[Warehouse, int]:
-        db_warehouse = self.__session.execute(
-            select(tables.Warehouse)
-            .where(tables.Warehouse.name.ilike(name))
-        ).scalar_one()
-        return self.__to_jorm_mapper.map(db_warehouse), db_warehouse.id
-
-    def find_all(self) -> dict[int, Warehouse]:
-        db_warehouses = self.__session.execute(
-            select(tables.Warehouse)
+    def find_all(self) -> list[Warehouse]:
+        warehouses = self._session.execute(
+            select(Warehouse)
         ).scalars().all()
-        return {warehouse.id: self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses}
+        return list(warehouses)
 
-    def find_all_by_marketplace_name(self, marketplace_id: int) -> dict[int, Warehouse]:
-        db_warehouses = self.__session.execute(
-            select(tables.Warehouse)
-            .join(tables.Warehouse.owner)
-            .where(tables.Marketplace.id == marketplace_id)
+    def find_all_by_marketplace(self, marketplace_id: int) -> list[Warehouse]:
+        warehouses = self._session.execute(
+            select(Warehouse)
+            .join(Warehouse.owner)
+            .where(Marketplace.id == marketplace_id)
         ).scalars().all()
-        return {warehouse.id: self.__to_jorm_mapper.map(warehouse) for warehouse in db_warehouses}
+        return list(warehouses)
