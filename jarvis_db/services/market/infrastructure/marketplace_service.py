@@ -1,3 +1,4 @@
+from typing import Iterable
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 
 from jarvis_db.core.mapper import Mapper
@@ -18,6 +19,10 @@ class MarketplaceService:
     def create(self, entity: MarketplaceEntity):
         marketplace = Marketplace(name=entity.name)
         self.__marketplace_repository.add(marketplace)
+
+    def create_all(self, entities: Iterable[MarketplaceEntity]):
+        marketplaces = (Marketplace(name=entity.name) for entity in entities)
+        self.__marketplace_repository.add_all(marketplaces)
 
     def find_all(self) -> dict[int, MarketplaceEntity]:
         marketplaces = self.__marketplace_repository.find_all()

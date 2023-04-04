@@ -1,3 +1,4 @@
+from typing import Iterable
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 
 from jarvis_db.core import Mapper
@@ -43,6 +44,10 @@ class WarehouseService:
                     number='',
                     corpus=''),
             ))
+
+    def create_all(self, warehouse_entities: Iterable[WarehouseEntity], marketplace_id: int):
+        for entity in warehouse_entities:
+            self.create_warehouse(entity, marketplace_id)
 
     def find_warehouse_by_name(self, name: str) -> WarehouseEntity:
         return self.__entity_mapper.map(
