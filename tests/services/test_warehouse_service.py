@@ -45,6 +45,21 @@ class WarehouseServiceTest(unittest.TestCase):
             actual = mapper.map(warehouse)
             self.assertEqual(warehouse_entity, actual)
 
+    def test_create_many(self):
+        expected_warehouses = [WarehouseEntity(
+            f'warehouse_{i}', 200 + i, HandlerType.CLIENT, AddressEntity()) for i in range(10)]
+        with self.__db_context.session() as session, session.begin():
+            service = create_service(session)
+            service.create_all(expected_warehouses, self.__marketplace_id)
+        with self.__db_context.session() as session:
+            warehouses = session.execute(
+                select(Warehouse)
+                .where(Warehouse.owner_id == self.__marketplace_id)
+            ).scalars().all()
+            for expected, actual in zip(expected_warehouses, warehouses, strict=True):
+                self.assertEqual(expected.name, actual.name)
+                self.assertEqual(expected.global_id, actual.global_id)
+
     def test_find_by_name(self):
         warehouse_name = 'warehouse_1'
         with self.__db_context.session() as session, session.begin():
