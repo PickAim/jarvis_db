@@ -1,5 +1,6 @@
 import unittest
 
+from jorm.market.person import Account
 from jorm.market.person import User
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
@@ -8,7 +9,6 @@ from jarvis_db import tables
 from jarvis_db.db_config import Base
 from jarvis_db.repositores.mappers.market.person.user_mappers import UserJormToTableMapper, UserTableToJormMapper
 from jarvis_db.repositores.market.person import UserRepository
-from jorm.market.person import Account
 
 
 class UserRepositoryTest(unittest.TestCase):
@@ -19,7 +19,7 @@ class UserRepositoryTest(unittest.TestCase):
         account = Account('1231', 'user@mail.org', 'qwerty')
         with session() as s, s.begin():
             s.add(tables.Account(phone=account.phone_number,
-                  email=account.email, password=account.hashed_password))
+                                 email=account.email, password=account.hashed_password))
         with session() as s:
             db_account = s.execute(
                 select(tables.Account)
@@ -51,7 +51,7 @@ class UserRepositoryTest(unittest.TestCase):
                 .where(tables.Account.email == self.__account.email)
             ).scalar_one()
             session.add(tables.User(name=user_name,
-                        account=db_account, profit_tax=0))
+                                    account=db_account, profit_tax=0))
         with self.__session() as session:
             repository = UserRepository(
                 session, UserTableToJormMapper(), UserJormToTableMapper())

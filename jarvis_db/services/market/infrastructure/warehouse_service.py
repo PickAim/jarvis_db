@@ -1,11 +1,12 @@
 from typing import Iterable
+
+from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 
 from jarvis_db.core import Mapper
 from jarvis_db.repositores.market.infrastructure.warehouse_repository import \
     WarehouseRepository
 from jarvis_db.tables import Address, Warehouse
-from jorm.market.infrastructure import HandlerType
 
 
 class WarehouseService:

@@ -10,10 +10,10 @@ from jarvis_db.core.mapper import Mapper
 
 class AccountRepository:
     def __init__(
-        self,
-        session: Session,
-        to_jorm_mapper: Mapper[tables.Account, Account],
-        to_table_mapper: Mapper[Account, tables.Account]
+            self,
+            session: Session,
+            to_jorm_mapper: Mapper[tables.Account, Account],
+            to_table_mapper: Mapper[Account, tables.Account]
     ):
         self.__session = session
         self.__to_jorm_mapper = to_jorm_mapper
@@ -32,7 +32,7 @@ class AccountRepository:
             .where(tables.Account.email == email)
         ).scalar_one()
         return self.__to_jorm_mapper.map(db_account), db_account.id
-    
+
     def find_all(self) -> dict[int, Account]:
         db_accounts = self.__session.execute(
             select(tables.Account)

@@ -1,6 +1,7 @@
+from jorm.market.person import Account
+
 from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
-from jorm.market.person import Account
 
 
 class AccountJormToTableMapper(Mapper[Account, tables.Account]):

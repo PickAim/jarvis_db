@@ -1,5 +1,3 @@
-from typing import Iterable
-
 from jorm.market.person import Account, User
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,10 +8,10 @@ from jarvis_db.core.mapper import Mapper
 
 class UserRepository:
     def __init__(
-        self,
-        session: Session,
-        to_jorm_mapper: Mapper[tables.User, User],
-        to_table_mapper: Mapper[User, tables.User]
+            self,
+            session: Session,
+            to_jorm_mapper: Mapper[tables.User, User],
+            to_table_mapper: Mapper[User, tables.User]
     ):
         self.__session = session
         self.__to_jorm_mapper = to_jorm_mapper

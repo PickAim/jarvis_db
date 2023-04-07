@@ -8,9 +8,9 @@ from jarvis_db.core import Mapper
 
 class NicheRepository:
     def __init__(
-        self, session: Session,
-        to_jorm_mapper: Mapper[tables.Niche, Niche],
-        to_table_mapper: Mapper[Niche, tables.Niche]
+            self, session: Session,
+            to_jorm_mapper: Mapper[tables.Niche, Niche],
+            to_table_mapper: Mapper[Niche, tables.Niche]
     ):
         self.__session = session
         self.__to_jorm_mapper = to_jorm_mapper

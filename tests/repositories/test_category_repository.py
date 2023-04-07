@@ -29,7 +29,7 @@ class CategoryRepositoryTest(unittest.TestCase):
         niches = [
             Niche(f'n{i}',
                   {commission: 0.1 * index for index,
-                      commission in enumerate(list(HandlerType))},
+                  commission in enumerate(list(HandlerType))},
                   i * 0.2)
             for i in range(niches_count)]
         category = Category(category_name, {

@@ -1,14 +1,10 @@
 import unittest
 
-from jorm.market.infrastructure import Marketplace
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from jarvis_db import tables
 from jarvis_db.db_config import Base
-from jarvis_db.repositores.mappers.market.infrastructure import (
-    MarketplaceJormToTableMapper, MarketplaceTableToJormMapper,
-    WarehouseJormToTableMapper, WarehouseTableToJormMapper)
 from jarvis_db.repositores.market.infrastructure import MarketplaceRepository
 
 
