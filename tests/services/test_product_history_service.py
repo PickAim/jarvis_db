@@ -121,8 +121,8 @@ def create_service(session: Session) -> ProductHistoryService:
         ProductHistoryRepository(session))
     return ProductHistoryService(unit_service, LeftoverService(
         LeftoverRepository(session), WarehouseRepository(session), unit_service),
-                                 ProductHistoryRepository(session),
-                                 ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()))
+        ProductHistoryRepository(session),
+        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()))
 
 
 if __name__ == '__main__':

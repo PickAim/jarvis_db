@@ -29,5 +29,6 @@ class ProductHistoryService:
             self.__leftover_service.create_leftovers(leftover, unit.id)
 
     def find_product_history(self, product_id: int) -> ProductHistory:
-        units = self.__product_history_repository.find_product_histories(product_id)
+        units = self.__product_history_repository.find_product_histories(
+            product_id)
         return ProductHistory([self.__table_mapper.map(unit) for unit in units])
