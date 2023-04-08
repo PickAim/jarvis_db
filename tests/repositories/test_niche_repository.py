@@ -117,7 +117,7 @@ class NicheRepositoryTest(unittest.TestCase):
         with self.__session() as session:
             repository = NicheRepository(
                 session, to_jorm_mapper, NicheJormToTableMapper())
-            niches = repository.fetch_niches_by_category(
+            niches = repository.find_niches_by_category(
                 self.__category_id)
             for expected, actual in zip(expected_niches, niches.values(), strict=True):
                 self.assertEqual(expected, actual)
