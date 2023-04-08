@@ -8,7 +8,7 @@ from jarvis_db.repositores.mappers.market.infrastructure import (
     CategoryTableToJormMapper, NicheTableToJormMapper)
 from jarvis_db.repositores.market.infrastructure.category_repository import \
     CategoryRepository
-from jarvis_db.services.market.infrastructure.catehory_service import \
+from jarvis_db.services.market.infrastructure.category_service import \
     CategoryService
 from jarvis_db.tables import Category, Marketplace
 from tests.db_context import DbContext
