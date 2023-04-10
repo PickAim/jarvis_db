@@ -13,10 +13,10 @@ class WarehouseService:
     def __init__(
             self,
             warehouse_repository: WarehouseRepository,
-            entity_mapper: Mapper[Warehouse, WarehouseEntity]
+            table_mapper: Mapper[Warehouse, WarehouseEntity]
     ) -> None:
         self.__warehouse_repository = warehouse_repository
-        self.__entity_mapper = entity_mapper
+        self.__table_mapper = table_mapper
 
     def create_warehouse(self, warehouse_entity: WarehouseEntity, marketplace_id: int):
         hanler_type = 0
@@ -50,10 +50,10 @@ class WarehouseService:
         for entity in warehouse_entities:
             self.create_warehouse(entity, marketplace_id)
 
-    def find_warehouse_by_name(self, name: str) -> WarehouseEntity:
-        return self.__entity_mapper.map(
-            self.__warehouse_repository.find_by_name(name))
+    def find_warehouse_by_name(self, name: str) -> tuple[WarehouseEntity, int]:
+        warehouse = self.__warehouse_repository.find_by_name(name)
+        return self.__table_mapper.map(warehouse), warehouse.id
 
-    def find_all_warehouses(self) -> list[WarehouseEntity]:
-        return [self.__entity_mapper.map(
-            warehouse) for warehouse in self.__warehouse_repository.find_all()]
+    def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
+        warehouses = self.__warehouse_repository.find_all()
+        return {warehouse.id: self.__table_mapper.map(warehouse) for warehouse in warehouses}

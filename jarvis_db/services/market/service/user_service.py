@@ -22,6 +22,10 @@ class UserService:
         )
         self.__user_repository.add(user)
 
+    def find_by_id(self, user_id: int) -> UserEntity:
+        user = self.__user_repository.find_by_id(user_id)
+        return self.__table_mapper.map(user)
+
     def find_by_account_id(self, account_id: int) -> tuple[UserEntity, int]:
         user = self.__user_repository.find_by_account_id(account_id)
         return self.__table_mapper.map(user), user.id
