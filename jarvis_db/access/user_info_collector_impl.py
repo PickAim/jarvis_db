@@ -12,7 +12,7 @@ class UserInfoCollectorImpl(UserInfoCollector):
         self.__user_repository = user_repository
 
     def get_user_by_account(self, account: Account) -> User:
-        user, _ = self.__user_repository.find_by_account(account)
+        user, _ = self.__user_repository.find_by_account_id(account)
         return user
 
     def get_user_by_id(self, user_id: int) -> User:
