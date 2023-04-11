@@ -2,8 +2,8 @@ from jorm.jarvis.db_access import UserInfoCollector
 from jorm.market.person import Account, User
 from jorm.server.token.types import TokenType
 
-from jarvis_db.services.market.service.account_service import AccountService
-from jarvis_db.services.market.service.user_service import UserService
+from jarvis_db.services.market.person.account_service import AccountService
+from jarvis_db.services.market.person.user_service import UserService
 
 
 class UserInfoCollectorImpl(UserInfoCollector):
