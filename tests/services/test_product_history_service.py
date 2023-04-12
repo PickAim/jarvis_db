@@ -84,7 +84,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
                             'xl', 5) for _ in range(leftovers_per_unit)]}
                     )
                 ) for _ in range(units_to_add)])
-            service.add_product_history(product_history, self.__product_id)
+            service.create(product_history, self.__product_id)
         with self.__db_context.session() as session:
             histories = session.execute(
                 select(tables.ProductHistory)
@@ -121,8 +121,8 @@ def create_service(session: Session) -> ProductHistoryService:
         ProductHistoryRepository(session))
     return ProductHistoryService(unit_service, LeftoverService(
         LeftoverRepository(session), WarehouseRepository(session), unit_service),
-                                 ProductHistoryRepository(session),
-                                 ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()))
+        ProductHistoryRepository(session),
+        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()))
 
 
 if __name__ == '__main__':
