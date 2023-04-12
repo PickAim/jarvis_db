@@ -1,14 +1,10 @@
 import unittest
 
-from jorm.market.infrastructure import Marketplace
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from jarvis_db import tables
 from jarvis_db.db_config import Base
-from jarvis_db.repositores.mappers.market.infrastructure import (
-    MarketplaceJormToTableMapper, MarketplaceTableToJormMapper,
-    WarehouseJormToTableMapper, WarehouseTableToJormMapper)
 from jarvis_db.repositores.market.infrastructure import MarketplaceRepository
 
 
@@ -23,7 +19,7 @@ class MarketplaceRepositoryTest(unittest.TestCase):
         marketplaces_to_add = 10
         with self.__session() as session, session.begin():
             db_marketplaces = [tables.Marketplace(
-                name=f'markeplace_{i}') for i in range(1, marketplaces_to_add + 1)]
+                name=f'marketplace_{i}') for i in range(1, marketplaces_to_add + 1)]
             session.add_all(db_marketplaces)
         with self.__session() as session:
             repository = MarketplaceRepository(session)

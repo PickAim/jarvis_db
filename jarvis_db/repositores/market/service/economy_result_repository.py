@@ -1,27 +1,14 @@
-from jorm.market.service import EconomyResult
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from jarvis_db import tables
-from jarvis_db.core.mapper import Mapper
+from jarvis_db.repositores.alchemy_repository import AlchemyRepository
+from jarvis_db.tables import EconomyResult
 
 
-class EconomyResultRepository:
-    def __init__(
-            self,
-            session: Session,
-            to_jorm_mapper: Mapper[tables.EconomyResult, EconomyResult],
-            to_table_mapper: Mapper[EconomyResult, tables.EconomyResult]
-    ):
-        self.__session = session
-        self.__to_jorm_mapper = to_jorm_mapper
-        self.__to_table_mapper = to_table_mapper
+class EconomyResultRepository(AlchemyRepository[EconomyResult]):
 
-    def add(self, result: EconomyResult):
-        self.__session.add(self.__to_table_mapper.map(result))
-
-    def fetch_add(self) -> dict[int, EconomyResult]:
-        db_results = self.__session.execute(
-            select(tables.EconomyResult)
+    def find_add(self) -> list[EconomyResult]:
+        db_results = self._session.execute(
+            select(EconomyResult)
+            .join(EconomyResult.request)
         ).scalars().all()
-        return {result.id: self.__to_jorm_mapper.map(result) for result in db_results}
+        return list(db_results)

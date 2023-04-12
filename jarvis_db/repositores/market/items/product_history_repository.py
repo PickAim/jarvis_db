@@ -6,7 +6,7 @@ from jarvis_db.tables import (Category, Leftover, Niche, ProductCard,
 
 
 class ProductHistoryRepository(AlchemyRepository[ProductHistory]):
-    def find_by_id(self, id: int) -> ProductHistory:
+    def find_by_id(self, product_history_id: int) -> ProductHistory:
         return self._session.execute(
             select(ProductHistory)
             .join(ProductHistory.product)
@@ -15,7 +15,7 @@ class ProductHistoryRepository(AlchemyRepository[ProductHistory]):
             .join(Category.marketplace)
             .outerjoin(ProductHistory.leftovers)
             .outerjoin(Warehouse, Leftover.warehouse_id == Warehouse.id)
-            .where(ProductHistory.id == id)
+            .where(ProductHistory.id == product_history_id)
         ).scalar_one()
 
     def find_product_histories(self, product_id: int) -> list[ProductHistory]:

@@ -11,6 +11,7 @@ class EconomyRequestJormToTableMapper(Mapper[EconomyRequest, tables.EconomyReque
             prime_cost=value.prime_cost,
             transit_cost=value.transit_cost,
             transit_count=value.transit_count,
+            pack_cost=value.pack_cost
         )
 
 

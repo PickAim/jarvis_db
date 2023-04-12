@@ -1,8 +1,5 @@
 import unittest
 
-from jorm.market.infrastructure import Address, HandlerType, Warehouse
-from sqlalchemy import select
-
 from jarvis_db import tables
 from jarvis_db.repositores.market.infrastructure.warehouse_repository import WarehouseRepository
 from tests.db_context import DbContext

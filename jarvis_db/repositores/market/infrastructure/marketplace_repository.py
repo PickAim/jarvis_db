@@ -4,7 +4,7 @@ from jarvis_db.repositores.alchemy_repository import AlchemyRepository
 from jarvis_db.tables import Marketplace
 
 
-class MarketplaceRepository(AlchemyRepository):
+class MarketplaceRepository(AlchemyRepository[Marketplace]):
     def find_all(self) -> list[Marketplace]:
         db_marketplaces = self._session.execute(
             select(Marketplace)

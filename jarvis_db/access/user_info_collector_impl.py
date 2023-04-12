@@ -2,27 +2,31 @@ from jorm.jarvis.db_access import UserInfoCollector
 from jorm.market.person import Account, User
 from jorm.server.token.types import TokenType
 
-from jarvis_db.repositores.market.person import (AccountRepository,
-                                                 UserRepository)
+from jarvis_db.services.market.person.account_service import AccountService
+from jarvis_db.services.market.person.user_service import UserService
 
 
 class UserInfoCollectorImpl(UserInfoCollector):
-    def __init__(self, account_repository: AccountRepository, user_repository: UserRepository):
-        self.__account_repository = account_repository
-        self.__user_repository = user_repository
+    def __init__(self, account_service: AccountService, user_service: UserService):
+        self.__account_service = account_service
+        self.__user_service = user_service
 
     def get_user_by_account(self, account: Account) -> User:
-        user, _ = self.__user_repository.find_by_account(account)
+        _, account_id = self.__account_service.find_by_email(account.email)
+        user, _ = self.__user_service.find_by_account_id(account_id)
         return user
 
     def get_user_by_id(self, user_id: int) -> User:
-        user, _ = self.__user_repository.find_by_id(user_id)
-        return user
-
-    def get_account(self, login: str) -> Account:
-        account, _ = self.__account_repository.find_by_email(login)
-        return account
+        return self.__user_service.find_by_id(user_id)
 
     def get_token_rnd_part(self, user_id: int, imprint: str, token_type: TokenType) -> str:
         # TODO
         return super().get_token_rnd_part(user_id, imprint, token_type)
+
+    def get_account_by_email(self, email: str) -> Account:
+        account, _ = self.__account_service.find_by_email(email)
+        return account
+
+    def get_account_by_phone(self, phone: str) -> Account:
+        account, _ = self.__account_service.find_by_phone(phone)
+        return account
