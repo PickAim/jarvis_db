@@ -1,4 +1,5 @@
 from typing import Iterable
+
 from jorm.market.items import ProductHistoryUnit
 from jorm.support.types import StorageDict
 

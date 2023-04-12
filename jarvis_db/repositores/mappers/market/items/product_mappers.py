@@ -1,6 +1,7 @@
-from jarvis_db.core import Mapper
 from jorm.market.items import Product, ProductHistory
+
 from jarvis_db import tables
+from jarvis_db.core import Mapper
 
 
 class ProductJormToTableMapper(Mapper[Product, tables.ProductCard]):

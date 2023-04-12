@@ -1,4 +1,5 @@
 from typing import Iterable
+
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 
 from jarvis_db.core.mapper import Mapper

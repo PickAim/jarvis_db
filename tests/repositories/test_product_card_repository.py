@@ -22,7 +22,7 @@ class ProductCardRepositoryTest(unittest.TestCase):
                 category=category
             )
             niche.products = [tables.ProductCard(
-                name=f'product#{i}', article=i, cost=i * 10,) for i in range(100, 111)]
+                name=f'product#{i}', article=i, cost=i * 10, ) for i in range(100, 111)]
             category.marketplace = marketplace
             s.add(marketplace)
         self.__niche_id = niche_id

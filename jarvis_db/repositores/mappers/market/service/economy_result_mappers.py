@@ -1,7 +1,9 @@
 from datetime import datetime
-from jarvis_db.core.mapper import Mapper
+
 from jorm.market.service import EconomyResult, Request
+
 from jarvis_db import tables
+from jarvis_db.core.mapper import Mapper
 
 
 class EconomyResultJormToTableMapper(Mapper[EconomyResult, tables.EconomyResult]):

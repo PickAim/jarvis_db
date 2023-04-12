@@ -113,7 +113,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
             self.assertEqual(units_to_add, len(histories))
             for unit in histories:
                 self.assertEqual(leftovers_per_unit, sum(
-                    (len(lefovers) for lefovers in unit.leftover.values())))
+                    (len(leftovers) for leftovers in unit.leftover.values())))
 
 
 def create_service(session: Session) -> ProductHistoryService:

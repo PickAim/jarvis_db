@@ -286,7 +286,7 @@ class FrequencyResult(Base):
     __tablename__ = 'frequency_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     request_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(FrequencyRequest.id))
+        Integer, ForeignKey(FrequencyRequest.id), nullable=False)
     request: Mapped[FrequencyRequest] = relationship(
         FrequencyRequest, uselist=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -299,6 +299,10 @@ class FrequencyResult(Base):
 class EconomyResult(Base):
     __tablename__ = 'economy_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    request_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(EconomyRequest.id), nullable=False)
+    request: Mapped[EconomyRequest] = relationship(
+        EconomyRequest, uselist=False)
     buy_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     marketplace_commission: Mapped[int] = mapped_column(

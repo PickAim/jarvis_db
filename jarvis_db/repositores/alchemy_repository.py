@@ -1,4 +1,5 @@
 from typing import Generic, Iterable, TypeVar
+
 from sqlalchemy.orm import Session
 
 T = TypeVar('T')
