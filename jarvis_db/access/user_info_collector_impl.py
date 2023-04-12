@@ -19,10 +19,6 @@ class UserInfoCollectorImpl(UserInfoCollector):
     def get_user_by_id(self, user_id: int) -> User:
         return self.__user_service.find_by_id(user_id)
 
-    def get_account(self, login: str) -> Account:
-        account, _ = self.__account_service.find_by_email(login)
-        return account
-
     def get_token_rnd_part(self, user_id: int, imprint: str, token_type: TokenType) -> str:
         # TODO
         return super().get_token_rnd_part(user_id, imprint, token_type)
