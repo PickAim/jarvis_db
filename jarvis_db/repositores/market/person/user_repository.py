@@ -6,11 +6,11 @@ from jarvis_db.tables import Account, User
 
 class UserRepository(AlchemyRepository[User]):
 
-    def find_by_id(self, id: int) -> User:
+    def find_by_id(self, user_id: int) -> User:
         return self._session.execute(
             select(User)
             .join(User.account)
-            .where(User.id == id)
+            .where(User.id == user_id)
         ).scalar_one()
 
     def find_by_account_id(self, account_id: int) -> User:

@@ -19,5 +19,5 @@ class ProductHistoryUnitService:
             product_id=product_id)
         )
 
-    def find_by_id(self, id: int) -> tables.ProductHistory:
-        return self.__product_history_repository.find_by_id(id)
+    def find_by_id(self, product_history_id: int) -> tables.ProductHistory:
+        return self.__product_history_repository.find_by_id(product_history_id)

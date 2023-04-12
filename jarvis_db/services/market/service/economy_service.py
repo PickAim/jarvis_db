@@ -16,8 +16,7 @@ class EconomyService:
             request_repository: EconomyRequestRepository,
             request_table_mapper: Mapper[EconomyRequest, EconomyRequestEntity],
             result_repository: EconomyResultRepository,
-            result_table_mapper: Mapper[EconomyResult,
-                                        EconomyResultEntity],
+            result_table_mapper: Mapper[EconomyResult, EconomyResultEntity],
             niche_service: NicheService
     ):
         self.__request_repository = request_repository

@@ -26,3 +26,11 @@ class UserInfoCollectorImpl(UserInfoCollector):
     def get_token_rnd_part(self, user_id: int, imprint: str, token_type: TokenType) -> str:
         # TODO
         return super().get_token_rnd_part(user_id, imprint, token_type)
+
+    def get_account_by_email(self, email: str) -> Account:
+        account, _ = self.__account_service.find_by_email(email)
+        return account
+
+    def get_account_by_phone(self, phone: str) -> Account:
+        account, _ = self.__account_service.find_by_phone(phone)
+        return account
