@@ -39,7 +39,7 @@ class CategoryServiceTest(unittest.TestCase):
         category_name = 'qwerty'
         with self.__db_context.session() as session, session.begin():
             session.add(Category(name=category_name,
-                        marketplace_id=self.__marketplace_id))
+                                 marketplace_id=self.__marketplace_id))
         with self.__db_context.session() as session:
             service = create_service(session)
             category, _ = service.find_by_name(

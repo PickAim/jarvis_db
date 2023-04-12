@@ -39,7 +39,7 @@ class UserServiceTest(unittest.TestCase):
         user_name = 'qwerty'
         with self.__db_context.session() as session, session.begin():
             session.add(User(name=user_name, profit_tax=0,
-                        account_id=self.__account_id))
+                             account_id=self.__account_id))
         with self.__db_context.session() as session:
             service = create_service(session)
             user, _ = service.find_by_account_id(self.__account_id)

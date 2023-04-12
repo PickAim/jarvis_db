@@ -27,7 +27,8 @@ class NicheServiceTest(unittest.TestCase):
 
     def test_create(self):
         niche_entity = NicheEntity('niche', {handler_type: (
-            i + 1) * 0.01 for i, handler_type in enumerate(HandlerType)}, 0.01)
+                                                                   i + 1) * 0.01 for i, handler_type in
+                                             enumerate(HandlerType)}, 0.01)
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             service.create(niche_entity, self.__category_id)
@@ -48,7 +49,8 @@ class NicheServiceTest(unittest.TestCase):
 
     def test_create_all(self):
         niche_entities = [NicheEntity(f'niche_{j}', {handler_type: (
-            i + 1) * 0.01 for i, handler_type in enumerate(HandlerType)}, 0.01) for j in range(1, 11)]
+                                                                           i + 1) * 0.01 for i, handler_type in
+                                                     enumerate(HandlerType)}, 0.01) for j in range(1, 11)]
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             service.create_all(niche_entities, self.__category_id)

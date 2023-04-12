@@ -19,12 +19,12 @@ class WarehouseService:
         self.__table_mapper = table_mapper
 
     def create_warehouse(self, warehouse_entity: WarehouseEntity, marketplace_id: int):
-        hanler_type = 0
+        handler_type = 0
         match warehouse_entity.handler_type:
             case HandlerType.PARTIAL_CLIENT:
-                hanler_type = 1
+                handler_type = 1
             case HandlerType.CLIENT:
-                hanler_type = 2
+                handler_type = 2
         self.__warehouse_repository.add(
             Warehouse(
                 owner_id=marketplace_id,
@@ -37,7 +37,7 @@ class WarehouseService:
                 additional_storage_commission=int(
                     warehouse_entity.additional_storage_commission * 100),
                 monopalette_storage_commission=warehouse_entity.mono_palette_storage_commission,
-                type=hanler_type,
+                type=handler_type,
                 address=Address(
                     country='',
                     region='',

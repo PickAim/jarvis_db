@@ -27,7 +27,7 @@ class WarehouseServiceTest(unittest.TestCase):
 
     def test_create(self):
         with self.__db_context.session() as session, session.begin():
-            warehouse_name = 'warehose_1'
+            warehouse_name = 'warehouse_1'
             warehouse_entity = WarehouseEntity(
                 warehouse_name,
                 200,

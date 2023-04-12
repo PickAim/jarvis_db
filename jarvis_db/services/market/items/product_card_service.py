@@ -18,14 +18,14 @@ class ProductCardService:
         self.__table_mapper = table_mapper
 
     def create_product(self, product: Product, niche_id: int):
-        db_proudct = ProductCard(
+        db_product = ProductCard(
             name=product.name,
             global_id=product.global_id,
             cost=product.cost,
             rating=int(product.rating * 100),
             niche_id=niche_id
         )
-        self.__product_card_repository.add(db_proudct)
+        self.__product_card_repository.add(db_product)
 
     def create_products(self, products: Iterable[Product], niche_id: int):
         for product in products:

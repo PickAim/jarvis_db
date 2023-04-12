@@ -75,7 +75,7 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add_all(products)
             session.flush()
             expected_products = [mapper.map(product) for product in products]
-        with self.__db_context.session() as sesssion:
+        with self.__db_context.session() as session:
             service = create_service(session)
             actual_products = service.find_all_in_niche(
                 self.__niche_id).values()
