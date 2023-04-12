@@ -126,5 +126,5 @@ class NicheServiceTest(unittest.TestCase):
                 self.assertEqual(niche, niche_entity)
 
 
-def create_service(session: Session):
+def create_service(session: Session) -> NicheService:
     return NicheService(NicheRepository(session), NicheTableToJormMapper())
