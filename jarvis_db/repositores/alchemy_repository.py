@@ -11,9 +11,11 @@ class AlchemyRepository(Generic[T]):
 
     def add(self, entity: T):
         self._session.add(entity)
+        self._session.flush()
 
     def add_all(self, entities: Iterable[T]):
         self._session.add_all(entities)
+        self._session.flush()
 
     def save(self, entity: T) -> T:
         self._session.add(entity)
@@ -22,3 +24,4 @@ class AlchemyRepository(Generic[T]):
 
     def delete(self, entity: T):
         self._session.delete(entity)
+        self._session.flush()
