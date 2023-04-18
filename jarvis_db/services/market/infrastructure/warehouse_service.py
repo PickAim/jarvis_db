@@ -57,3 +57,6 @@ class WarehouseService:
     def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
         warehouses = self.__warehouse_repository.find_all()
         return {warehouse.id: self.__table_mapper.map(warehouse) for warehouse in warehouses}
+
+    def exists_with_name(self, name: str) -> bool:
+        return self.__warehouse_repository.exists_with_name(name)

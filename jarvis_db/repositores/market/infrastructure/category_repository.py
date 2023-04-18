@@ -21,3 +21,10 @@ class CategoryRepository(AlchemyRepository[Category]):
             .where(Marketplace.id == marketplace_id)
         ).scalars().all()
         return list(categories)
+
+    def exists_with_name(self, name: str, marketplace_id: int) -> bool:
+        return self._session.execute(
+            select(Category)
+            .where(Category.marketplace_id == marketplace_id)
+            .where(Category.name.ilike(name))
+        ).scalar() is not None

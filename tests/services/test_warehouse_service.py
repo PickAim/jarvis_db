@@ -119,6 +119,40 @@ class WarehouseServiceTest(unittest.TestCase):
             for expected, actual in zip(expected_warehouses, actual_warehouses, strict=True):
                 self.assertEqual(expected, actual)
 
+    def test_exists_with_name_returns_true(self):
+        warehouse_name = 'warehouse_1'
+        with self.__db_context.session() as session, session.begin():
+            session.add(Warehouse(
+                owner_id=self.__marketplace_id,
+                global_id=200,
+                type=1,
+                name=warehouse_name,
+                address=Address(
+                    country='AS',
+                    region='QS',
+                    street='DD',
+                    number='HH',
+                    corpus='YU'
+                ),
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0
+            ))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(warehouse_name)
+            self.assertTrue(exists)
+
+    def test_exists_with_name_returns_false(self):
+        warehouse_name = 'warehouse_1'
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(warehouse_name)
+            self.assertFalse(exists)
+
 
 def create_service(session: Session):
     return WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper())
