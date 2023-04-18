@@ -58,6 +58,25 @@ class CategoryServiceTest(unittest.TestCase):
             for expected, actual in zip(expected_categories, actual_categories, strict=True):
                 self.assertEqual(expected.name, actual.name)
 
+    def test_exists_with_name_returns_true(self):
+        category_name = 'qwerty'
+        with self.__db_context.session() as session, session.begin():
+            session.add(Category(name=category_name,
+                                 marketplace_id=self.__marketplace_id))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(
+                category_name, self.__marketplace_id)
+            self.assertTrue(exists)
+
+    def test_exists_with_name_returns_false(self):
+        category_name = 'qwerty'
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(
+                category_name, self.__marketplace_id)
+            self.assertFalse(exists)
+
 
 def create_service(session: Session) -> CategoryService:
     return CategoryService(CategoryRepository(session), CategoryTableToJormMapper(NicheTableToJormMapper()))

@@ -38,7 +38,7 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
             .where(Marketplace.id == marketplace_id)
         ).scalars().all()
         return list(warehouses)
-    
+
     def exists_with_name(self, name: str) -> bool:
         return self._session.execute(
             select(Warehouse)
