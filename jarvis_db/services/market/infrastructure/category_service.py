@@ -35,3 +35,6 @@ class CategoryService:
         categories = self.__category_repository.find_all_in_marketplace(
             marketplace_id)
         return {category.id: self.__table_mapper.map(category) for category in categories}
+    
+    def exists_with_name(self, name: str, marketplace_id: int) -> bool:
+        return self.__category_repository.exists_with_name(name, marketplace_id)

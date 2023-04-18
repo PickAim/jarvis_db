@@ -22,3 +22,9 @@ class MarketplaceRepository(AlchemyRepository[Marketplace]):
             .where(Marketplace.name == marketplace_name)
             .distinct()
         ).scalar_one()
+
+    def exists_with_name(self, name: str) -> bool:
+        return self._session.execute(
+            select(Marketplace)
+            .where(Marketplace.name.ilike(name))
+        ).scalar() is not None

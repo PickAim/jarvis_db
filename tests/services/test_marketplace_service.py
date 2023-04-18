@@ -41,6 +41,22 @@ class MarketplaceServiceTest(unittest.TestCase):
             found, _ = service.find_by_name(marketplace_name)
             self.assertEqual(marketplace_name, found.name)
 
+    def test_exists_with_name_returns_true(self):
+        marketplace_name = 'qwerty'
+        with self.__db_context.session() as session, session.begin():
+            session.add(Marketplace(name=marketplace_name))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(marketplace_name)
+            self.assertTrue(exists)
+
+    def test_exists_with_name_returns_false(self):
+        marketplace_name = 'qwerty'
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(marketplace_name)
+            self.assertFalse(exists)
+
 
 def create_service(session: Session) -> MarketplaceService:
     return MarketplaceService(

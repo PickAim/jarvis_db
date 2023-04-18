@@ -30,3 +30,10 @@ class NicheRepository(AlchemyRepository[Niche]):
             .where(Marketplace.id == marketplace_id)
         ).scalars().all()
         return list(db_niches)
+
+    def exists_with_name(self, name: str, category_id: int) -> bool:
+        return self._session.execute(
+            select(Niche)
+            .where(Niche.category_id == category_id)
+            .where(Niche.name.ilike(name))
+        ).scalar() is not None
