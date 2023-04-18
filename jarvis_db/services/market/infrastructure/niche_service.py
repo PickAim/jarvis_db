@@ -47,3 +47,6 @@ class NicheService:
     def find_all_in_marketplace(self, marketplace_id: int) -> dict[int, NicheEntity]:
         niches = self.__niche_repository.find_by_marketplace(marketplace_id)
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
+
+    def exists_with_name(self, name: str, category_id: int) -> bool:
+        return self.__niche_repository.exists_with_name(name, category_id)

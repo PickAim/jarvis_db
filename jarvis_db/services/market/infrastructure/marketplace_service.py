@@ -33,3 +33,6 @@ class MarketplaceService:
     def find_by_name(self, name: str) -> tuple[MarketplaceEntity, int]:
         marketplace = self.__marketplace_repository.find_by_name(name)
         return self.__table_mapper.map(marketplace), marketplace.id
+
+    def exists_with_name(self, name: str) -> bool:
+        return self.__marketplace_repository.exists_with_name(name)

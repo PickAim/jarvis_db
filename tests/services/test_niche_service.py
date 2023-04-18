@@ -27,8 +27,8 @@ class NicheServiceTest(unittest.TestCase):
 
     def test_create(self):
         niche_entity = NicheEntity('niche', {handler_type: (
-                                                                   i + 1) * 0.01 for i, handler_type in
-                                             enumerate(HandlerType)}, 0.01)
+            i + 1) * 0.01 for i, handler_type in
+            enumerate(HandlerType)}, 0.01)
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             service.create(niche_entity, self.__category_id)
@@ -49,8 +49,8 @@ class NicheServiceTest(unittest.TestCase):
 
     def test_create_all(self):
         niche_entities = [NicheEntity(f'niche_{j}', {handler_type: (
-                                                                           i + 1) * 0.01 for i, handler_type in
-                                                     enumerate(HandlerType)}, 0.01) for j in range(1, 11)]
+            i + 1) * 0.01 for i, handler_type in
+            enumerate(HandlerType)}, 0.01) for j in range(1, 11)]
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             service.create_all(niche_entities, self.__category_id)
@@ -126,6 +126,29 @@ class NicheServiceTest(unittest.TestCase):
                 self.__category_id).values()
             for niche_entity, niche in zip(niche_entities, expected_niches, strict=True):
                 self.assertEqual(niche, niche_entity)
+
+    def test_exists_with_name_returns_true(self):
+        niche_name = 'qwerty'
+        with self.__db_context.session() as session, session.begin():
+            session.add(Niche(
+                category_id=self.__category_id,
+                name=niche_name,
+                marketplace_commission=0.01,
+                partial_client_commission=0.02,
+                client_commission=0.03,
+                return_percent=0.04
+            ))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(niche_name, self.__category_id)
+            self.assertTrue(exists)
+
+    def test_exists_with_name_returs_false(self):
+        niche_name = 'qwerty'
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            exists = service.exists_with_name(niche_name, self.__category_id)
+            self.assertFalse(exists)
 
 
 def create_service(session: Session) -> NicheService:
