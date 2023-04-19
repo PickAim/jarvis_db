@@ -77,6 +77,19 @@ class CategoryServiceTest(unittest.TestCase):
                 category_name, self.__marketplace_id)
             self.assertFalse(exists)
 
+    def test_filter_existing_names(self):
+        existing_names = [f'category_{i}' for i in range(1, 11)]
+        with self.__db_context.session() as session, session.begin():
+            session.add_all((Category(name=category_name,
+                                      marketplace_id=self.__marketplace_id) for category_name in existing_names))
+        new_names = [f'new_category_{i}' for i in range(1, 11)]
+        names_to_filter = [*existing_names, *new_names]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            filtered_names = service.filter_existing_names(
+                names_to_filter, self.__marketplace_id)
+            self.assertEqual(sorted(new_names), sorted(filtered_names))
+
 
 def create_service(session: Session) -> CategoryService:
     return CategoryService(CategoryRepository(session), CategoryTableToJormMapper(NicheTableToJormMapper()))

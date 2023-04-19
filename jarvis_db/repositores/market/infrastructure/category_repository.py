@@ -28,3 +28,11 @@ class CategoryRepository(AlchemyRepository[Category]):
             .where(Category.marketplace_id == marketplace_id)
             .where(Category.name.ilike(name))
         ).scalar() is not None
+    
+    def filter_existing_names(self, names: list[str], marketplace_id: int) -> list[str]:
+        existing_names = self._session.execute(
+            select(Category.name)
+            .where(Category.marketplace_id == marketplace_id)
+            .where(Category.name.in_(names))
+        ).scalars().all()
+        return list(set(names) - set(existing_names))
