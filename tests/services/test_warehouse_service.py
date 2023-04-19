@@ -153,6 +153,35 @@ class WarehouseServiceTest(unittest.TestCase):
             exists = service.exists_with_name(warehouse_name)
             self.assertFalse(exists)
 
+    def test_filter_existing_names(self):
+        existing_names = [f'warehouse_{i}' for i in range(1, 11)]
+        with self.__db_context.session() as session, session.begin():
+            session.add_all((Warehouse(
+                owner_id=self.__marketplace_id,
+                global_id=200,
+                type=1,
+                name=warehouse_name,
+                address=Address(
+                    country='AS',
+                    region='QS',
+                    street='DD',
+                    number='HH',
+                    corpus='YU'
+                ),
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0
+            ) for warehouse_name in existing_names))
+        new_names = [f'new_warehouse_{i}' for i in range(1, 11)]
+        names_to_filter = [*existing_names, *new_names]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            filtered_names = service.filter_existing_names(names_to_filter)
+            self.assertEqual(sorted(new_names), sorted(filtered_names))
+
 
 def create_service(session: Session):
     return WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper())

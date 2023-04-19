@@ -50,3 +50,6 @@ class NicheService:
 
     def exists_with_name(self, name: str, category_id: int) -> bool:
         return self.__niche_repository.exists_with_name(name, category_id)
+
+    def filter_existing_names(self, names: Iterable[str], category_id: int) -> list[str]:
+        return self.__niche_repository.filter_existing_names(list(names), category_id)

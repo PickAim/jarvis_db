@@ -37,3 +37,11 @@ class NicheRepository(AlchemyRepository[Niche]):
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
         ).scalar() is not None
+
+    def filter_existing_names(self, names: list[str], category_id: int) -> list[str]:
+        existing_names = self._session.execute(
+            select(Niche.name)
+            .where(Niche.category_id == category_id)
+            .where(Niche.name.in_(names))
+        ).scalars().all()
+        return list(set(names) - set(existing_names))

@@ -150,6 +150,25 @@ class NicheServiceTest(unittest.TestCase):
             exists = service.exists_with_name(niche_name, self.__category_id)
             self.assertFalse(exists)
 
+    def test_filther_existing_names(self):
+        existing_names = [f'niche_{i}' for i in range(1, 11)]
+        with self.__db_context.session() as session, session.begin():
+            session.add_all((Niche(
+                category_id=self.__category_id,
+                name=niche_name,
+                marketplace_commission=0.01,
+                partial_client_commission=0.02,
+                client_commission=0.03,
+                return_percent=0.04
+            ) for niche_name in existing_names))
+        new_names = [f'new_niche_name_{i}' for i in range(1, 11)]
+        names_to_filter = [*existing_names, *new_names]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            filtered_names = service.filter_existing_names(
+                names_to_filter, self.__category_id)
+            self.assertEqual(sorted(new_names), sorted(filtered_names))
+
 
 def create_service(session: Session) -> NicheService:
     return NicheService(NicheRepository(session), NicheTableToJormMapper())

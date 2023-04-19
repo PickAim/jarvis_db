@@ -38,3 +38,6 @@ class CategoryService:
 
     def exists_with_name(self, name: str, marketplace_id: int) -> bool:
         return self.__category_repository.exists_with_name(name, marketplace_id)
+
+    def filter_existing_names(self, names: Iterable[str], marketplace_id) -> list[str]:
+        return self.__category_repository.filter_existing_names(list(names), marketplace_id)
