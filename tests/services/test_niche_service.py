@@ -161,14 +161,13 @@ class NicheServiceTest(unittest.TestCase):
                 client_commission=0.03,
                 return_percent=0.04
             ) for niche_name in existing_names))
-        not_existing_names = [f'new_niche_name_{i}' for i in range(1, 11)]
-        names_to_filter = [*existing_names, *not_existing_names]
+        new_names = [f'new_niche_name_{i}' for i in range(1, 11)]
+        names_to_filter = [*existing_names, *new_names]
         with self.__db_context.session() as session:
             service = create_service(session)
             filtered_names = service.filter_existing_names(
                 names_to_filter, self.__category_id)
-            for not_existing, filtered in zip(sorted(not_existing_names), sorted(filtered_names), strict=True):
-                self.assertEqual(not_existing, filtered)
+            self.assertEqual(sorted(new_names), sorted(filtered_names))
 
 
 def create_service(session: Session) -> NicheService:
