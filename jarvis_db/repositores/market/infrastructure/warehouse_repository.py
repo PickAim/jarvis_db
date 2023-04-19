@@ -44,3 +44,10 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
             select(Warehouse)
             .where(Warehouse.name.ilike(name))
         ).scalar() is not None
+    
+    def filter_existing_names(self, names: list[str]) -> list[str]:
+        existing_names = self._session.execute(
+            select(Warehouse.name)
+            .where(Warehouse.name.in_(names))
+        ).scalars().all()
+        return list(set(names) - set(existing_names))

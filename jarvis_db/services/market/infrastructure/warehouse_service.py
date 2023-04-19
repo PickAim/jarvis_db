@@ -60,3 +60,6 @@ class WarehouseService:
 
     def exists_with_name(self, name: str) -> bool:
         return self.__warehouse_repository.exists_with_name(name)
+
+    def filter_existing_names(self, names: Iterable[str]) -> list[str]:
+        return self.__warehouse_repository.filter_existing_names(list(names))
