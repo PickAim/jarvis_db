@@ -1,5 +1,6 @@
-from jorm.market.service import EconomyRequest as EconomyRequestEntity
-from jorm.market.service import EconomyResult as EconomyResultEntity
+from jorm.market.service import RequestInfo
+from jorm.market.service import UnitEconomyRequest as UnitEconomyRequestEntity
+from jorm.market.service import UnitEconomyResult as UnitEconomyResultEntity
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.repositores.market.service.economy_request_repository import \
@@ -7,16 +8,16 @@ from jarvis_db.repositores.market.service.economy_request_repository import \
 from jarvis_db.repositores.market.service.economy_result_repository import \
     EconomyResultRepository
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.tables import EconomyRequest, EconomyResult
+from jarvis_db.tables import UnitEconomyRequest, UnitEconomyResult
 
 
 class EconomyService:
     def __init__(
             self,
             request_repository: EconomyRequestRepository,
-            request_table_mapper: Mapper[EconomyRequest, EconomyRequestEntity],
+            request_table_mapper: Mapper[UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequestEntity]],
             result_repository: EconomyResultRepository,
-            result_table_mapper: Mapper[EconomyResult, EconomyResultEntity],
+            result_table_mapper: Mapper[UnitEconomyResult, UnitEconomyResultEntity],
             niche_service: NicheService
     ):
         self.__request_repository = request_repository
@@ -27,25 +28,26 @@ class EconomyService:
 
     def save_request(
             self,
-            request_entity: EconomyRequestEntity,
-            result_entity: EconomyResultEntity,
+            request_info: RequestInfo,
+            request_entity: UnitEconomyRequestEntity,
+            result_entity: UnitEconomyResultEntity,
             user_id: int,
             category_id: int
     ):
         _, niche_id = self.__niche_service.find_by_name(
-            request_entity.niche_name, category_id)
-        request = self.__request_repository.save(EconomyRequest(
+            request_entity.niche, category_id)
+        request = self.__request_repository.save(UnitEconomyRequest(
             user_id=user_id,
             niche_id=niche_id,
-            date=request_entity.date,
-            prime_cost=request_entity.prime_cost,
-            transit_cost=request_entity.transit_cost,
-            pack_cost=request_entity.pack_cost,
+            date=request_info.date,
+            buy_cost=request_entity.buy,
+            transit_cost=request_entity.transit_price,
+            pack_cost=request_entity.pack,
             transit_count=request_entity.transit_count
         ))
-        result = EconomyResult(
+        result = UnitEconomyResult(
             request_id=request.id,
-            buy_cost=result_entity.buy_cost,
+            product_cost=result_entity.product_cost,
             pack_cost=result_entity.pack_cost,
             marketplace_commission=result_entity.marketplace_commission,
             logistic_price=result_entity.logistic_price,
@@ -53,10 +55,10 @@ class EconomyService:
             recommended_price=result_entity.recommended_price,
             transit_profit=result_entity.transit_profit,
             roi=result_entity.roi,
-            transit_margin_percent=result_entity.transit_margin_percent
+            transit_margin_percent=result_entity.transit_margin
         )
         self.__result_repository.add(result)
 
-    def find_user_requests(self, user_id: int) -> dict[int, EconomyRequestEntity]:
+    def find_user_requests(self, user_id: int) -> dict[int, tuple[RequestInfo, UnitEconomyRequestEntity]]:
         requests = self.__request_repository.find_user_requests(user_id)
         return {request.id: self.__request_table_mapper.map(request) for request in requests}
