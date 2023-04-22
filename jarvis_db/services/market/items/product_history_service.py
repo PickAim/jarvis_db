@@ -24,7 +24,7 @@ class ProductHistoryService:
 
     def create(self, product_history: ProductHistory, product_id: int):
         units = ((self.__unit_servie.create(unit, product_id), unit.leftover)
-                 for unit in product_history.history)
+                 for unit in product_history.get_history())
         for unit, leftover in units:
             self.__leftover_service.create_leftovers(leftover, unit.id)
 
