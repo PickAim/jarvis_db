@@ -26,9 +26,11 @@ class CategoryService:
         for category in category_entities:
             self.create(category, marketplace_id)
 
-    def find_by_name(self, name: str, marketplace_id: int) -> tuple[CategoryEntity, int]:
+    def find_by_name(self, name: str, marketplace_id: int) -> tuple[CategoryEntity, int] | None:
         category = self.__category_repository.find_by_name(
             name, marketplace_id)
+        if category is None:
+            return None
         return self.__table_mapper.map(category), category.id
 
     def find_all_in_marketplace(self, marketplace_id: int) -> dict[int, CategoryEntity]:

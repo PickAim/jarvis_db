@@ -1,3 +1,4 @@
+from typing import cast
 import unittest
 
 from jorm.market.infrastructure import Category as CategoryEntity
@@ -42,8 +43,8 @@ class CategoryServiceTest(unittest.TestCase):
                                  marketplace_id=self.__marketplace_id))
         with self.__db_context.session() as session:
             service = create_service(session)
-            category, _ = service.find_by_name(
-                category_name, self.__marketplace_id)
+            category, _ = cast(tuple[Category, int], service.find_by_name(
+                category_name, self.__marketplace_id))
             self.assertEqual(category_name, category.name)
 
     def test_find_all_in_marketplace(self):
@@ -93,3 +94,7 @@ class CategoryServiceTest(unittest.TestCase):
 
 def create_service(session: Session) -> CategoryService:
     return CategoryService(CategoryRepository(session), CategoryTableToJormMapper(NicheTableToJormMapper()))
+
+
+if __name__ == '__main__':
+    unittest.main()
