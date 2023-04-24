@@ -36,8 +36,10 @@ class NicheService:
         for niche in niche_entities:
             self.create(niche, category_id)
 
-    def find_by_name(self, name: str, category_id: int) -> tuple[NicheEntity, int]:
+    def find_by_name(self, name: str, category_id: int) -> tuple[NicheEntity, int] | None:
         niche = self.__niche_repository.find_by_name(name, category_id)
+        if niche is None:
+            return None
         return self.__table_mapper.map(niche), niche.id
 
     def find_all_in_category(self, category_id: int) -> dict[int, NicheEntity]:

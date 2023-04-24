@@ -22,6 +22,7 @@ class CategoryRepositoryTest(unittest.TestCase):
             repository = CategoryRepository(session)
             found = repository.find_by_name(
                 category_name, self.__marketplace_id)
+            assert (found is not None)
             self.assertEqual(category_name, found.name)
 
 
