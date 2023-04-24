@@ -14,14 +14,14 @@ class MarketplaceRepository(AlchemyRepository[Marketplace]):
         ).scalars().all()
         return list(db_marketplaces)
 
-    def find_by_name(self, marketplace_name: str) -> Marketplace:
+    def find_by_name(self, marketplace_name: str) -> Marketplace | None:
         return self._session.execute(
             select(Marketplace)
             .outerjoin(Marketplace.warehouses)
             .outerjoin(Marketplace.categories)
             .where(Marketplace.name == marketplace_name)
             .distinct()
-        ).scalar_one()
+        ).scalar()
 
     def exists_with_name(self, name: str) -> bool:
         return self._session.execute(

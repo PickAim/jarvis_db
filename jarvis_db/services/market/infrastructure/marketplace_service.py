@@ -30,8 +30,10 @@ class MarketplaceService:
         return {marketplace.id: self.__table_mapper.map(
             marketplace) for marketplace in marketplaces}
 
-    def find_by_name(self, name: str) -> tuple[MarketplaceEntity, int]:
+    def find_by_name(self, name: str) -> tuple[MarketplaceEntity, int] | None:
         marketplace = self.__marketplace_repository.find_by_name(name)
+        if marketplace is None:
+            return None
         return self.__table_mapper.map(marketplace), marketplace.id
 
     def exists_with_name(self, name: str) -> bool:
