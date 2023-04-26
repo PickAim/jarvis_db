@@ -35,12 +35,12 @@ class EconomyService:
             category_id: int
     ):
         niche_result = self.__niche_service.find_by_name(
-            request_entity.niche_name, category_id)
+            request_entity.niche, category_id)
         if niche_result is None:
             raise Exception(
-                f'niche with name "{request_entity.niche_name}" not found')
+                f'niche with name "{request_entity.niche}" not found')
         _, niche_id = niche_result
-        request = self.__request_repository.save(EconomyRequest(
+        request = self.__request_repository.save(UnitEconomyRequest(
             user_id=user_id,
             niche_id=niche_id,
             date=request_info.date,
