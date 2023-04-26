@@ -262,24 +262,29 @@ class FrequencyRequest(Base):
         return f'FrequencyRequest(id={self.id!r}, search_str={self.search_str!r})'
 
 
-class EconomyRequest(Base):
+class UnitEconomyRequest(Base):
     __tablename__ = 'economy_requests'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(User.id), nullable=False)
-    user: Mapped[User] = relationship(User, uselist=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow)
     niche_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Niche.id))
     niche: Mapped[Niche] = relationship(Niche, uselist=False)
     pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
-    prime_cost: Mapped[int] = mapped_column(Integer, nullable=False)
+    buy_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     transit_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    market_place_transit_price: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id), nullable=False)
+    user: Mapped[User] = relationship(User, uselist=False)
+    warehouse_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Warehouse.id), nullable=False)
+    warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
 
     def __repr__(self) -> str:
-        return f'EconomyRequest(id={self.id!r}, prime_cost={self.prime_cost!r}, transit_cost={self.transit_cost!r}, transit_count={self.transit_count!r})'
+        return f'EconomyRequest(id={self.id!r}, prime_cost={self.buy_cost!r}, transit_cost={self.transit_cost!r}, transit_count={self.transit_count!r})'
 
 
 class FrequencyResult(Base):
@@ -296,14 +301,10 @@ class FrequencyResult(Base):
         return f'FrequencyResult(id={self.id!r}, cost={self.cost!r}, frequency={self.frequency!r})'
 
 
-class EconomyResult(Base):
+class UnitEconomyResult(Base):
     __tablename__ = 'economy_results'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    request_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(EconomyRequest.id), nullable=False)
-    request: Mapped[EconomyRequest] = relationship(
-        EconomyRequest, uselist=False)
-    buy_cost: Mapped[int] = mapped_column(Integer, nullable=False)
+    product_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     pack_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     marketplace_commission: Mapped[int] = mapped_column(
         Integer, nullable=False)
@@ -315,11 +316,15 @@ class EconomyResult(Base):
     transit_margin_percent: Mapped[int] = mapped_column(
         Integer, nullable=False)
     storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    request_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(UnitEconomyRequest.id), nullable=False)
+    request: Mapped[UnitEconomyRequest] = relationship(
+        UnitEconomyRequest, uselist=False)
 
     def __repr__(self) -> str:
         return (
             f'EconomyResult(id={self.id!r}, '
-            f'buy_cost={self.buy_cost!r}, '
+            f'buy_cost={self.product_cost!r}, '
             f'pack_cost={self.pack_cost!r}, '
             f'marketplace_commission={self.marketplace_commission!r}, '
             f'logistic_price={self.logistic_price!r}, '

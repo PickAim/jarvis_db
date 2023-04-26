@@ -83,8 +83,10 @@ class NicheServiceTest(unittest.TestCase):
             ))
         with self.__db_context.session() as session:
             service = create_service(session)
-            niche_entity, _ = service.find_by_name(
+            result = service.find_by_name(
                 niche_name, self.__category_id)
+            assert (result is not None)
+            niche_entity, _ = result
             self.assertEqual(niche_name, niche_entity.name)
 
     def test_find_all_in_category(self):

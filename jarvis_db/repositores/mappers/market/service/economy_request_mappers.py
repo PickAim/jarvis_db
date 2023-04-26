@@ -1,27 +1,31 @@
-from jorm.market.service import EconomyRequest
+from jorm.market.service import RequestInfo, UnitEconomyRequest
 
 from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
 
 
-class EconomyRequestJormToTableMapper(Mapper[EconomyRequest, tables.EconomyRequest]):
-    def map(self, value: EconomyRequest) -> tables.EconomyRequest:
-        return tables.EconomyRequest(
-            date=value.date,
-            prime_cost=value.prime_cost,
-            transit_cost=value.transit_cost,
-            transit_count=value.transit_count,
-            pack_cost=value.pack_cost
+class EconomyRequestJormToTableMapper(Mapper[tuple[RequestInfo, UnitEconomyRequest], tables.UnitEconomyRequest]):
+    def map(self, value: tuple[RequestInfo, UnitEconomyRequest]) -> tables.UnitEconomyRequest:
+        info, request = value
+        return tables.UnitEconomyRequest(
+            date=info.date,
+            buy_cost=request.buy,
+            transit_cost=request.transit_price,
+            transit_count=request.transit_count,
+            pack_cost=request.pack
         )
 
 
-class EconomyRequestTableToJormMapper(Mapper[tables.EconomyRequest, EconomyRequest]):
-    def map(self, value: tables.EconomyRequest) -> EconomyRequest:
-        return EconomyRequest(
-            date=value.date,
-            niche_name=value.niche.name,
-            transit_cost=value.transit_cost,
+class UnitEconomyRequestTableToJormMapper(Mapper[tables.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]]):
+    def map(self, value: tables.UnitEconomyRequest) -> tuple[RequestInfo, UnitEconomyRequest]:
+        info = RequestInfo(value.id, value.date, value.user.account.email)
+        request = UnitEconomyRequest(
+            buy=value.buy_cost,
+            pack=value.pack_cost,
+            niche=value.niche.name,
             transit_count=value.transit_count,
-            pack_cost=value.pack_cost,
-            prime_cost=value.prime_cost
+            transit_price=value.transit_cost,
+            market_place_transit_price=value.market_place_transit_price,
+            warehouse_name=value.warehouse.name
         )
+        return info, request

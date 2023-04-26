@@ -109,7 +109,8 @@ class ProductHistoryServiceTest(unittest.TestCase):
             session.add_all(history_units)
         with self.__db_context.session() as session:
             service = create_service(session)
-            histories = service.find_product_history(self.__product_id).get_history()
+            histories = service.find_product_history(
+                self.__product_id).get_history()
             self.assertEqual(units_to_add, len(histories))
             for unit in histories:
                 self.assertEqual(leftovers_per_unit, sum(

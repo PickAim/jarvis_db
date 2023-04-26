@@ -13,7 +13,10 @@ class JormCollectorImpl(JORMCollector):
 
     def get_niche(self, niche_name: str) -> Niche:
         # TODO what to do with category id
-        niche, _ = self.__niche_service.find_by_name(niche_name, 0)
+        niche_result = self.__niche_service.find_by_name(niche_name, 0)
+        if niche_result is None:
+            raise Exception(f'No niche with name "{niche_name}"')
+        niche, _ = niche_result
         return niche
 
     def get_warehouse(self, warehouse_name: str) -> Warehouse:

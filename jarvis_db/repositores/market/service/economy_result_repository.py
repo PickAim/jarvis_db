@@ -1,14 +1,14 @@
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
-from jarvis_db.tables import EconomyResult
+from jarvis_db.tables import UnitEconomyResult
 
 
-class EconomyResultRepository(AlchemyRepository[EconomyResult]):
+class EconomyResultRepository(AlchemyRepository[UnitEconomyResult]):
 
-    def find_add(self) -> list[EconomyResult]:
+    def find_add(self) -> list[UnitEconomyResult]:
         db_results = self._session.execute(
-            select(EconomyResult)
-            .join(EconomyResult.request)
+            select(UnitEconomyResult)
+            .join(UnitEconomyResult.request)
         ).scalars().all()
         return list(db_results)
