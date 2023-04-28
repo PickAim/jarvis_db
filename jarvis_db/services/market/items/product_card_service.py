@@ -35,3 +35,6 @@ class ProductCardService:
         niche_products = self.__product_card_repository.find_all_in_niche(
             niche_id)
         return {product.id: self.__table_mapper.map(product) for product in niche_products}
+    
+    def filter_existing_global_ids(self, ids: Iterable[int], niche_id: int) -> list[int]:
+        return self.__product_card_repository.filter_existing_global_ids(list(ids), niche_id)
