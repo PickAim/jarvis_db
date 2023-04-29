@@ -22,6 +22,11 @@ class AlchemyRepository(Generic[T]):
         self._session.flush()
         return entity
 
+    def update(self, entity: T) -> T:
+        self._session.merge(entity)
+        self._session.flush()
+        return entity
+
     def delete(self, entity: T):
         self._session.delete(entity)
         self._session.flush()

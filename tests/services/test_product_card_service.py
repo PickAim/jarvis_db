@@ -110,6 +110,37 @@ class ProductCardServiceTest(unittest.TestCase):
                 [*existing_ids, *new_ids], self.__niche_id)
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
+    def test_update(self):
+        product_id = 100
+        with self.__db_context.session() as session, session.begin():
+            session.add(ProductCard(
+                id=product_id,
+                name='product_100',
+                global_id=20,
+                cost=10,
+                rating=5.0,
+                niche_id=self.__niche_id
+            ))
+        with self.__db_context.session() as session, session.begin():
+            service = create_service(session)
+            expected = Product(
+                'product_1',
+                100,
+                25,
+                8.0
+            )
+            service.update(product_id, expected)
+            product = session.execute(
+                select(ProductCard)
+                .where(ProductCard.id == product_id)
+            ).scalar_one()
+            mapper = ProductTableToJormMapper()
+            actual = mapper.map(product)
+            self.assertEqual(expected.name, actual.name)
+            self.assertEqual(expected.cost, actual.cost)
+            self.assertEqual(expected.global_id, actual.global_id)
+            self.assertEqual(expected.rating, actual.rating)
+
 
 def create_service(session: Session) -> ProductCardService:
     return ProductCardService(ProductCardRepository(session), ProductTableToJormMapper())

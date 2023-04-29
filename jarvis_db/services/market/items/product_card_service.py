@@ -35,6 +35,14 @@ class ProductCardService:
         niche_products = self.__product_card_repository.find_all_in_niche(
             niche_id)
         return {product.id: self.__table_mapper.map(product) for product in niche_products}
-    
+
+    def update(self, product_id: int, product: Product):
+        product_card = self.__product_card_repository.find_by_id(product_id)
+        product_card.cost = product.cost
+        product_card.global_id = product.global_id
+        product_card.name = product.name
+        product_card.rating = int(product.rating * 100)
+        self.__product_card_repository.update(product_card)
+
     def filter_existing_global_ids(self, ids: Iterable[int], niche_id: int) -> list[int]:
         return self.__product_card_repository.filter_existing_global_ids(list(ids), niche_id)
