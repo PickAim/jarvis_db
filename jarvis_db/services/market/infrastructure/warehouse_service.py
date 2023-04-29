@@ -50,8 +50,10 @@ class WarehouseService:
         for entity in warehouse_entities:
             self.create_warehouse(entity, marketplace_id)
 
-    def find_warehouse_by_name(self, name: str) -> tuple[WarehouseEntity, int]:
+    def find_warehouse_by_name(self, name: str) -> tuple[WarehouseEntity, int] | None:
         warehouse = self.__warehouse_repository.find_by_name(name)
+        if warehouse is None:
+            return None
         return self.__table_mapper.map(warehouse), warehouse.id
 
     def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
