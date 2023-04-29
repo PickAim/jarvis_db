@@ -1,6 +1,5 @@
-from datetime import datetime
-
-from jorm.market.service import UnitEconomyResult
+from jorm.market.service import (RequestInfo, UnitEconomyRequest,
+                                 UnitEconomyResult)
 
 from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
@@ -21,9 +20,12 @@ class EconomyResultJormToTableMapper(Mapper[UnitEconomyResult, tables.UnitEconom
         )
 
 
-class EconomyResultTableToJormMapper(Mapper[tables.UnitEconomyResult, UnitEconomyResult]):
-    def map(self, value: tables.UnitEconomyResult) -> UnitEconomyResult:
-        return UnitEconomyResult(
+class EconomyResultTableToJormMapper(Mapper[tables.UnitEconomyResult, tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]):
+    def __init__(self, request_mapper: Mapper[tables.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]]):
+        self.__request_mapper = request_mapper
+
+    def map(self, value: tables.UnitEconomyResult) -> tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]:
+        result = UnitEconomyResult(
             product_cost=value.product_cost,
             pack_cost=value.pack_cost,
             marketplace_commission=value.marketplace_commission,
@@ -35,3 +37,5 @@ class EconomyResultTableToJormMapper(Mapper[tables.UnitEconomyResult, UnitEconom
             roi=float(value.roi / 100),
             transit_margin=float(value.transit_margin_percent / 100)
         )
+        info, request = self.__request_mapper.map(value.request)
+        return request, result, info
