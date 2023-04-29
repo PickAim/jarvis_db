@@ -62,5 +62,5 @@ class EconomyService:
         self.__result_repository.add(result)
 
     def find_user_requests(self, user_id: int) -> dict[int, tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
-        requests = self.__result_repository.find_user_results(user_id)
-        return {request.id: self.__result_table_mapper.map(request) for request in requests}
+        results = self.__result_repository.find_user_results(user_id)
+        return {request.id: self.__result_table_mapper.map(request) for request in results}

@@ -14,12 +14,11 @@ class FrequencyService:
     def __init__(
             self,
             request_repository: FrequencyRequestRepository,
-            request_table_mapper: Mapper[FrequencyRequest, tuple[RequestInfo, FrequencyRequestEntity]],
             result_repository: FrequencyResultRepository,
-            result_table_mapper: Mapper[FrequencyResult, FrequencyResultEntity]
+            result_table_mapper: Mapper[FrequencyResult,
+                                        tuple[FrequencyRequest, FrequencyResult, RequestInfo]]
     ):
         self.__request_repository = request_repository
-        self.__request_table_mapper = request_table_mapper
         self.__result_repository = result_repository
         self.__result_table_mapper = result_table_mapper
 
@@ -42,6 +41,6 @@ class FrequencyService:
         )
         self.__result_repository.add(result)
 
-    def find_user_requests(self, user_id: int) -> dict[int, tuple[RequestInfo, FrequencyRequestEntity]]:
-        requests = self.__request_repository.fetch_user_requests(user_id)
-        return {request.id: self.__request_table_mapper.map(request) for request in requests}
+    def find_user_requests(self, user_id: int) -> dict[int, tuple[FrequencyRequest, FrequencyResult, RequestInfo]]:
+        results = self.__result_repository.find_user_results(user_id)
+        return {request.id: self.__result_table_mapper.map(request) for request in results}
