@@ -84,7 +84,9 @@ class WarehouseServiceTest(unittest.TestCase):
             ))
         with self.__db_context.session() as session:
             service = create_service(session)
-            found, _ = service.find_warehouse_by_name(warehouse_name)
+            find_result = service.find_warehouse_by_name(warehouse_name)
+            assert (find_result is not None)
+            found, _ = find_result
             self.assertEqual(warehouse_name, found.name)
 
     def test_find_all(self):
