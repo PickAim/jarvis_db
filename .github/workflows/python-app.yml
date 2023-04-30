@@ -23,7 +23,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
-    - name: Install dependencies
+    - name: Install Jarvis dependencies
+      run: |
+        pip install git+https://PickAim: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@github.com/PickAim/jorm.git
+    - name: Install requirements
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
