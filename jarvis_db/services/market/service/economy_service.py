@@ -16,7 +16,7 @@ class EconomyService:
             self,
             request_repository: EconomyRequestRepository,
             result_repository: EconomyResultRepository,
-            result_table_mapper: Mapper[UnitEconomyResult, tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]],
+            result_table_mapper: Mapper[UnitEconomyResult, tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo]],
             niche_service: NicheService
     ):
         self.__request_repository = request_repository
@@ -61,6 +61,6 @@ class EconomyService:
         )
         self.__result_repository.add(result)
 
-    def find_user_requests(self, user_id: int) -> dict[int, tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
+    def find_user_requests(self, user_id: int) -> dict[int, tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo]]:
         results = self.__result_repository.find_user_results(user_id)
         return {request.id: self.__result_table_mapper.map(request) for request in results}
