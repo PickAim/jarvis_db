@@ -215,6 +215,8 @@ class ProductCard(Base):
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    brand: Mapped[str] = mapped_column(String(255), nullable=False)
+    seller: Mapped[str] = mapped_column(String(255), nullable=False)
     niche_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
         f'{Niche.__tablename__}.id'), nullable=False)
     niche: Mapped[Niche] = relationship('Niche', back_populates='products')
