@@ -33,7 +33,9 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
                 global_id=1,
                 rating=10,
                 cost=1,
-                niche=db_niche
+                niche=db_niche,
+                brand='brand',
+                seller='seller'
             )
             db_address = tables.Address(
                 country='AS',
