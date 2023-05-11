@@ -21,5 +21,7 @@ class ProductTableToJormMapper(Mapper[tables.ProductCard, Product]):
             global_id=value.global_id,
             cost=value.cost,
             history=ProductHistory(),
-            rating=float(value.rating) / 100
+            rating=float(value.rating) / 100,
+            brand=value.brand,
+            seller=value.seller
         )

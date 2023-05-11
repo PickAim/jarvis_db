@@ -8,15 +8,25 @@ from jorm.market.service import (FrequencyRequest, FrequencyResult,
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import \
     WarehouseService
+from jarvis_db.services.market.service.economy_service import EconomyService
+from jarvis_db.services.market.service.frequency_service import \
+    FrequencyService
 
 
 class JormCollectorImpl(JORMCollector):
-    def __init__(self, niche_service: NicheService, warehouse_service: WarehouseService):
+    def __init__(
+        self,
+        niche_service: NicheService,
+        warehouse_service: WarehouseService,
+        unit_economy_service: EconomyService,
+        frequency_service: FrequencyService,
+    ):
         self.__niche_service = niche_service
         self.__warehouse_service = warehouse_service
+        self.__unit_economy_service = unit_economy_service
+        self.__frequency_service = frequency_service
 
     def get_niche(self, niche_name: str, marketplace_id: int) -> Niche | None:
-        # TODO what to do with category id
         niche_result = self.__niche_service.find_by_name(
             niche_name, marketplace_id)
         if niche_result is None:
@@ -38,10 +48,13 @@ class JormCollectorImpl(JORMCollector):
     def get_products_by_user(self, user: User) -> list[Product]:
         ...
 
-    def get_all_unit_economy_results(self, user: User) \
-            -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
-        ...
+    def get_all_unit_economy_results(self, user: User) -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
+        return list(
+            self.__unit_economy_service.find_user_requests(
+                user.user_id).values()
+        )
 
-    def get_all_frequency_results(self, user: User) \
-            -> list[tuple[FrequencyRequest, FrequencyResult, RequestInfo]]:
-        ...
+    def get_all_frequency_results(self, user: User) -> list[tuple[FrequencyRequest, FrequencyResult, RequestInfo]]:
+        return list(
+            self.__frequency_service.find_user_requests(user.user_id).values()
+        )
