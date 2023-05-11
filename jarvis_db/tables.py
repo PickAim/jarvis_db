@@ -32,6 +32,29 @@ class User(Base):
         return f'User(id={self.id!r}, name={self.name!r}, profit_tax={self.profit_tax!r})'
 
 
+class TokenSet(Base):
+    __tablename__ = 'token_info'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    access_token: Mapped[str] = mapped_column(String(512), nullable=False)
+    refresh_token: Mapped[str] = mapped_column(String(512), nullable=False)
+    fingerprint_token: Mapped[str] = mapped_column(String(512), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id), nullable=False)
+    user: Mapped[User] = relationship(User, uselist=False)
+
+    __table_args__ = (UniqueConstraint(
+        user_id, refresh_token, fingerprint_token),)
+
+    def __repr__(self) -> str:
+        return (
+            f'TokenInfo(id={self.id!r}, '
+            f'access_token={self.access_token!r}, '
+            f'refresh_token={self.refresh_token!r}, '
+            f'fingerprint_token={self.fingerprint_token!r})'
+            ')'
+        )
+
+
 class Pay(Base):
     __tablename__ = 'pays'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -192,6 +215,8 @@ class ProductCard(Base):
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    brand: Mapped[str] = mapped_column(String(255), nullable=False)
+    seller: Mapped[str] = mapped_column(String(255), nullable=False)
     niche_id: Mapped[int] = mapped_column(Integer(), ForeignKey(
         f'{Niche.__tablename__}.id'), nullable=False)
     niche: Mapped[Niche] = relationship('Niche', back_populates='products')

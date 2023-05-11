@@ -23,7 +23,9 @@ class ProductCardService:
             global_id=product.global_id,
             cost=product.cost,
             rating=int(product.rating * 100),
-            niche_id=niche_id
+            niche_id=niche_id,
+            brand=product.brand,
+            seller=product.seller
         )
         self.__product_card_repository.add(db_product)
 
@@ -42,6 +44,8 @@ class ProductCardService:
         product_card.global_id = product.global_id
         product_card.name = product.name
         product_card.rating = int(product.rating * 100)
+        product_card.brand = product.brand
+        product_card.seller = product.seller
         self.__product_card_repository.update(product_card)
 
     def filter_existing_global_ids(self, ids: Iterable[int], niche_id: int) -> list[int]:
