@@ -19,9 +19,12 @@ class ProductCardServiceTest(unittest.TestCase):
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             marketplace = Marketplace(name='qwerty')
-            category = Category(name='qwerty', marketplace=marketplace)
+            self.__category_name = 'qwerty'
+            category = Category(name=self.__category_name,
+                                marketplace=marketplace)
+            self.__niche_name = 'niche#1'
             niche = Niche(
-                name='niche#1',
+                name=self.__niche_name,
                 marketplace_commission=1,
                 partial_client_commission=1,
                 client_commission=1,
@@ -31,8 +34,17 @@ class ProductCardServiceTest(unittest.TestCase):
             session.flush()
             self.__niche_id = niche.id
 
+    def assert_product_equal(self, expected: Product, actual: Product):
+        self.assertEqual(expected.name, actual.name)
+        self.assertEqual(expected.cost, actual.cost)
+        self.assertEqual(expected.global_id, actual.global_id)
+        self.assertEqual(expected.rating, actual.rating)
+        self.assertEqual(expected.brand, actual.brand)
+        self.assertEqual(expected.seller, actual.seller)
+
     def test_create(self):
-        expected = Product('qwerty', 100, 200, 5.0, 'brand', 'seller')
+        expected = Product('qwerty', 100, 200, 5.0, 'brand',
+                           'seller', 'niche_name', 'category_name')
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             service.create_product(expected, self.__niche_id)
@@ -44,10 +56,9 @@ class ProductCardServiceTest(unittest.TestCase):
             ).scalar_one()
             mapper = ProductTableToJormMapper()
             actual = mapper.map(found)
-            self.assertEqual(expected.name, actual.name)
-            self.assertEqual(expected.cost, actual.cost)
-            self.assertEqual(expected.global_id, actual.global_id)
-            self.assertEqual(expected.rating, actual.rating)
+            self.assert_product_equal(expected, actual)
+            self.assertEqual(self.__niche_name, actual.niche_name)
+            self.assertEqual(self.__category_name, actual.category_name)
 
     def test_create_many(self):
         expected_products = [
@@ -57,7 +68,9 @@ class ProductCardServiceTest(unittest.TestCase):
                 200 + 20 * i,
                 5.0 + i,
                 f'brand_{i}',
-                f'seller_{i}')
+                f'seller_{i}',
+                'niche_name',
+                'category_name')
             for i in range(10)]
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
@@ -70,12 +83,9 @@ class ProductCardServiceTest(unittest.TestCase):
             mapper = ProductTableToJormMapper()
             actual_products = [mapper.map(product) for product in found]
             for expected, actual in zip(expected_products, actual_products, strict=True):
-                self.assertEqual(expected.name, actual.name)
-                self.assertEqual(expected.cost, actual.cost)
-                self.assertEqual(expected.global_id, actual.global_id)
-                self.assertEqual(expected.rating, actual.rating)
-                self.assertEqual(expected.brand, actual.brand)
-                self.assertEqual(expected.seller, actual.seller)
+                self.assert_product_equal(expected, actual)
+                self.assertEqual(self.__niche_name, actual.niche_name)
+                self.assertEqual(self.__category_name, actual.category_name)
 
     def test_find_all_in_niche(self):
         mapper = ProductTableToJormMapper()
@@ -97,12 +107,9 @@ class ProductCardServiceTest(unittest.TestCase):
             actual_products = service.find_all_in_niche(
                 self.__niche_id).values()
             for expected, actual in zip(expected_products, actual_products, strict=True):
-                self.assertEqual(expected.name, actual.name)
-                self.assertEqual(expected.cost, actual.cost)
-                self.assertEqual(expected.global_id, actual.global_id)
-                self.assertEqual(expected.rating, actual.rating)
-                self.assertEqual(expected.brand, actual.brand)
-                self.assertEqual(expected.seller, actual.seller)
+                self.assert_product_equal(expected, actual)
+                self.assertEqual(self.__niche_name, actual.niche_name)
+                self.assertEqual(self.__category_name, actual.category_name)
 
     def test_filter_existing_ids(self):
         existing_ids = [i for i in range(100, 111)]
@@ -146,7 +153,9 @@ class ProductCardServiceTest(unittest.TestCase):
                 25,
                 8.0,
                 'new_brand',
-                'eew_seller'
+                'eew_seller',
+                'niche_name',
+                'category_name'
             )
             service.update(product_id, expected)
             product = session.execute(
@@ -155,12 +164,9 @@ class ProductCardServiceTest(unittest.TestCase):
             ).scalar_one()
             mapper = ProductTableToJormMapper()
             actual = mapper.map(product)
-            self.assertEqual(expected.name, actual.name)
-            self.assertEqual(expected.cost, actual.cost)
-            self.assertEqual(expected.global_id, actual.global_id)
-            self.assertEqual(expected.rating, actual.rating)
-            self.assertEqual(expected.brand, actual.brand)
-            self.assertEqual(expected.seller, actual.seller)
+            self.assert_product_equal(expected, actual)
+            self.assertEqual(self.__niche_name, actual.niche_name)
+            self.assertEqual(self.__category_name, actual.category_name)
 
 
 def create_service(session: Session) -> ProductCardService:
