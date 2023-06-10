@@ -8,5 +8,5 @@ class TokenTableMapper(Mapper[TokenSet, tuple[int, str, str, str]]):
             value.user_id,
             value.access_token,
             value.refresh_token,
-            value.fingerprint_token
+            value.fingerprint_token,
         )

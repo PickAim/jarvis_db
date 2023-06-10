@@ -6,12 +6,16 @@ from jarvis_db.tables import Marketplace
 
 class MarketplaceRepository(AlchemyRepository[Marketplace]):
     def find_all(self) -> list[Marketplace]:
-        db_marketplaces = self._session.execute(
-            select(Marketplace)
-            .outerjoin(Marketplace.warehouses)
-            .outerjoin(Marketplace.categories)
-            .distinct()
-        ).scalars().all()
+        db_marketplaces = (
+            self._session.execute(
+                select(Marketplace)
+                .outerjoin(Marketplace.warehouses)
+                .outerjoin(Marketplace.categories)
+                .distinct()
+            )
+            .scalars()
+            .all()
+        )
         return list(db_marketplaces)
 
     def find_by_name(self, marketplace_name: str) -> Marketplace | None:
@@ -24,7 +28,9 @@ class MarketplaceRepository(AlchemyRepository[Marketplace]):
         ).scalar()
 
     def exists_with_name(self, name: str) -> bool:
-        return self._session.execute(
-            select(Marketplace)
-            .where(Marketplace.name.ilike(name))
-        ).scalar() is not None
+        return (
+            self._session.execute(
+                select(Marketplace).where(Marketplace.name.ilike(name))
+            ).scalar()
+            is not None
+        )

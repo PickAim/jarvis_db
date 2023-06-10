@@ -10,7 +10,7 @@ class ProductJormToTableMapper(Mapper[Product, tables.ProductCard]):
             name=value.name,
             global_id=value.global_id,
             cost=value.cost,
-            rating=int(value.rating * 100)
+            rating=int(value.rating * 100),
         )
 
 
@@ -25,5 +25,5 @@ class ProductTableToJormMapper(Mapper[tables.ProductCard, Product]):
             brand=value.brand,
             seller=value.seller,
             niche_name=value.niche.name,
-            category_name=value.niche.category.name
+            category_name=value.niche.category.name,
         )

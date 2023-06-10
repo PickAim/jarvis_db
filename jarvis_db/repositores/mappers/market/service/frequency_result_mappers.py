@@ -8,14 +8,9 @@ from jarvis_db.core.mapper import Mapper
 
 class FrequencyResultJormToTableMapper(Mapper[FrequencyResult, tables.FrequencyResult]):
     def map(self, value: FrequencyResult) -> tables.FrequencyResult:
-        return tables.FrequencyResult(
-            cost=0,
-            frequency=0
-        )
+        return tables.FrequencyResult(cost=0, frequency=0)
 
 
 class FrequencyResultTableToJormMapper(Mapper[tables.FrequencyResult, FrequencyResult]):
     def map(self, value: tables.FrequencyResult) -> FrequencyResult:
-        return FrequencyResult(
-            frequencies={}
-        )
+        return FrequencyResult(frequencies={})

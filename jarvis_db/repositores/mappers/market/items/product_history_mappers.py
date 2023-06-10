@@ -7,7 +7,9 @@ from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
 
 
-class ProductHistoryJormToTableMapper(Mapper[ProductHistoryUnit, tables.ProductHistory]):
+class ProductHistoryJormToTableMapper(
+    Mapper[ProductHistoryUnit, tables.ProductHistory]
+):
     def __init__(self, leftover_mapper: Mapper[StorageDict, Iterable[tables.Leftover]]):
         self.__leftover_mapper = leftover_mapper
 
@@ -15,11 +17,13 @@ class ProductHistoryJormToTableMapper(Mapper[ProductHistoryUnit, tables.ProductH
         return tables.ProductHistory(
             cost=value.cost,
             date=value.unit_date,
-            leftovers=self.__leftover_mapper.map(value.leftover)
+            leftovers=self.__leftover_mapper.map(value.leftover),
         )
 
 
-class ProductHistoryTableToJormMapper(Mapper[tables.ProductHistory, ProductHistoryUnit]):
+class ProductHistoryTableToJormMapper(
+    Mapper[tables.ProductHistory, ProductHistoryUnit]
+):
     def __init__(self, leftover_mapper: Mapper[Iterable[tables.Leftover], StorageDict]):
         self.__leftover_mapper = leftover_mapper
 
@@ -27,5 +31,5 @@ class ProductHistoryTableToJormMapper(Mapper[tables.ProductHistory, ProductHisto
         return ProductHistoryUnit(
             cost=value.cost,
             leftover=self.__leftover_mapper.map(value.leftovers),
-            unit_date=value.date
+            unit_date=value.date,
         )

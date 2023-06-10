@@ -4,16 +4,17 @@ from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 
 from jarvis_db.core import Mapper
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import \
-    WarehouseRepository
+from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
+    WarehouseRepository,
+)
 from jarvis_db.tables import Address, Warehouse
 
 
 class WarehouseService:
     def __init__(
-            self,
-            warehouse_repository: WarehouseRepository,
-            table_mapper: Mapper[Warehouse, WarehouseEntity]
+        self,
+        warehouse_repository: WarehouseRepository,
+        table_mapper: Mapper[Warehouse, WarehouseEntity],
     ) -> None:
         self.__warehouse_repository = warehouse_repository
         self.__table_mapper = table_mapper
@@ -35,18 +36,17 @@ class WarehouseService:
                 logistic_from_customer_commission=warehouse_entity.logistic_from_customer_commission,
                 basic_storage_commission=warehouse_entity.basic_storage_commission,
                 additional_storage_commission=int(
-                    warehouse_entity.additional_storage_commission * 100),
+                    warehouse_entity.additional_storage_commission * 100
+                ),
                 monopalette_storage_commission=warehouse_entity.mono_palette_storage_commission,
                 type=handler_type,
-                address=Address(
-                    country='',
-                    region='',
-                    street='',
-                    number='',
-                    corpus=''),
-            ))
+                address=Address(country="", region="", street="", number="", corpus=""),
+            )
+        )
 
-    def create_all(self, warehouse_entities: Iterable[WarehouseEntity], marketplace_id: int):
+    def create_all(
+        self, warehouse_entities: Iterable[WarehouseEntity], marketplace_id: int
+    ):
         for entity in warehouse_entities:
             self.create_warehouse(entity, marketplace_id)
 
@@ -58,7 +58,9 @@ class WarehouseService:
 
     def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
         warehouses = self.__warehouse_repository.find_all()
-        return {warehouse.id: self.__table_mapper.map(warehouse) for warehouse in warehouses}
+        return {
+            warehouse.id: self.__table_mapper.map(warehouse) for warehouse in warehouses
+        }
 
     def exists_with_name(self, name: str) -> bool:
         return self.__warehouse_repository.exists_with_name(name)
