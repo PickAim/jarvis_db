@@ -36,7 +36,7 @@ class EconomyService:
         result_entity: UnitEconomyResultEntity,
         user_id: int,
         category_id: int,
-    ):
+    ) -> int:
         niche_result = self.__niche_service.find_by_name(
             request_entity.niche, category_id
         )
@@ -67,6 +67,7 @@ class EconomyService:
             transit_margin_percent=result_entity.transit_margin,
         )
         self.__result_repository.add(result)
+        return request.id
 
     def find_user_requests(
         self, user_id: int
