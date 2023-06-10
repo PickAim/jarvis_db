@@ -13,3 +13,9 @@ class FrequencyRequestRepository(AlchemyRepository[FrequencyRequest]):
             .where(User.id == user_id)
         ).scalars().all()
         return list(db_requests)
+
+    def find_by_id(self, request_id: int) -> FrequencyRequest | None:
+        return self._session.execute(
+            select(FrequencyRequest)
+            .where(FrequencyRequest.id == request_id)
+        ).scalar_one_or_none()

@@ -64,3 +64,11 @@ class EconomyService:
     def find_user_requests(self, user_id: int) -> dict[int, tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo]]:
         results = self.__result_repository.find_user_results(user_id)
         return {request.id: self.__result_table_mapper.map(request) for request in results}
+
+    def remove(self, request_id: int) -> bool:
+        request = self.__request_repository.find_by_id(request_id)
+        if request is not None:
+            self.__request_repository.delete(request)
+            return True
+        else:
+            return False

@@ -13,3 +13,9 @@ class EconomyRequestRepository(AlchemyRepository[UnitEconomyRequest]):
             .where(User.id == user_id)
         ).scalars().all()
         return list(db_requests)
+
+    def find_by_id(self, request_id: int) -> UnitEconomyRequest | None:
+        return self._session.execute(
+            select(UnitEconomyRequest)
+            .where(UnitEconomyRequest.id == request_id)
+        ).scalar_one_or_none()
