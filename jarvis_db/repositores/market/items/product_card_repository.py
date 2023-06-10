@@ -22,10 +22,9 @@ class ProductCardRepository(AlchemyRepository[ProductCard]):
         ).scalars().all()
         return list(products)
 
-    def filter_existing_global_ids(self, ids: list[int], niche_id: int) -> list[int]:
+    def filter_existing_global_ids(self, ids: list[int]) -> list[int]:
         existing_ids = self._session.execute(
             select(ProductCard.global_id)
-            .where(ProductCard.niche_id == niche_id)
             .where(ProductCard.global_id.in_(ids))
         ).scalars().all()
         return list(set(ids) - set(existing_ids))

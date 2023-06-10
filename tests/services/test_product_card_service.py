@@ -129,7 +129,7 @@ class ProductCardServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             service = create_service(session)
             filtered_ids = service.filter_existing_global_ids(
-                [*existing_ids, *new_ids], self.__niche_id)
+                [*existing_ids, *new_ids])
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
     def test_update(self):
