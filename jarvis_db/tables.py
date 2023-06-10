@@ -69,7 +69,11 @@ class Pay(Base):
     payment_key: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
-        return f"Pay(id={self.id!r}, payment_date={self.payment_date!r}, is_auto={self.is_auto!r})"
+        return (
+            f"Pay(id={self.id!r}, "
+            "payment_date={self.payment_date!r}, "
+            "is_auto={self.is_auto!r})"
+        )
 
 
 class Address(Base):
@@ -208,8 +212,10 @@ class Warehouse(Base):
             f"global_id={self.global_id!r}, "
             f"type={self.type!r}, "
             f"name={self.name!r}, "
-            f"logistic_to_customer_commission={self.basic_logistic_to_customer_commission!r}, "
-            f"logistic_from_customer_commission={self.logistic_from_customer_commission!r}, "
+            f"logistic_to_customer_commission="
+            "{self.basic_logistic_to_customer_commission!r}, "
+            f"logistic_from_customer_commission="
+            "{self.logistic_from_customer_commission!r}, "
             f"basic_storage_commission={self.basic_storage_commission!r}, "
             f"additional_storage_commission={self.additional_storage_commission!r}, "
             f"monopalette_storage_commission={self.monopalette_storage_commission!r}"
@@ -234,7 +240,11 @@ class ProductCard(Base):
     __table_args__ = (UniqueConstraint(name, global_id, niche_id),)
 
     def __repr__(self) -> str:
-        return f"ProductCard(id={self.id!r}, name={self.name!r}, global_id={self.global_id!r}, cost={self.cost!r})"
+        return (
+            f"ProductCard(id={self.id!r}, name={self.name!r}, "
+            "global_id={self.global_id!r}, "
+            "cost={self.cost!r})"
+        )
 
 
 class ProductHistory(Base):
@@ -253,7 +263,11 @@ class ProductHistory(Base):
     product: Mapped[ProductCard] = relationship("ProductCard", uselist=False)
 
     def __repr__(self) -> str:
-        return f"ProductCostHistory(id={self.id!r}, cost={self.cost!r}, date={self.date!r})"
+        return (
+            f"ProductCostHistory(id={self.id!r}, "
+            "cost={self.cost!r}, "
+            "date={self.date!r})"
+        )
 
 
 class Leftover(Base):
@@ -328,7 +342,12 @@ class UnitEconomyRequest(Base):
     warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
 
     def __repr__(self) -> str:
-        return f"EconomyRequest(id={self.id!r}, prime_cost={self.buy_cost!r}, transit_cost={self.transit_cost!r}, transit_count={self.transit_count!r})"
+        return (
+            f"EconomyRequest(id={self.id!r}, "
+            "prime_cost={self.buy_cost!r}, "
+            "transit_cost={self.transit_cost!r}, "
+            "transit_count={self.transit_count!r})"
+        )
 
 
 class FrequencyResult(Base):
