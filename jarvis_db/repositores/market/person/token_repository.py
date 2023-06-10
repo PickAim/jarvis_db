@@ -5,7 +5,6 @@ from jarvis_db.repositores.alchemy_repository import AlchemyRepository
 
 
 class TokenRepository(AlchemyRepository[TokenSet]):
-
     def find_by_fingerprint(self, user_id: int, fingerprint: str) -> TokenSet:
         return self._session.execute(
             select(TokenSet)

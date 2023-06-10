@@ -16,16 +16,13 @@ class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
             logistic_from_customer_commission=value.logistic_from_customer_commission,
             basic_storage_commission=value.basic_storage_commission,
             additional_storage_commission=int(
-                value.additional_storage_commission * 100),
+                value.additional_storage_commission * 100
+            ),
             monopalette_storage_commission=value.mono_palette_storage_commission,
             type=value.handler_type.value,
             address=tables.Address(
-                country='',
-                region='',
-                street='',
-                number='',
-                corpus=''
-            )
+                country="", region="", street="", number="", corpus=""
+            ),
         )
 
 
@@ -47,5 +44,5 @@ class WarehouseTableToJormMapper(Mapper[tables.Warehouse, Warehouse]):
             logistic_from_customer_commission=value.logistic_from_customer_commission,
             basic_storage_commission=value.basic_storage_commission,
             additional_storage_commission=value.additional_storage_commission,
-            mono_palette_storage_commission=value.monopalette_storage_commission
+            mono_palette_storage_commission=value.monopalette_storage_commission,
         )

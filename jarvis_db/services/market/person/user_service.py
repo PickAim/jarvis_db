@@ -7,19 +7,13 @@ from jarvis_db.tables import User
 
 class UserService:
     def __init__(
-            self,
-            user_repository: UserRepository,
-            table_mapper: Mapper[User, UserEntity]
+        self, user_repository: UserRepository, table_mapper: Mapper[User, UserEntity]
     ):
         self.__user_repository = user_repository
         self.__table_mapper = table_mapper
 
     def create(self, user_entity: UserEntity, account_id: int):
-        user = User(
-            name=user_entity.name,
-            profit_tax=0,
-            account_id=account_id
-        )
+        user = User(name=user_entity.name, profit_tax=0, account_id=account_id)
         self.__user_repository.add(user)
 
     def find_by_id(self, user_id: int) -> UserEntity:

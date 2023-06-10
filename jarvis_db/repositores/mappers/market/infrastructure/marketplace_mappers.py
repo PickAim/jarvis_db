@@ -9,8 +9,12 @@ class MarketplaceJormToTableMapper(Mapper[Marketplace, tables.Marketplace]):
         self.__warehouse_mapper = warehouse_mapper
 
     def map(self, value: Marketplace) -> tables.Marketplace:
-        return tables.Marketplace(name=value.name,
-                                  warehouses=[self.__warehouse_mapper.map(warehouse) for warehouse in value.warehouses])
+        return tables.Marketplace(
+            name=value.name,
+            warehouses=[
+                self.__warehouse_mapper.map(warehouse) for warehouse in value.warehouses
+            ],
+        )
 
 
 class MarketplaceTableToJormMapper(Mapper[tables.Marketplace, Marketplace]):
@@ -18,4 +22,7 @@ class MarketplaceTableToJormMapper(Mapper[tables.Marketplace, Marketplace]):
         self.__warehouse_mapper = warehouse_mapper
 
     def map(self, value: tables.Marketplace) -> Marketplace:
-        return Marketplace(value.name, [self.__warehouse_mapper.map(warehouse) for warehouse in value.warehouses])
+        return Marketplace(
+            value.name,
+            [self.__warehouse_mapper.map(warehouse) for warehouse in value.warehouses],
+        )

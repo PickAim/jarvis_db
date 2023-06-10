@@ -14,7 +14,8 @@ class LeftoverTableToJormMapper(Mapper[Iterable[tables.Leftover], StorageDict]):
             if leftover.warehouse.global_id not in result:
                 result[leftover.warehouse.global_id] = []
             result[leftover.warehouse.global_id].append(
-                SpecifiedLeftover(leftover.type, leftover.quantity))
+                SpecifiedLeftover(leftover.type, leftover.quantity)
+            )
         return StorageDict(result)
 
 
@@ -23,6 +24,7 @@ class LeftoverJormToTableMapper(Mapper[StorageDict, Iterable[tables.Leftover]]):
         result = []
         for _, leftovers in value.items():
             for leftover in leftovers:
-                result.append(tables.Leftover(
-                    type=leftover.specify, quantity=leftover.leftover))
+                result.append(
+                    tables.Leftover(type=leftover.specify, quantity=leftover.leftover)
+                )
         return result

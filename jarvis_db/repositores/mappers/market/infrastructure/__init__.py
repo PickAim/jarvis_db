@@ -1,8 +1,16 @@
 from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
-    CategoryJormToTableMapper, CategoryTableToJormMapper)
+    CategoryJormToTableMapper,
+    CategoryTableToJormMapper,
+)
 from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers import (
-    MarketplaceJormToTableMapper, MarketplaceTableToJormMapper)
+    MarketplaceJormToTableMapper,
+    MarketplaceTableToJormMapper,
+)
 from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
-    NicheJormToTableMapper, NicheTableToJormMapper)
+    NicheJormToTableMapper,
+    NicheTableToJormMapper,
+)
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
-    WarehouseJormToTableMapper, WarehouseTableToJormMapper)
+    WarehouseJormToTableMapper,
+    WarehouseTableToJormMapper,
+)
