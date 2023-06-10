@@ -342,7 +342,11 @@ class FrequencyResult(Base):
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
 
     def __repr__(self) -> str:
-        return f"FrequencyResult(id={self.id!r}, cost={self.cost!r}, frequency={self.frequency!r})"
+        return (
+            f"FrequencyResult(id={self.id!r}, "
+            "cost={self.cost!r}, "
+            "frequency={self.frequency!r})"
+        )
 
 
 class UnitEconomyResult(Base):
