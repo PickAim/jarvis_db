@@ -22,6 +22,15 @@ class UserInfoCollectorImpl(UserInfoCollector):
         _, account_id = self.__account_service.find_by_email(account.email)
         user, _ = self.__user_service.find_by_account_id(account_id)
         return user
+    
+    def get_account_and_id(self, email: str, phone: str) -> tuple[Account, int] | None:
+        account_by_email = self.__account_service.find_by_email(email)
+        if account_by_email is not None:
+            return account_by_email
+        account_by_phone = self.__account_service.find_by_phone(phone)
+        if account_by_phone is not None:
+            return account_by_phone
+        return None
 
     def get_user_by_id(self, user_id: int) -> User:
         return self.__user_service.find_by_id(user_id)
