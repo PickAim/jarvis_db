@@ -40,11 +40,3 @@ class UserInfoCollectorImpl(UserInfoCollector):
     ) -> str:
         access, refresh = self.__token_service.find_by_imprint(user_id, imprint)
         return access if token_type == TokenType.ACCESS else refresh
-
-    def get_account_by_email(self, email: str) -> Account:
-        account, _ = self.__account_service.find_by_email(email)
-        return account
-
-    def get_account_by_phone(self, phone: str) -> Account:
-        account, _ = self.__account_service.find_by_phone(phone)
-        return account
