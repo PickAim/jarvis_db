@@ -24,7 +24,8 @@ class UserInfoCollectorImpl(UserInfoCollector):
         )
         if user_result is None:
             raise Exception(
-                f"No account with {account.email} or phone {account.phone_number} is found"
+                f"No account with {account.email} or "
+                f"phone {account.phone_number} is found"
             )
         _, account_id = user_result
         user, _ = self.__user_service.find_by_account_id(account_id)

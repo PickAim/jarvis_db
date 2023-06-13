@@ -1,6 +1,6 @@
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestJormToTableMapper,
-    UnitEconomyRequestTableToJormMapper,
+    EconomyRequestTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
     EconomyResultJormToTableMapper,

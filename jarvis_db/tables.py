@@ -337,7 +337,7 @@ class UnitEconomyRequest(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id), nullable=False)
     user: Mapped[User] = relationship(User, uselist=False)
     warehouse_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Warehouse.id), nullable=False
+        Integer, ForeignKey(Warehouse.id), nullable=True
     )
     warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
 
