@@ -9,8 +9,8 @@ from jarvis_db.db_config import Base
 class Account(Base):
     __tablename__ = "accounts"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    phone: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    email: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    phone: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
+    email: Mapped[str] = mapped_column(String(64), nullable=True, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:

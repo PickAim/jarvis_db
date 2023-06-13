@@ -25,13 +25,29 @@ class AccountService:
 
     def find_by_email(self, email: str) -> tuple[AccountEntity, int] | None:
         account = self.__account_repository.find_by_email(email)
-        return (self.__table_mapper.map(account), account.id) if \
-            account is not None else None
+        return (
+            (self.__table_mapper.map(account), account.id)
+            if account is not None
+            else None
+        )
 
     def find_by_phone(self, phone: str) -> tuple[AccountEntity, int] | None:
         account = self.__account_repository.find_by_phone(phone)
-        return (self.__table_mapper.map(account), account.id) if \
-            account is not None else None
+        return (
+            (self.__table_mapper.map(account), account.id)
+            if account is not None
+            else None
+        )
+
+    def find_by_email_or_phone(
+        self, email: str, phone: str
+    ) -> tuple[AccountEntity, int] | None:
+        account = self.__account_repository.find_by_email_or_phone(email, phone)
+        return (
+            (self.__table_mapper.map(account), account.id)
+            if account is not None
+            else None
+        )
 
     def find_all(self) -> dict[int, AccountEntity]:
         accounts = self.__account_repository.find_all()

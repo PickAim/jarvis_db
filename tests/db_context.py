@@ -5,7 +5,7 @@ from jarvis_db.db_config import Base
 
 
 class DbContext:
-    def __init__(self, connection_sting: str = "sqlite://", echo=False) -> None:
+    def __init__(self, connection_sting: str = "sqlite://", echo: bool = False) -> None:
         if echo:
             import logging
 
