@@ -36,8 +36,43 @@ class AccountServiceTest(unittest.TestCase):
             session.add(Account(email=email, phone="789456123", password="123"))
         with self.__db_context.session() as session:
             service = create_service(session)
-            account, _ = service.find_by_email(email)
+            account_result = service.find_by_email(email)
+            assert account_result is not None
+            account, _ = account_result
             self.assertEqual(account.email, email)
+
+    def test_find_by_phone(self):
+        phone = "123456789"
+        with self.__db_context.session() as session, session.begin():
+            session.add(Account(email="user@mail.org", phone=phone, password="123"))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            account_result = service.find_by_phone(phone)
+            assert account_result is not None
+            account, _ = account_result
+            self.assertEqual(phone, account.phone_number)
+
+    def test_find_by_email_or_phone_should_return_acount_by_email(self):
+        email = "user@mail.org"
+        with self.__db_context.session() as session, session.begin():
+            session.add(Account(email=email, phone="789456123", password="123"))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            account_result = service.find_by_email_or_phone(email, "")
+            assert account_result is not None
+            account, _ = account_result
+            self.assertEqual(account.email, email)
+
+    def test_find_by_email_or_phone_should_return_acount_by_phone(self):
+        phone = "123456789"
+        with self.__db_context.session() as session, session.begin():
+            session.add(Account(email="user@mail.org", phone=phone, password="123"))
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            account_result = service.find_by_email_or_phone("", phone)
+            assert account_result is not None
+            account, _ = account_result
+            self.assertEqual(phone, account.phone_number)
 
 
 def create_service(session: Session) -> AccountService:

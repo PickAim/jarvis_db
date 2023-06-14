@@ -9,8 +9,8 @@ from jarvis_db.db_config import Base
 class Account(Base):
     __tablename__ = "accounts"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    phone: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    email: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    phone: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
+    email: Mapped[str] = mapped_column(String(64), nullable=True, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self) -> str:
@@ -337,7 +337,7 @@ class UnitEconomyRequest(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id), nullable=False)
     user: Mapped[User] = relationship(User, uselist=False)
     warehouse_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Warehouse.id), nullable=False
+        Integer, ForeignKey(Warehouse.id), nullable=True
     )
     warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
 

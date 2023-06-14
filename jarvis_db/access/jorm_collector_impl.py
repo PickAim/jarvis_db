@@ -48,6 +48,7 @@ class JormCollectorImpl(JORMCollector):
         return list(self.__warehouse_service.find_all_warehouses().values())
 
     def get_products_by_user(self, user: User) -> list[Product]:
+        # TODO how to store user producs
         ...
 
     def get_all_unit_economy_results(

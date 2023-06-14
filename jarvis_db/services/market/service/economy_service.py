@@ -9,6 +9,7 @@ from jarvis_db.repositores.market.service.economy_request_repository import (
 from jarvis_db.repositores.market.service.economy_result_repository import (
     EconomyResultRepository,
 )
+from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.tables import UnitEconomyRequest, UnitEconomyResult
 
@@ -22,11 +23,13 @@ class EconomyService:
             UnitEconomyResult,
             tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo],
         ],
+        category_service: CategoryService,
         niche_service: NicheService,
     ):
         self.__request_repository = request_repository
         self.__result_repository = result_repository
         self.__result_table_mapper = result_table_mapper
+        self.__category_service = category_service
         self.__niche_service = niche_service
 
     def save_request(
@@ -35,13 +38,21 @@ class EconomyService:
         request_entity: UnitEconomyRequestEntity,
         result_entity: UnitEconomyResultEntity,
         user_id: int,
-        category_id: int,
+        marketplace_id: int,
     ) -> int:
+        category_result = self.__category_service.find_by_name(
+            request_entity.category, marketplace_id
+        )
+        if category_result is None:
+            raise Exception(
+                f"Category with name {request_entity.category} is not found"
+            )
+        _, category_id = category_result
         niche_result = self.__niche_service.find_by_name(
             request_entity.niche, category_id
         )
         if niche_result is None:
-            raise Exception(f'niche with name "{request_entity.niche}" not found')
+            raise Exception(f'niche with name "{request_entity.niche}" is not found')
         _, niche_id = niche_result
         request = self.__request_repository.save(
             UnitEconomyRequest(
@@ -50,6 +61,7 @@ class EconomyService:
                 date=request_info.date,
                 buy_cost=request_entity.buy,
                 transit_cost=request_entity.transit_price,
+                market_place_transit_price=request_entity.market_place_transit_price,
                 pack_cost=request_entity.pack,
                 transit_count=request_entity.transit_count,
             )
@@ -65,6 +77,7 @@ class EconomyService:
             transit_profit=result_entity.transit_profit,
             roi=result_entity.roi,
             transit_margin_percent=result_entity.transit_margin,
+            storage_price=result_entity.storage_price,
         )
         self.__result_repository.add(result)
         return request.id

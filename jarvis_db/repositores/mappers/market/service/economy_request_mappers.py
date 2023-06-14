@@ -20,7 +20,7 @@ class EconomyRequestJormToTableMapper(
         )
 
 
-class UnitEconomyRequestTableToJormMapper(
+class EconomyRequestTableToJormMapper(
     Mapper[tables.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]]
 ):
     def map(
@@ -30,6 +30,7 @@ class UnitEconomyRequestTableToJormMapper(
         request = UnitEconomyRequest(
             buy=value.buy_cost,
             pack=value.pack_cost,
+            category=value.niche.category.name,
             niche=value.niche.name,
             transit_count=value.transit_count,
             transit_price=value.transit_cost,
