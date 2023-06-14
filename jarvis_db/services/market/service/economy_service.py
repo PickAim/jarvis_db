@@ -11,6 +11,7 @@ from jarvis_db.repositores.market.service.economy_result_repository import (
 )
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
+from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.tables import UnitEconomyRequest, UnitEconomyResult
 
 
@@ -25,12 +26,14 @@ class EconomyService:
         ],
         category_service: CategoryService,
         niche_service: NicheService,
+        warehouse_service: WarehouseService
     ):
         self.__request_repository = request_repository
         self.__result_repository = result_repository
         self.__result_table_mapper = result_table_mapper
         self.__category_service = category_service
         self.__niche_service = niche_service
+        self.__warehouse_service = warehouse_service
 
     def save_request(
         self,
@@ -52,8 +55,14 @@ class EconomyService:
             request_entity.niche, category_id
         )
         if niche_result is None:
-            raise Exception(f'niche with name "{request_entity.niche}" is not found')
+            raise Exception(f'niche with name \"{request_entity.niche}\" is not found')
+        warehouse_result = self.__warehouse_service.find_warehouse_by_name(
+            request_entity.warehouse_name
+        )
+        if warehouse_result is None:
+            raise Exception(f'warehouse with name \"{request_entity.warehouse_name}\" is not found')
         _, niche_id = niche_result
+        _, warehouse_id = warehouse_result
         request = self.__request_repository.save(
             UnitEconomyRequest(
                 user_id=user_id,
@@ -64,6 +73,7 @@ class EconomyService:
                 market_place_transit_price=request_entity.market_place_transit_price,
                 pack_cost=request_entity.pack,
                 transit_count=request_entity.transit_count,
+                warehouse_id=warehouse_id
             )
         )
         result = UnitEconomyResult(

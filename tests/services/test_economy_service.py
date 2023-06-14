@@ -1,6 +1,9 @@
 import unittest
 from datetime import datetime
 
+from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import WarehouseTableToJormMapper
+
+from jarvis_db.repositores.market.infrastructure.warehouse_repository import WarehouseRepository
 from jorm.market.service import RequestInfo, UnitEconomyRequest, UnitEconomyResult
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -30,8 +33,9 @@ from jarvis_db.repositores.market.service.economy_result_repository import (
 )
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
+from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.tables import Account, Category, Marketplace, Niche, User
+from jarvis_db.tables import Account, Category, Marketplace, Niche, User, Warehouse, Address
 from tests.db_context import DbContext
 
 
@@ -53,8 +57,25 @@ class EconomyServiceTest(unittest.TestCase):
             )
             account = Account(phone="", email="", password="")
             user = User(name="", profit_tax=1, account=account)
+            address = Address(
+                country="AS", region="QS", street="DD", number="HH", corpus="YU"
+            )
+            warehouse = Warehouse(
+                owner=marketplace,
+                global_id=200,
+                type=0,
+                name="qwerty",
+                address=address,
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0,
+            )
             session.add(user)
             session.add(niche)
+            session.add(warehouse)
             session.flush()
             self.__user_id = user.id
             self.__marketplace_id = marketplace.id
@@ -62,7 +83,7 @@ class EconomyServiceTest(unittest.TestCase):
     def test_save(self):
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         request_entity = UnitEconomyRequest(
-            100, 20, self.__niche_name, self.__category_name, 11, 121, 33
+            100, 20, self.__niche_name, self.__category_name, 11, 121, 33, warehouse_name="qwerty"
         )
         result = UnitEconomyResult(200, 300, 12, 25, 151, 134, 12355, 2, 1.2, 2.0)
         with self.__db_context.session() as session, session.begin():
@@ -107,4 +128,5 @@ def create_service(session: Session) -> EconomyService:
             CategoryTableToJormMapper(niche_mapper),
         ),
         NicheService(NicheRepository(session), niche_mapper),
+        WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper())
     )
