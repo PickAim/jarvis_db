@@ -340,6 +340,9 @@ class UnitEconomyRequest(Base):
         Integer, ForeignKey(Warehouse.id), nullable=True
     )
     warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
+    result: Mapped["UnitEconomyResult"] = relationship(
+        back_populates="request", uselist=False, cascade="delete"
+    )
 
     def __repr__(self) -> str:
         return (
@@ -382,10 +385,10 @@ class UnitEconomyResult(Base):
     transit_margin_percent: Mapped[int] = mapped_column(Integer, nullable=False)
     storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
     request_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(UnitEconomyRequest.id), nullable=False
+        Integer, ForeignKey(UnitEconomyRequest.id, ondelete="CASCADE"), nullable=False
     )
     request: Mapped[UnitEconomyRequest] = relationship(
-        UnitEconomyRequest, uselist=False
+        UnitEconomyRequest, uselist=False, back_populates="result"
     )
 
     def __repr__(self) -> str:
