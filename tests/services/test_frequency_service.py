@@ -24,8 +24,6 @@ class FrequencyServiceTest(unittest.TestCase):
     def setUp(self) -> None:
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
-            self.__category_name = "qwerty"
-            self.__niche_name = "niche#1"
             account = Account(phone="", email="", password="")
             user = User(name="", profit_tax=1, account=account)
             session.add(user)

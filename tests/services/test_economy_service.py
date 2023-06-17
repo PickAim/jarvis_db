@@ -125,6 +125,7 @@ class EconomyServiceTest(unittest.TestCase):
             ).scalar_one()
             request = db_result.request
             self.assertEqual(request_info.date, request.date)
+            self.assertEqual(request_info.name, request.name)
             self.assertEqual(result.product_cost, db_result.product_cost)
             self.assertEqual(result.pack_cost, db_result.pack_cost)
             self.assertEqual(
