@@ -68,6 +68,7 @@ class EconomyService:
         request = self.__request_repository.save(
             UnitEconomyRequest(
                 user_id=user_id,
+                name=request_info.name,
                 niche_id=niche_id,
                 date=request_info.date,
                 buy_cost=request_entity.buy,

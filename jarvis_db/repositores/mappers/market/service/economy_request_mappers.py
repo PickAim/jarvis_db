@@ -26,7 +26,7 @@ class EconomyRequestTableToJormMapper(
     def map(
         self, value: tables.UnitEconomyRequest
     ) -> tuple[RequestInfo, UnitEconomyRequest]:
-        info = RequestInfo(value.id, value.date, value.user.account.email)
+        info = RequestInfo(value.id, value.date, value.name)
         request = UnitEconomyRequest(
             buy=value.buy_cost,
             pack=value.pack_cost,

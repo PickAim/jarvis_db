@@ -328,6 +328,7 @@ class FrequencyRequest(Base):
 class UnitEconomyRequest(Base):
     __tablename__ = "economy_requests"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(512), nullable=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )

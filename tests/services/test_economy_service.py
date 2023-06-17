@@ -146,6 +146,7 @@ class EconomyServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             request = tables.UnitEconomyRequest(
                 id=request_id,
+                name="name",
                 user_id=self.__user_id,
                 niche_id=self.__niche_id,
                 date=datetime(2020, 2, 2),
