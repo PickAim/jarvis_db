@@ -310,12 +310,16 @@ class StorageInfo(Base):
 class FrequencyRequest(Base):
     __tablename__ = "frequency_requests"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(512), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id))
     user: Mapped[User] = relationship(User, uselist=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )
     search_str: Mapped[str] = mapped_column(String(255), nullable=False)
+    results: Mapped[list["FrequencyResult"]] = relationship(
+        back_populates="request", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"FrequencyRequest(id={self.id!r}, search_str={self.search_str!r})"
@@ -357,9 +361,11 @@ class FrequencyResult(Base):
     __tablename__ = "frequency_results"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     request_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(FrequencyRequest.id), nullable=False
+        Integer, ForeignKey(FrequencyRequest.id, ondelete="CASCADE"), nullable=False
     )
-    request: Mapped[FrequencyRequest] = relationship(FrequencyRequest, uselist=False)
+    request: Mapped[FrequencyRequest] = relationship(
+        FrequencyRequest, uselist=False, back_populates="results"
+    )
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
 

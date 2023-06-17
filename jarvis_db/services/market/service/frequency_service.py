@@ -35,13 +35,14 @@ class FrequencyService:
     ) -> int:
         request = self.__request_repository.save(
             FrequencyRequest(
+                name=request_info.name,
                 user_id=user_id,
                 search_str=request_entity.search_str,
                 date=request_info.date,
             )
         )
         results = (
-            FrequencyResult(request_id=request.id, cost=cost, frequenct=frequency)
+            FrequencyResult(request_id=request.id, cost=cost, frequency=frequency)
             for cost, frequency in result_entity.frequencies.items()
         )
         self.__result_repository.add_all(results)
