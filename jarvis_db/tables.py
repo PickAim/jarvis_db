@@ -12,6 +12,13 @@ class Account(Base):
     phone: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
     email: Mapped[str] = mapped_column(String(64), nullable=True, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="account",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
+    )
 
     def __repr__(self) -> str:
         return (
@@ -25,9 +32,25 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     profit_tax: Mapped[int] = mapped_column(Integer, nullable=False)
     account_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Account.id), nullable=False
+        Integer, ForeignKey(Account.id, ondelete="CASCADE"), nullable=False
     )
-    account: Mapped[Account] = relationship(Account, uselist=False)
+    account: Mapped[Account] = relationship(
+        Account, uselist=False, back_populates="user"
+    )
+    token_set: Mapped["TokenSet"] = relationship(
+        "TokenSet",
+        back_populates="user",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
+    )
+    pay: Mapped["Pay"] = relationship(
+        "Pay",
+        back_populates="user",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
+    )
 
     def __repr__(self) -> str:
         return (
@@ -41,8 +64,10 @@ class TokenSet(Base):
     access_token: Mapped[str] = mapped_column(String(512), nullable=False)
     refresh_token: Mapped[str] = mapped_column(String(512), nullable=False)
     fingerprint_token: Mapped[str] = mapped_column(String(512), nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id), nullable=False)
-    user: Mapped[User] = relationship(User, uselist=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
+    )
+    user: Mapped[User] = relationship(User, uselist=False, back_populates="token_set")
 
     __table_args__ = (UniqueConstraint(user_id, refresh_token, fingerprint_token),)
 
@@ -60,8 +85,9 @@ class Pay(Base):
     __tablename__ = "pays"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{User.__tablename__}.id")
+        Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
     )
+    user: Mapped[User] = relationship(User, uselist=False, back_populates="pay")
     payment_date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )
@@ -84,6 +110,13 @@ class Address(Base):
     street: Mapped[str] = mapped_column(String(255), nullable=False)
     number: Mapped[str] = mapped_column(String(60), nullable=False)
     corpus: Mapped[str] = mapped_column(String(60), nullable=False)
+    warehouse: Mapped["Warehouse"] = relationship(
+        "Warehouse",
+        back_populates="address",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
+    )
 
     def __repr__(self) -> str:
         return (
@@ -101,11 +134,21 @@ class Marketplace(Base):
     __tablename__ = "marketplaces"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    info: Mapped["MarketplaceInfo"] = relationship(
+        "MarketplaceInfo",
+        back_populates="marketplace",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
+    )
     warehouses: Mapped[list["Warehouse"]] = relationship(
         "Warehouse", back_populates="owner"
     )
     categories: Mapped[list["Category"]] = relationship(
-        "Category", back_populates="marketplace"
+        "Category",
+        back_populates="marketplace",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -116,8 +159,9 @@ class MarketplaceInfo(Base):
     __tablename__ = "marketplace_info"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     marketplace_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{Marketplace.__tablename__}.id"), nullable=False
+        Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
+    marketplace: Mapped[Marketplace] = relationship(Marketplace, back_populates="info")
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f"{User.__tablename__}.id"), nullable=False
     )
@@ -132,12 +176,17 @@ class Category(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     marketplace_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Marketplace.id), nullable=False
+        Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
     marketplace: Mapped[Marketplace] = relationship(
         Marketplace, back_populates="categories"
     )
-    niches: Mapped[list["Niche"]] = relationship("Niche", back_populates="category")
+    niches: Mapped[list["Niche"]] = relationship(
+        "Niche",
+        back_populates="category",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     __table_args__ = (UniqueConstraint(name, marketplace_id),)
 
@@ -149,7 +198,9 @@ class Niche(Base):
     __tablename__ = "niches"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
-    category_id: Mapped[int] = mapped_column(Integer(), ForeignKey(Category.id))
+    category_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Category.id, ondelete="CASCADE")
+    )
     category: Mapped[Category] = relationship("Category", back_populates="niches")
     marketplace_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     partial_client_commission: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -159,7 +210,10 @@ class Niche(Base):
         DateTime(), nullable=False, default=datetime.utcnow
     )
     products: Mapped[list["ProductCard"]] = relationship(
-        "ProductCard", back_populates="niche"
+        "ProductCard",
+        back_populates="niche",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     __table_args__ = (UniqueConstraint(name, category_id),)
@@ -190,9 +244,23 @@ class Warehouse(Base):
     type: Mapped[int] = mapped_column(Integer, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     address_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{Address.__tablename__}.id"), nullable=False
+        Integer, ForeignKey(Address.id, ondelete="CASCADE"), nullable=False
     )
-    address: Mapped[Address] = relationship("Address", uselist=False)
+    address: Mapped[Address] = relationship(
+        Address, uselist=False, back_populates="warehouse"
+    )
+    leftovers: Mapped[list["Leftover"]] = relationship(
+        "Leftover",
+        back_populates="warehouse",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    storage_infos: Mapped[list["StorageInfo"]] = relationship(
+        "StorageInfo",
+        back_populates="warehouse",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     basic_logistic_to_customer_commission: Mapped[int] = mapped_column(
         Integer, nullable=False
     )
@@ -233,9 +301,21 @@ class ProductCard(Base):
     brand: Mapped[str] = mapped_column(String(255), nullable=False)
     seller: Mapped[str] = mapped_column(String(255), nullable=False)
     niche_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey(f"{Niche.__tablename__}.id"), nullable=False
+        Integer(), ForeignKey(Niche.id, ondelete="CASCADE"), nullable=False
     )
-    niche: Mapped[Niche] = relationship("Niche", back_populates="products")
+    niche: Mapped[Niche] = relationship(Niche, back_populates="products")
+    histories: Mapped[list["ProductHistory"]] = relationship(
+        "ProductHistory",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    storage_info: Mapped["StorageInfo"] = relationship(
+        "StorageInfo",
+        back_populates="product_card",
+        uselist=False,
+        passive_deletes=True,
+    )
 
     __table_args__ = (UniqueConstraint(name, global_id, niche_id),)
 
@@ -255,12 +335,15 @@ class ProductHistory(Base):
         DateTime(), nullable=False, default=datetime.utcnow
     )
     leftovers: Mapped[list["Leftover"]] = relationship(
-        "Leftover", back_populates="product_history"
+        "Leftover",
+        back_populates="product_history",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     product_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{ProductCard.__tablename__}.id"), nullable=False
+        Integer, ForeignKey(ProductCard.id, ondelete="CASCADE"), nullable=False
     )
-    product: Mapped[ProductCard] = relationship("ProductCard", uselist=False)
+    product: Mapped[ProductCard] = relationship(ProductCard, back_populates="histories")
 
     def __repr__(self) -> str:
         return (
@@ -276,11 +359,11 @@ class Leftover(Base):
     type: Mapped[str] = mapped_column(String(100), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     warehouse_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Warehouse.id), nullable=False
+        Integer, ForeignKey(Warehouse.id, ondelete="CASCADE"), nullable=False
     )
-    warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
+    warehouse: Mapped[Warehouse] = relationship(Warehouse, back_populates="leftovers")
     product_history_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(ProductHistory.id), nullable=False
+        Integer, ForeignKey(ProductHistory.id, ondelete="CASCADE"), nullable=False
     )
     product_history: Mapped[ProductHistory] = relationship(
         ProductHistory, back_populates="leftovers"
@@ -296,10 +379,16 @@ class StorageInfo(Base):
     __tablename__ = "storage_info"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     product_card_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{ProductCard.__tablename__}.id")
+        Integer, ForeignKey(ProductCard.id, ondelete="CASCADE")
+    )
+    product_card: Mapped[ProductCard] = relationship(
+        ProductCard, back_populates="storage_info"
     )
     warehouse_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{Warehouse.__tablename__}.id")
+        Integer, ForeignKey(Warehouse.id, ondelete="CASCADE")
+    )
+    warehouse: Mapped[Warehouse] = relationship(
+        Warehouse, back_populates="storage_infos"
     )
     leftover: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -318,7 +407,10 @@ class FrequencyRequest(Base):
     )
     search_str: Mapped[str] = mapped_column(String(255), nullable=False)
     results: Mapped[list["FrequencyResult"]] = relationship(
-        back_populates="request", cascade="all, delete-orphan"
+        "FrequencyResult",
+        back_populates="request",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -346,7 +438,11 @@ class UnitEconomyRequest(Base):
     )
     warehouse: Mapped[Warehouse] = relationship(Warehouse, uselist=False)
     result: Mapped["UnitEconomyResult"] = relationship(
-        back_populates="request", uselist=False, cascade="delete"
+        "UnitEconomyResult",
+        back_populates="request",
+        uselist=False,
+        cascade="delete",
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -365,7 +461,7 @@ class FrequencyResult(Base):
         Integer, ForeignKey(FrequencyRequest.id, ondelete="CASCADE"), nullable=False
     )
     request: Mapped[FrequencyRequest] = relationship(
-        FrequencyRequest, uselist=False, back_populates="results"
+        FrequencyRequest, back_populates="results"
     )
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     frequency: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -395,7 +491,7 @@ class UnitEconomyResult(Base):
         Integer, ForeignKey(UnitEconomyRequest.id, ondelete="CASCADE"), nullable=False
     )
     request: Mapped[UnitEconomyRequest] = relationship(
-        UnitEconomyRequest, uselist=False, back_populates="result"
+        UnitEconomyRequest, back_populates="result"
     )
 
     def __repr__(self) -> str:
