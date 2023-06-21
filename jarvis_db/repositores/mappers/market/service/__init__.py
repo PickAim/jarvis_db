@@ -10,7 +10,3 @@ from jarvis_db.repositores.mappers.market.service.frequency_request_mappers impo
     FrequencyRequestJormToTableMapper,
     FrequencyRequestTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.service.frequency_result_mappers import (
-    FrequencyResultJormToTableMapper,
-    FrequencyResultTableToJormMapper,
-)

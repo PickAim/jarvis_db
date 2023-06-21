@@ -26,7 +26,7 @@ class EconomyService:
         ],
         category_service: CategoryService,
         niche_service: NicheService,
-        warehouse_service: WarehouseService
+        warehouse_service: WarehouseService,
     ):
         self.__request_repository = request_repository
         self.__result_repository = result_repository
@@ -55,17 +55,20 @@ class EconomyService:
             request_entity.niche, category_id
         )
         if niche_result is None:
-            raise Exception(f'niche with name \"{request_entity.niche}\" is not found')
+            raise Exception(f'niche with name "{request_entity.niche}" is not found')
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
             request_entity.warehouse_name
         )
         if warehouse_result is None:
-            raise Exception(f'warehouse with name \"{request_entity.warehouse_name}\" is not found')
+            raise Exception(
+                f'warehouse with name "{request_entity.warehouse_name}" is not found'
+            )
         _, niche_id = niche_result
         _, warehouse_id = warehouse_result
         request = self.__request_repository.save(
             UnitEconomyRequest(
                 user_id=user_id,
+                name=request_info.name,
                 niche_id=niche_id,
                 date=request_info.date,
                 buy_cost=request_entity.buy,
@@ -73,7 +76,7 @@ class EconomyService:
                 market_place_transit_price=request_entity.market_place_transit_price,
                 pack_cost=request_entity.pack,
                 transit_count=request_entity.transit_count,
-                warehouse_id=warehouse_id
+                warehouse_id=warehouse_id,
             )
         )
         result = UnitEconomyResult(

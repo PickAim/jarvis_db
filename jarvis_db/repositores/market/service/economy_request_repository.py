@@ -10,6 +10,7 @@ class EconomyRequestRepository(AlchemyRepository[UnitEconomyRequest]):
             self._session.execute(
                 select(UnitEconomyRequest)
                 .join(UnitEconomyRequest.user)
+                .join(UnitEconomyRequest.result)
                 .where(User.id == user_id)
             )
             .scalars()
@@ -19,5 +20,8 @@ class EconomyRequestRepository(AlchemyRepository[UnitEconomyRequest]):
 
     def find_by_id(self, request_id: int) -> UnitEconomyRequest | None:
         return self._session.execute(
-            select(UnitEconomyRequest).where(UnitEconomyRequest.id == request_id)
+            select(UnitEconomyRequest)
+            .where(UnitEconomyRequest.id == request_id)
+            .join(UnitEconomyRequest.user)
+            .join(UnitEconomyRequest.result)
         ).scalar_one_or_none()
