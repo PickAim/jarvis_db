@@ -26,6 +26,6 @@ class FrequencyRequestTableToJormMapper(
         info = RequestInfo(id=value.id, date=value.date, name=value.user.account.email)
         request = FrequencyRequest(value.search_str)
         result = FrequencyResult(
-            {result.cost: result.frequency for result in value.results}
+            {result_unit.cost: result_unit.frequency for result_unit in value.results}
         )
         return request, result, info
