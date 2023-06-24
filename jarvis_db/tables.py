@@ -400,12 +400,17 @@ class FrequencyRequest(Base):
     __tablename__ = "frequency_requests"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(512), nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id))
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id, ondelete="CASCADE")
+    )
+    niche_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(Niche.id, ondelete="CASCADE")
+    )
+    niche: Mapped[Niche] = relationship(Niche, uselist=False)
     user: Mapped[User] = relationship(User, uselist=False)
     date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )
-    search_str: Mapped[str] = mapped_column(String(255), nullable=False)
     results: Mapped[list["FrequencyResult"]] = relationship(
         "FrequencyResult",
         back_populates="request",
@@ -414,7 +419,7 @@ class FrequencyRequest(Base):
     )
 
     def __repr__(self) -> str:
-        return f"FrequencyRequest(id={self.id!r}, search_str={self.search_str!r})"
+        return f"FrequencyRequest(id={self.id!r}, name={self.name!r})"
 
 
 class UnitEconomyRequest(Base):

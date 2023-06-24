@@ -31,6 +31,7 @@ class EconomyRequestTableToJormMapper(
             buy=value.buy_cost,
             pack=value.pack_cost,
             category=value.niche.category.name,
+            marketplace_id=value.niche.category.marketplace.id,
             niche=value.niche.name,
             transit_count=value.transit_count,
             transit_price=value.transit_cost,

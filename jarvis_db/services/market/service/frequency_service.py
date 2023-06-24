@@ -3,6 +3,7 @@ from jorm.market.service import FrequencyResult as FrequencyResultEntity
 from jorm.market.service import RequestInfo
 
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.repositores.market.infrastructure.niche_repository import NicheRepository
 from jarvis_db.repositores.market.service.frequency_request_repository import (
     FrequencyRequestRepository,
 )
@@ -16,6 +17,7 @@ class FrequencyService:
     def __init__(
         self,
         request_repository: FrequencyRequestRepository,
+        niche_repository: NicheRepository,
         result_repository: FrequencyResultRepository,
         result_table_mapper: Mapper[
             FrequencyResult,
@@ -23,6 +25,7 @@ class FrequencyService:
         ],
     ):
         self.__request_repository = request_repository
+        self.__niche_repository = niche_repository
         self.__result_repository = result_repository
         self.__result_table_mapper = result_table_mapper
 
@@ -33,16 +36,21 @@ class FrequencyService:
         result_entity: FrequencyResultEntity,
         user_id: int,
     ) -> int:
-        request = self.__request_repository.save(
-            FrequencyRequest(
-                name=request_info.name,
-                user_id=user_id,
-                search_str=request_entity.search_str,
-                date=request_info.date,
-            )
+        db_niche = self.__niche_repository.find_by_niche_name_and_category_name(
+            request_entity.niche_name,
+            request_entity.category_name,
+            request_entity.marketplace_id,
+        )
+        if db_niche is None:
+            raise Exception(f"No niche matching request {request_entity}")
+        request = FrequencyRequest(
+            name=request_info.name,
+            user_id=user_id,
+            date=request_info.date,
+            niche_id=db_niche.id,
         )
         results = (
-            FrequencyResult(request_id=request.id, cost=cost, frequency=frequency)
+            FrequencyResult(request=request, cost=cost, frequency=frequency)
             for cost, frequency in result_entity.frequencies.items()
         )
         self.__result_repository.add_all(results)

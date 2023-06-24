@@ -11,7 +11,7 @@ class FrequencyRequestJormToTableMapper(
         self, value: tuple[RequestInfo, FrequencyRequest]
     ) -> tables.FrequencyRequest:
         info, request = value
-        return tables.FrequencyRequest(search_str=request.search_str, date=info.date)
+        return tables.FrequencyRequest(name=info.name, date=info.date)
 
 
 class FrequencyRequestTableToJormMapper(
@@ -24,7 +24,11 @@ class FrequencyRequestTableToJormMapper(
         self, value: tables.FrequencyRequest
     ) -> tuple[FrequencyRequest, FrequencyResult, RequestInfo]:
         info = RequestInfo(id=value.id, date=value.date, name=value.user.account.email)
-        request = FrequencyRequest(value.search_str)
+        request = FrequencyRequest(
+            category_name=value.niche.category.name,
+            niche_name=value.niche.name,
+            marketplace_id=value.niche.category.marketplace_id,
+        )
         result = FrequencyResult(
             {result_unit.cost: result_unit.frequency for result_unit in value.results}
         )
