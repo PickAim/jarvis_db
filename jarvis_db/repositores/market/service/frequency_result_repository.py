@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
-from jarvis_db.tables import FrequencyRequest, FrequencyResult
+from jarvis_db.tables import FrequencyRequest, FrequencyResult, Niche
 
 
 class FrequencyResultRepository(AlchemyRepository[FrequencyResult]):
@@ -18,6 +18,8 @@ class FrequencyResultRepository(AlchemyRepository[FrequencyResult]):
             self._session.execute(
                 select(FrequencyResult)
                 .join(FrequencyResult.request)
+                .join(FrequencyRequest.niche)
+                .join(Niche.category)
                 .where(FrequencyRequest.user_id == user_id)
             )
             .scalars()

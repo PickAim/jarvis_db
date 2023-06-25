@@ -13,6 +13,17 @@ class NicheRepository(AlchemyRepository[Niche]):
             .where(Niche.name.ilike(niche_name))
         ).scalar()
 
+    def find_by_niche_name_and_category_name(
+        self, niche_name: str, category_name: str, marketplace_id: int
+    ) -> Niche | None:
+        return self._session.execute(
+            select(Niche)
+            .join(Niche.category)
+            .where(Category.marketplace_id == marketplace_id)
+            .where(Category.name.ilike(category_name))
+            .where(Niche.name.ilike(niche_name))
+        ).scalar_one_or_none()
+
     def find_niches_by_category(self, category_id: int) -> list[Niche]:
         db_niches = (
             self._session.execute(
