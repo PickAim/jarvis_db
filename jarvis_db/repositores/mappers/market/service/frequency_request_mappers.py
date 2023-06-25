@@ -23,7 +23,7 @@ class FrequencyRequestTableToJormMapper(
     def map(
         self, value: tables.FrequencyRequest
     ) -> tuple[FrequencyRequest, FrequencyResult, RequestInfo]:
-        info = RequestInfo(id=value.id, date=value.date, name=value.user.account.email)
+        info = RequestInfo(id=value.id, date=value.date, name=value.name)
         request = FrequencyRequest(
             category_name=value.niche.category.name,
             niche_name=value.niche.name,
