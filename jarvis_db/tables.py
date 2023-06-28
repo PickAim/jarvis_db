@@ -44,11 +44,10 @@ class User(Base):
         cascade="delete",
         passive_deletes=True,
     )
-    pay: Mapped["Pay"] = relationship(
+    pays: Mapped[list["Pay"]] = relationship(
         "Pay",
         back_populates="user",
-        uselist=False,
-        cascade="delete",
+        cascade="all,delete-orphan",
         passive_deletes=True,
     )
 
@@ -87,7 +86,7 @@ class Pay(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
     )
-    user: Mapped[User] = relationship(User, uselist=False, back_populates="pay")
+    user: Mapped[User] = relationship(User, back_populates="pays")
     payment_date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )
