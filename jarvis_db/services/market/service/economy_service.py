@@ -41,10 +41,9 @@ class EconomyService:
         request_entity: UnitEconomyRequestEntity,
         result_entity: UnitEconomyResultEntity,
         user_id: int,
-        marketplace_id: int,
     ) -> int:
         category_result = self.__category_service.find_by_name(
-            request_entity.category, marketplace_id
+            request_entity.category, request_entity.marketplace_id
         )
         if category_result is None:
             raise Exception(

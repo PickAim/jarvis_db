@@ -101,7 +101,7 @@ class EconomyServiceTest(unittest.TestCase):
             20,
             self.__niche_name,
             self.__category_name,
-            11,
+            self.__marketplace_id,
             121,
             33,
             warehouse_name="qwerty",
@@ -114,7 +114,6 @@ class EconomyServiceTest(unittest.TestCase):
                 request_entity,
                 result,
                 self.__user_id,
-                self.__marketplace_id,
             )
         with self.__db_context.session() as session:
             db_result = session.execute(
