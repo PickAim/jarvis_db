@@ -125,6 +125,41 @@ class FrequencyServiceTest(unittest.TestCase):
             )
             self.assertEqual(0, len(db_results))
 
+    def test_find_user_requests(self):
+        mapper = FrequencyRequestTableToJormMapper()
+        with self.__db_context.session() as session, session.begin():
+            db_requests = [
+                tables.FrequencyRequest(
+                    name=f"request_name_{i}",
+                    user_id=self.__user_id,
+                    niche_id=self.__niche_id,
+                    results=[
+                        tables.FrequencyResult(cost=10 * j, frequency=20 * j)
+                        for j in range(1, i + 1)
+                    ],
+                )
+                for i in range(1, 11)
+            ]
+            session.add_all(db_requests)
+            session.flush()
+            requests = [mapper.map(request) for request in db_requests]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            actual_user_requests = service.find_user_requests(self.__user_id)
+            for expected_request_tuple, (request_id, response_tuple) in zip(
+                requests, actual_user_requests.items(), strict=True
+            ):
+                (
+                    expected_request,
+                    expected_result,
+                    expected_info,
+                ) = expected_request_tuple
+                actual_request, actual_result, actual_info = response_tuple
+                self.assertEqual(expected_info.id, request_id)
+                self.assertEqual(expected_request, actual_request)
+                self.assertEqual(expected_result, actual_result)
+                self.assertEqual(expected_info, actual_info)
+
 
 def create_service(session: Session) -> FrequencyService:
     return FrequencyService(

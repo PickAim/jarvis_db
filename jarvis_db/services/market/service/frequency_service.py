@@ -20,7 +20,7 @@ class FrequencyService:
         niche_repository: NicheRepository,
         result_repository: FrequencyResultRepository,
         result_table_mapper: Mapper[
-            FrequencyResult,
+            FrequencyRequest,
             tuple[FrequencyRequestEntity, FrequencyResultEntity, RequestInfo],
         ],
     ):
@@ -59,9 +59,10 @@ class FrequencyService:
     def find_user_requests(
         self, user_id: int
     ) -> dict[int, tuple[FrequencyRequestEntity, FrequencyResultEntity, RequestInfo]]:
-        results = self.__result_repository.find_user_results(user_id)
+        results = self.__request_repository.find_user_requests(user_id)
         return {
-            request.id: self.__result_table_mapper.map(request) for request in results
+            result_unit.id: self.__result_table_mapper.map(result_unit)
+            for result_unit in results
         }
 
     def remove(self, request_id: int) -> bool:
