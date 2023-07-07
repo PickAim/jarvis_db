@@ -11,6 +11,9 @@ from jarvis_db.repositores.market.items.product_card_repository import (
     ProductCardRepository,
 )
 from jarvis_db.services.market.items.product_card_service import ProductCardService
+from tests.services.test_product_history_service import (
+    create_service as create_history_service,
+)
 from jarvis_db.tables import Category, Marketplace, Niche, ProductCard
 from tests.db_context import DbContext
 
@@ -186,6 +189,7 @@ class ProductCardServiceTest(unittest.TestCase):
 
 
 def create_service(session: Session) -> ProductCardService:
+    history_service = create_history_service(session)
     return ProductCardService(
-        ProductCardRepository(session), ProductTableToJormMapper()
+        ProductCardRepository(session), history_service, ProductTableToJormMapper()
     )
