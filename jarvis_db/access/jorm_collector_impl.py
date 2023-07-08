@@ -30,8 +30,12 @@ class JormCollectorImpl(JORMCollector):
         self.__unit_economy_service = unit_economy_service
         self.__frequency_service = frequency_service
 
-    def get_niche(self, niche_name: str, category_name: str, marketplace_id: int) -> Niche | None:
-        category_result = self.__category_service.find_by_name(category_name, marketplace_id)
+    def get_niche(
+        self, niche_name: str, category_name: str, marketplace_id: int
+    ) -> Niche | None:
+        category_result = self.__category_service.find_by_name(
+            category_name, marketplace_id
+        )
         if category_result is None:
             return None
         _, category_id = category_result
@@ -60,9 +64,7 @@ class JormCollectorImpl(JORMCollector):
     def get_all_unit_economy_results(
         self, user_id: int
     ) -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
-        return list(
-            self.__unit_economy_service.find_user_requests(user_id).values()
-        )
+        return list(self.__unit_economy_service.find_user_requests(user_id).values())
 
     def get_all_frequency_results(
         self, user_id: int
