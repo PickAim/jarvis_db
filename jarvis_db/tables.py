@@ -302,7 +302,7 @@ class Warehouse(Base):
     )
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
     address_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Address.id, ondelete="CASCADE"), nullable=False
     )

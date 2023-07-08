@@ -1,3 +1,4 @@
+from typing import Iterable
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
@@ -53,3 +54,13 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
             .all()
         )
         return list(set(names) - set(existing_names))
+
+    def filter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
+        existing_ids = (
+            self._session.execute(
+                select(Warehouse.global_id).where(Warehouse.global_id.in_(ids))
+            )
+            .scalars()
+            .all()
+        )
+        return list(set(ids) - set(existing_ids))

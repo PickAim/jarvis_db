@@ -67,3 +67,6 @@ class WarehouseService:
 
     def filter_existing_names(self, names: Iterable[str]) -> list[str]:
         return self.__warehouse_repository.filter_existing_names(list(names))
+
+    def fileter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
+        return self.__warehouse_repository.filter_existing_global_ids(ids)

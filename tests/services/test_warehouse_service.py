@@ -192,6 +192,40 @@ class WarehouseServiceTest(unittest.TestCase):
             filtered_names = service.filter_existing_names(names_to_filter)
             self.assertEqual(sorted(new_names), sorted(filtered_names))
 
+    def test_filter_existing_global_ids(self):
+        existing_ids = [i for i in range(100, 125)]
+        with self.__db_context.session() as session, session.begin():
+            session.add_all(
+                (
+                    Warehouse(
+                        owner_id=self.__marketplace_id,
+                        global_id=global_id,
+                        type=1,
+                        name=f"waregouse_{global_id}",
+                        address=Address(
+                            country="AS",
+                            region="QS",
+                            street="DD",
+                            number="HH",
+                            corpus="YU",
+                        ),
+                        basic_logistic_to_customer_commission=0,
+                        additional_logistic_to_customer_commission=0,
+                        logistic_from_customer_commission=0,
+                        basic_storage_commission=0,
+                        additional_storage_commission=0,
+                        monopalette_storage_commission=0,
+                    )
+                    for global_id in existing_ids
+                )
+            )
+        new_ids = [i for i in range(200, 225)]
+        ids_to_filter = [*existing_ids, *new_ids]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            filtered_ids = service.fileter_existing_global_ids(ids_to_filter)
+            self.assertEqual(sorted(new_ids), sorted(filtered_ids))
+
 
 def create_service(session: Session):
     return WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper())
