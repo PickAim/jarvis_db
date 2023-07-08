@@ -192,7 +192,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 (
                     Warehouse(
                         owner_id=self.__marketplace_id,
-                        global_id=200,
+                        global_id=i,
                         type=1,
                         name=warehouse_name,
                         address=Address(
@@ -209,7 +209,7 @@ class WarehouseServiceTest(unittest.TestCase):
                         additional_storage_commission=0,
                         monopalette_storage_commission=0,
                     )
-                    for warehouse_name in existing_names
+                    for i, warehouse_name in enumerate(existing_names)
                 )
             )
         new_names = [f"new_warehouse_{i}" for i in range(1, 11)]
