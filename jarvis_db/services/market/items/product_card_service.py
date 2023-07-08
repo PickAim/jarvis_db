@@ -56,5 +56,9 @@ class ProductCardService:
         product_card.seller = product.seller
         self.__product_card_repository.update(product_card)
 
-    def filter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
-        return self.__product_card_repository.filter_existing_global_ids(list(ids))
+    def filter_existing_global_ids(
+        self, niche_id: int, ids: Iterable[int]
+    ) -> list[int]:
+        return self.__product_card_repository.filter_existing_global_ids(
+            niche_id, list(ids)
+        )
