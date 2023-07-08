@@ -87,8 +87,8 @@ class EconomyService:
             margin=result_entity.margin,
             recommended_price=result_entity.recommended_price,
             transit_profit=result_entity.transit_profit,
-            roi=result_entity.roi,
-            transit_margin_percent=result_entity.transit_margin,
+            roi=int(result_entity.roi * 100),
+            transit_margin_percent=int(result_entity.transit_margin * 100),
             storage_price=result_entity.storage_price,
         )
         self.__result_repository.add(result)

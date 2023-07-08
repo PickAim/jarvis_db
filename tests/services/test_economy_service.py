@@ -134,8 +134,8 @@ class EconomyServiceTest(unittest.TestCase):
             self.assertEqual(result.margin, db_result.margin)
             self.assertEqual(result.recommended_price, db_result.recommended_price)
             self.assertEqual(result.transit_profit, db_result.transit_profit)
-            self.assertEqual(result.roi, db_result.roi)
-            self.assertEqual(result.transit_margin, db_result.transit_margin_percent)
+            self.assertEqual(int(result.roi * 100), db_result.roi)
+            self.assertEqual(int(result.transit_margin * 100), db_result.transit_margin_percent)
             self.assertEqual(result.storage_price, db_result.storage_price)
             self.assertEqual(self.__warehouse_id, request.warehouse_id)
             self.assertEqual(self.__warehouse_name, request.warehouse.name)
@@ -226,12 +226,12 @@ class EconomyServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             service = create_service(session)
             actual_response = service.find_user_requests(self.__user_id)
-            for expected_tuple, (reqeusts_id, actual_tuple) in zip(
+            for expected_tuple, (requests_id, actual_tuple) in zip(
                 expected_requests, actual_response.items(), strict=True
             ):
                 expected_request, expected_result, expected_info = expected_tuple
                 actual_request, actual_result, actual_info = actual_tuple
-                self.assertEqual(expected_info.id, reqeusts_id)
+                self.assertEqual(expected_info.id, requests_id)
                 self.assertEqual(expected_request, actual_request)
                 self.assertEqual(expected_result, actual_result)
                 self.assertEqual(expected_info, actual_info)
