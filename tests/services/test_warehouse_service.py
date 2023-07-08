@@ -1,5 +1,4 @@
 import unittest
-from black import assert_equivalent
 
 from jorm.market.infrastructure import Address as AddressEntity
 from jorm.market.infrastructure import HandlerType
