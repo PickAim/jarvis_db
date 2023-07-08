@@ -1,4 +1,5 @@
 import unittest
+from black import assert_equivalent
 
 from jorm.market.infrastructure import Address as AddressEntity
 from jorm.market.infrastructure import HandlerType
@@ -93,6 +94,33 @@ class WarehouseServiceTest(unittest.TestCase):
             assert find_result is not None
             found, _ = find_result
             self.assertEqual(warehouse_name, found.name)
+
+    def test_find_by_global_id(self):
+        global_id = 2001
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                Warehouse(
+                    owner_id=self.__marketplace_id,
+                    global_id=global_id,
+                    type=1,
+                    name="warehouse_name",
+                    address=Address(
+                        country="AS", region="QS", street="DD", number="HH", corpus="YU"
+                    ),
+                    basic_logistic_to_customer_commission=0,
+                    additional_logistic_to_customer_commission=0,
+                    logistic_from_customer_commission=0,
+                    basic_storage_commission=0,
+                    additional_storage_commission=0,
+                    monopalette_storage_commission=0,
+                )
+            )
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            result = service.find_by_global_id(self.__marketplace_id, global_id)
+            assert result is not None
+            _, actual_warehouse = result
+            self.assertEqual(global_id, actual_warehouse.global_id)
 
     def test_find_all(self):
         expected_count = 10

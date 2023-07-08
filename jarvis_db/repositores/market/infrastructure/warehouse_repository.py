@@ -12,13 +12,15 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
         ).scalar()
         return warehouse
 
-    def find_by_global_id(self, global_id: int, marketplace_id: int) -> Warehouse:
+    def find_by_global_id(
+        self, global_id: int, marketplace_id: int
+    ) -> Warehouse | None:
         warehouse = self._session.execute(
             select(Warehouse)
             .join(Warehouse.owner)
             .where(Marketplace.id == marketplace_id)
             .where(Warehouse.global_id == global_id)
-        ).scalar_one()
+        ).scalar_one_or_none()
         return warehouse
 
     def find_all(self) -> list[Warehouse]:

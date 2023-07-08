@@ -334,6 +334,8 @@ class Warehouse(Base):
     additional_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     monopalette_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    __table_args__ = (UniqueConstraint(owner_id, global_id),)
+
     def __repr__(self) -> str:
         return (
             f"Warehouse(id={self.id!r}, "
