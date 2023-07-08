@@ -41,4 +41,5 @@ class WarehouseRepositoryTest(unittest.TestCase):
         with self.__db_context.session() as session:
             repo = WarehouseRepository(session)
             found = repo.find_by_global_id(gid, self.__marketplace_id)
+            assert found is not None
             self.assertEqual(gid, found.global_id)
