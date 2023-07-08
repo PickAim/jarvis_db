@@ -1,6 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from jarvis_db.db_config import Base
@@ -44,11 +53,10 @@ class User(Base):
         cascade="delete",
         passive_deletes=True,
     )
-    pay: Mapped["Pay"] = relationship(
+    pays: Mapped[list["Pay"]] = relationship(
         "Pay",
         back_populates="user",
-        uselist=False,
-        cascade="delete",
+        cascade="all,delete-orphan",
         passive_deletes=True,
     )
 
@@ -87,7 +95,7 @@ class Pay(Base):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
     )
-    user: Mapped[User] = relationship(User, uselist=False, back_populates="pay")
+    user: Mapped[User] = relationship(User, back_populates="pays")
     payment_date: Mapped[datetime] = mapped_column(
         DateTime(), nullable=False, default=datetime.utcnow
     )
@@ -100,6 +108,58 @@ class Pay(Base):
             "payment_date={self.payment_date!r}, "
             "is_auto={self.is_auto!r})"
         )
+
+
+class SubscriptionGroupType(Base):
+    __tablename__ = "subscription_group_types"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    min: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class SubscriptionPlan(Base):
+    __tablename__ = "subscription_plans"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    price_per_mounth: Mapped[int] = mapped_column(Integer, nullable=False)
+    group_type_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(SubscriptionGroupType.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+    group_type: Mapped[SubscriptionGroupType] = relationship(SubscriptionGroupType)
+
+
+subscription_groups = Table(
+    "subscription_groups",
+    Base.metadata,
+    Column(
+        "user_id",
+        ForeignKey(User.id, ondelete="CASCADE"),
+        primary_key=True,
+        unique=True,
+    ),
+    Column(
+        "subscription_id",
+        ForeignKey("subscriptions.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    plan_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(SubscriptionPlan.id, ondelete="CASCADE"), nullable=False
+    )
+    plan: Mapped[SubscriptionPlan] = relationship(SubscriptionPlan)
+    valid_to: Mapped[datetime] = mapped_column(DateTime(), nullable=False)
+    users: Mapped[list["User"]] = relationship(secondary=subscription_groups)
+    admin_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
+    )
+    admin: Mapped[User] = relationship(User)
 
 
 class Address(Base):
@@ -242,7 +302,7 @@ class Warehouse(Base):
     )
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[int] = mapped_column(Integer, nullable=False)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
     address_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Address.id, ondelete="CASCADE"), nullable=False
     )
@@ -273,6 +333,8 @@ class Warehouse(Base):
     basic_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     additional_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     monopalette_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    __table_args__ = (UniqueConstraint(owner_id, global_id),)
 
     def __repr__(self) -> str:
         return (

@@ -6,6 +6,9 @@ from jarvis_db.core.mapper import Mapper
 from jarvis_db.repositores.market.items.product_card_repository import (
     ProductCardRepository,
 )
+from jarvis_db.services.market.items.product_history_service import (
+    ProductHistoryService,
+)
 from jarvis_db.tables import ProductCard
 
 
@@ -13,10 +16,12 @@ class ProductCardService:
     def __init__(
         self,
         product_card_repository: ProductCardRepository,
+        history_service: ProductHistoryService,
         table_mapper: Mapper[ProductCard, Product],
     ):
         self.__product_card_repository = product_card_repository
         self.__table_mapper = table_mapper
+        self.__history_service = history_service
 
     def create_product(self, product: Product, niche_id: int):
         db_product = ProductCard(
@@ -29,6 +34,7 @@ class ProductCardService:
             seller=product.seller,
         )
         self.__product_card_repository.add(db_product)
+        self.__history_service.create(product.history, db_product.id)
 
     def create_products(self, products: Iterable[Product], niche_id: int):
         for product in products:
@@ -50,5 +56,9 @@ class ProductCardService:
         product_card.seller = product.seller
         self.__product_card_repository.update(product_card)
 
-    def filter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
-        return self.__product_card_repository.filter_existing_global_ids(list(ids))
+    def filter_existing_global_ids(
+        self, niche_id: int, ids: Iterable[int]
+    ) -> list[int]:
+        return self.__product_card_repository.filter_existing_global_ids(
+            niche_id, list(ids)
+        )

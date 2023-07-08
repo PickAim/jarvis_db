@@ -16,7 +16,7 @@ class FrequencyRequestJormToTableMapper(
 
 class FrequencyRequestTableToJormMapper(
     Mapper[
-        tables.FrequencyResult,
+        tables.FrequencyRequest,
         tuple[FrequencyRequest, FrequencyResult, RequestInfo],
     ]
 ):

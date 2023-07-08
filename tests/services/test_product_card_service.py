@@ -11,6 +11,9 @@ from jarvis_db.repositores.market.items.product_card_repository import (
     ProductCardRepository,
 )
 from jarvis_db.services.market.items.product_card_service import ProductCardService
+from tests.services.test_product_history_service import (
+    create_service as create_history_service,
+)
 from jarvis_db.tables import Category, Marketplace, Niche, ProductCard
 from tests.db_context import DbContext
 
@@ -144,7 +147,9 @@ class ProductCardServiceTest(unittest.TestCase):
         new_ids = [i for i in range(200, 211)]
         with self.__db_context.session() as session:
             service = create_service(session)
-            filtered_ids = service.filter_existing_global_ids([*existing_ids, *new_ids])
+            filtered_ids = service.filter_existing_global_ids(
+                self.__niche_id, [*existing_ids, *new_ids]
+            )
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
     def test_update(self):
@@ -186,6 +191,7 @@ class ProductCardServiceTest(unittest.TestCase):
 
 
 def create_service(session: Session) -> ProductCardService:
+    history_service = create_history_service(session)
     return ProductCardService(
-        ProductCardRepository(session), ProductTableToJormMapper()
+        ProductCardRepository(session), history_service, ProductTableToJormMapper()
     )

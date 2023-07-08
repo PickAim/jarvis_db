@@ -94,6 +94,33 @@ class WarehouseServiceTest(unittest.TestCase):
             found, _ = find_result
             self.assertEqual(warehouse_name, found.name)
 
+    def test_find_by_global_id(self):
+        global_id = 2001
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                Warehouse(
+                    owner_id=self.__marketplace_id,
+                    global_id=global_id,
+                    type=1,
+                    name="warehouse_name",
+                    address=Address(
+                        country="AS", region="QS", street="DD", number="HH", corpus="YU"
+                    ),
+                    basic_logistic_to_customer_commission=0,
+                    additional_logistic_to_customer_commission=0,
+                    logistic_from_customer_commission=0,
+                    basic_storage_commission=0,
+                    additional_storage_commission=0,
+                    monopalette_storage_commission=0,
+                )
+            )
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            result = service.find_by_global_id(self.__marketplace_id, global_id)
+            assert result is not None
+            _, actual_warehouse = result
+            self.assertEqual(global_id, actual_warehouse.global_id)
+
     def test_find_all(self):
         expected_count = 10
         with self.__db_context.session() as session, session.begin():
@@ -165,7 +192,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 (
                     Warehouse(
                         owner_id=self.__marketplace_id,
-                        global_id=200,
+                        global_id=i,
                         type=1,
                         name=warehouse_name,
                         address=Address(
@@ -182,7 +209,7 @@ class WarehouseServiceTest(unittest.TestCase):
                         additional_storage_commission=0,
                         monopalette_storage_commission=0,
                     )
-                    for warehouse_name in existing_names
+                    for i, warehouse_name in enumerate(existing_names)
                 )
             )
         new_names = [f"new_warehouse_{i}" for i in range(1, 11)]
@@ -191,6 +218,40 @@ class WarehouseServiceTest(unittest.TestCase):
             service = create_service(session)
             filtered_names = service.filter_existing_names(names_to_filter)
             self.assertEqual(sorted(new_names), sorted(filtered_names))
+
+    def test_filter_existing_global_ids(self):
+        existing_ids = [i for i in range(100, 125)]
+        with self.__db_context.session() as session, session.begin():
+            session.add_all(
+                (
+                    Warehouse(
+                        owner_id=self.__marketplace_id,
+                        global_id=global_id,
+                        type=1,
+                        name=f"waregouse_{global_id}",
+                        address=Address(
+                            country="AS",
+                            region="QS",
+                            street="DD",
+                            number="HH",
+                            corpus="YU",
+                        ),
+                        basic_logistic_to_customer_commission=0,
+                        additional_logistic_to_customer_commission=0,
+                        logistic_from_customer_commission=0,
+                        basic_storage_commission=0,
+                        additional_storage_commission=0,
+                        monopalette_storage_commission=0,
+                    )
+                    for global_id in existing_ids
+                )
+            )
+        new_ids = [i for i in range(200, 225)]
+        ids_to_filter = [*existing_ids, *new_ids]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            filtered_ids = service.fileter_existing_global_ids(ids_to_filter)
+            self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
 
 def create_service(session: Session):

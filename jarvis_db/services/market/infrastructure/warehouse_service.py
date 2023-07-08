@@ -56,6 +56,18 @@ class WarehouseService:
             return None
         return self.__table_mapper.map(warehouse), warehouse.id
 
+    def find_by_global_id(
+        self, marketplace_id: int, global_id: int
+    ) -> tuple[int, WarehouseEntity] | None:
+        warehouse = self.__warehouse_repository.find_by_global_id(
+            global_id, marketplace_id
+        )
+        return (
+            None
+            if warehouse is None
+            else (warehouse.id, self.__table_mapper.map(warehouse))
+        )
+
     def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
         warehouses = self.__warehouse_repository.find_all()
         return {
@@ -67,3 +79,6 @@ class WarehouseService:
 
     def filter_existing_names(self, names: Iterable[str]) -> list[str]:
         return self.__warehouse_repository.filter_existing_names(list(names))
+
+    def fileter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
+        return self.__warehouse_repository.filter_existing_global_ids(ids)

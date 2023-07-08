@@ -1,3 +1,4 @@
+from typing import Iterable
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
@@ -11,13 +12,15 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
         ).scalar()
         return warehouse
 
-    def find_by_global_id(self, global_id: int, marketplace_id: int) -> Warehouse:
+    def find_by_global_id(
+        self, global_id: int, marketplace_id: int
+    ) -> Warehouse | None:
         warehouse = self._session.execute(
             select(Warehouse)
             .join(Warehouse.owner)
             .where(Marketplace.id == marketplace_id)
             .where(Warehouse.global_id == global_id)
-        ).scalar_one()
+        ).scalar_one_or_none()
         return warehouse
 
     def find_all(self) -> list[Warehouse]:
@@ -53,3 +56,13 @@ class WarehouseRepository(AlchemyRepository[Warehouse]):
             .all()
         )
         return list(set(names) - set(existing_names))
+
+    def filter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
+        existing_ids = (
+            self._session.execute(
+                select(Warehouse.global_id).where(Warehouse.global_id.in_(ids))
+            )
+            .scalars()
+            .all()
+        )
+        return list(set(ids) - set(existing_ids))

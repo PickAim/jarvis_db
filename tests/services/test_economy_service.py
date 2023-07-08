@@ -101,7 +101,7 @@ class EconomyServiceTest(unittest.TestCase):
             20,
             self.__niche_name,
             self.__category_name,
-            11,
+            self.__marketplace_id,
             121,
             33,
             warehouse_name="qwerty",
@@ -114,7 +114,6 @@ class EconomyServiceTest(unittest.TestCase):
                 request_entity,
                 result,
                 self.__user_id,
-                self.__marketplace_id,
             )
         with self.__db_context.session() as session:
             db_result = session.execute(
@@ -190,6 +189,52 @@ class EconomyServiceTest(unittest.TestCase):
             ).scalar_one_or_none()
             self.assertIsNone(request)
             self.assertIsNone(result)
+
+    def test_find_user_results(self):
+        mapper = EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper())
+        with self.__db_context.session() as session, session.begin():
+            db_results = [
+                tables.UnitEconomyResult(
+                    product_cost=10 * i,
+                    pack_cost=120 + i * 20,
+                    marketplace_commission=1230 + i * 30,
+                    logistic_price=12340 + i * 40,
+                    margin=123450 + i * 50,
+                    recommended_price=1234560 + i * 100,
+                    transit_profit=12345670 + i * 200,
+                    roi=230 + i * 25,
+                    transit_margin_percent=2340 + i * 300,
+                    storage_price=23450 + i * 1000,
+                    request=tables.UnitEconomyRequest(
+                        name=f"request_{i}",
+                        user_id=self.__user_id,
+                        niche_id=self.__niche_id,
+                        date=datetime(2020, 2, 2),
+                        buy_cost=10 * i,
+                        transit_cost=120 * i,
+                        market_place_transit_price=1230 + i * 10,
+                        pack_cost=12340 + i * 20,
+                        transit_count=123450 + 100 * i,
+                        warehouse_id=self.__warehouse_id,
+                    ),
+                )
+                for i in range(1, 11)
+            ]
+            session.add_all(db_results)
+            session.flush()
+            expected_requests = [mapper.map(request) for request in db_results]
+        with self.__db_context.session() as session:
+            service = create_service(session)
+            actual_response = service.find_user_requests(self.__user_id)
+            for expected_tuple, (reqeusts_id, actual_tuple) in zip(
+                expected_requests, actual_response.items(), strict=True
+            ):
+                expected_request, expected_result, expected_info = expected_tuple
+                actual_request, actual_result, actual_info = actual_tuple
+                self.assertEqual(expected_info.id, reqeusts_id)
+                self.assertEqual(expected_request, actual_request)
+                self.assertEqual(expected_result, actual_result)
+                self.assertEqual(expected_info, actual_info)
 
 
 def create_service(session: Session) -> EconomyService:
