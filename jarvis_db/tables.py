@@ -234,7 +234,7 @@ class MarketplaceInfo(Base):
 class Category(Base):
     __tablename__ = "categories"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
     marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
