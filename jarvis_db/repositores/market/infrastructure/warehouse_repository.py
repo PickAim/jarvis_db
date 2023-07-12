@@ -8,7 +8,7 @@ from jarvis_db.tables import Marketplace, Warehouse
 class WarehouseRepository(AlchemyRepository[Warehouse]):
     def find_by_name(self, name: str) -> Warehouse | None:
         warehouse = self._session.execute(
-            select(Warehouse).where(Warehouse.name.ilike(name))
+            select(Warehouse).join(Warehouse.address).where(Warehouse.name.ilike(name))
         ).scalar()
         return warehouse
 

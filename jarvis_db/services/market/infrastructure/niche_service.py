@@ -36,6 +36,11 @@ class NicheService:
         for niche in niche_entities:
             self.create(niche, category_id)
 
+    def fetch_by_id_with_products(self, niche_id: int) -> NicheEntity:
+        return self.__table_mapper.map(
+            self.__niche_repository.fetch_full_by_id(niche_id)
+        )
+
     def find_by_name(
         self, name: str, category_id: int
     ) -> tuple[NicheEntity, int] | None:

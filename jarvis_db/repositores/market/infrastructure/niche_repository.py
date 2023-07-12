@@ -5,6 +5,14 @@ from jarvis_db.tables import Category, Marketplace, Niche
 
 
 class NicheRepository(AlchemyRepository[Niche]):
+    def fetch_full_by_id(self, niche_id: int) -> Niche:
+        return self._session.execute(
+            select(Niche)
+            .join(Niche.category)
+            .join(Niche.products)
+            .where(Niche.id == niche_id)
+        ).scalar_one()
+
     def find_by_name(self, niche_name: str, category_id: int) -> Niche | None:
         return self._session.execute(
             select(Niche)

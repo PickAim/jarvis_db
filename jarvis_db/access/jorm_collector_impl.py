@@ -42,8 +42,8 @@ class JormCollectorImpl(JORMCollector):
         niche_result = self.__niche_service.find_by_name(niche_name, category_id)
         if niche_result is None:
             return None
-        niche, _ = niche_result
-        return niche
+        _, niche_id = niche_result
+        return self.__niche_service.fetch_by_id_with_products(niche_id)
 
     def get_warehouse(self, warehouse_name: str) -> Warehouse | None:
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
@@ -54,7 +54,7 @@ class JormCollectorImpl(JORMCollector):
         warehouse, _ = warehouse_result
         return warehouse
 
-    def get_all_warehouses(self) -> list[Warehouse] | None:
+    def get_all_warehouses(self) -> list[Warehouse]:
         return list(self.__warehouse_service.find_all_warehouses().values())
 
     def get_products_by_user(self, user_int: int) -> list[Product]:

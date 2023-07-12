@@ -3,16 +3,8 @@ import unittest
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from jarvis_db.factories.services import create_category_service
 
-from jarvis_db.repositores.mappers.market.infrastructure import (
-    CategoryTableToJormMapper,
-    NicheTableToJormMapper,
-)
-from jarvis_db.repositores.market.infrastructure.category_repository import (
-    CategoryRepository,
-)
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.tables import Category, Marketplace
 from tests.db_context import DbContext
 
@@ -28,7 +20,7 @@ class CategoryServiceTest(unittest.TestCase):
 
     def test_create(self):
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_category_service(session)
             expected_category = CategoryEntity("qwerty")
             service.create(CategoryEntity("qwerty"), self.__marketplace_id)
         with self.__db_context.session() as session:
@@ -44,7 +36,7 @@ class CategoryServiceTest(unittest.TestCase):
                 Category(name=category_name, marketplace_id=self.__marketplace_id)
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_category_service(session)
             category, _ = cast(
                 tuple[Category, int],
                 service.find_by_name(category_name, self.__marketplace_id),
@@ -59,7 +51,7 @@ class CategoryServiceTest(unittest.TestCase):
             ]
             session.add_all(expected_categories)
             session.flush()
-            service = create_service(session)
+            service = create_category_service(session)
             actual_categories = service.find_all_in_marketplace(
                 self.__marketplace_id
             ).values()
@@ -75,14 +67,14 @@ class CategoryServiceTest(unittest.TestCase):
                 Category(name=category_name, marketplace_id=self.__marketplace_id)
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_category_service(session)
             exists = service.exists_with_name(category_name, self.__marketplace_id)
             self.assertTrue(exists)
 
     def test_exists_with_name_returns_false(self):
         category_name = "qwerty"
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_category_service(session)
             exists = service.exists_with_name(category_name, self.__marketplace_id)
             self.assertFalse(exists)
 
@@ -98,17 +90,11 @@ class CategoryServiceTest(unittest.TestCase):
         new_names = [f"new_category_{i}" for i in range(1, 11)]
         names_to_filter = [*existing_names, *new_names]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_category_service(session)
             filtered_names = service.filter_existing_names(
                 names_to_filter, self.__marketplace_id
             )
             self.assertEqual(sorted(new_names), sorted(filtered_names))
-
-
-def create_service(session: Session) -> CategoryService:
-    return CategoryService(
-        CategoryRepository(session), CategoryTableToJormMapper(NicheTableToJormMapper())
-    )
 
 
 if __name__ == "__main__":
