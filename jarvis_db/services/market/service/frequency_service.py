@@ -37,8 +37,8 @@ class FrequencyService:
         user_id: int,
     ) -> int:
         db_niche = self.__niche_repository.find_by_niche_name_and_category_name(
-            request_entity.niche_name,
-            request_entity.category_name,
+            request_entity.niche,
+            request_entity.category,
             request_entity.marketplace_id,
         )
         if db_niche is None:
@@ -51,7 +51,7 @@ class FrequencyService:
         )
         results = (
             FrequencyResult(request=request, cost=cost, frequency=frequency)
-            for cost, frequency in result_entity.frequencies.items()
+            for cost, frequency in zip(result_entity.x, result_entity.y, strict=True)
         )
         self.__result_repository.add_all(results)
         return request.id

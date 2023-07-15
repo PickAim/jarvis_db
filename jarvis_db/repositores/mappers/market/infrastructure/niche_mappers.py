@@ -37,5 +37,7 @@ class NicheTableToJormMapper(Mapper[tables.Niche, Niche]):
                 HandlerType.CLIENT: float(value.client_commission / 100),
             },
             returned_percent=float(value.return_percent / 100),
-            products=[self.__product_mapper.map(product) for product in value.products],
+            _products=[
+                self.__product_mapper.map(product) for product in value.products
+            ],
         )

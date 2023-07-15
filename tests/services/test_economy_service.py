@@ -71,11 +71,11 @@ class EconomyServiceTest(unittest.TestCase):
     def test_save(self):
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         request_entity = UnitEconomyRequest(
-            100,
-            20,
             self.__niche_name,
             self.__category_name,
             self.__marketplace_id,
+            100,
+            20,
             121,
             33,
             warehouse_name="qwerty",

@@ -61,6 +61,11 @@ class JormCollectorImpl(JORMCollector):
         # TODO how to store user producs
         ...
 
+    def get_users_warehouses(
+        self, user_id: int, marketplace_id: int
+    ) -> list[Warehouse]:
+        ...
+
     def get_all_unit_economy_results(
         self, user_id: int
     ) -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
