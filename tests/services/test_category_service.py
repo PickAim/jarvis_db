@@ -7,6 +7,7 @@ from jarvis_db.factories.services import create_category_service
 
 from jarvis_db.tables import Category, Marketplace
 from tests.db_context import DbContext
+from tests.fixtures import AlchemySeeder
 
 
 class CategoryServiceTest(unittest.TestCase):
@@ -45,6 +46,8 @@ class CategoryServiceTest(unittest.TestCase):
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session:
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(2)
             expected_categories = [
                 Category(name=f"category_{i}", marketplace_id=self.__marketplace_id)
                 for i in range(1, 11)
