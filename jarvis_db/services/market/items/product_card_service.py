@@ -1,11 +1,10 @@
 from typing import Iterable
 
 from jorm.market.items import Product
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.market.items.product_card_repository import (
-    ProductCardRepository,
-)
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
@@ -15,16 +14,68 @@ from jarvis_db.tables import ProductCard
 class ProductCardService:
     def __init__(
         self,
-        product_card_repository: ProductCardRepository,
+        session: Session,
         history_service: ProductHistoryService,
         table_mapper: Mapper[ProductCard, Product],
     ):
-        self.__product_card_repository = product_card_repository
+        self.__session = session
         self.__table_mapper = table_mapper
         self.__history_service = history_service
 
     def create_product(self, product: Product, niche_id: int):
-        db_product = ProductCard(
+        db_product = ProductCardService.__create_product_record(product, niche_id)
+        self.__session.add(db_product)
+        self.__history_service.create(product.history, db_product.id)
+
+    def create_products(self, products: Iterable[Product], niche_id: int):
+        self.__session.add_all(
+            (
+                ProductCardService.__create_product_record(product, niche_id)
+                for product in products
+            )
+        )
+
+    def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
+        niche_products = (
+            self.__session.execute(
+                select(ProductCard).where(ProductCard.niche_id == niche_id)
+            )
+            .scalars()
+            .all()
+        )
+        return {
+            product.id: self.__table_mapper.map(product) for product in niche_products
+        }
+
+    def update(self, product_id: int, product: Product):
+        product_card = self.__session.execute(
+            select(ProductCard).where(ProductCard.id == product_id)
+        ).scalar_one()
+        product_card.cost = product.cost
+        product_card.global_id = product.global_id
+        product_card.name = product.name
+        product_card.rating = int(product.rating * 100)
+        product_card.brand = product.brand
+        product_card.seller = product.seller
+
+    def filter_existing_global_ids(
+        self, niche_id: int, ids: Iterable[int]
+    ) -> list[int]:
+        ids = list(ids)
+        existnig_ids = (
+            self.__session.execute(
+                select(ProductCard.global_id)
+                .where(ProductCard.niche_id == niche_id)
+                .where(ProductCard.global_id.in_(ids))
+            )
+            .scalars()
+            .all()
+        )
+        return list(set(ids) - set(existnig_ids))
+
+    @staticmethod
+    def __create_product_record(product: Product, niche_id: int) -> ProductCard:
+        return ProductCard(
             name=product.name,
             global_id=product.global_id,
             cost=product.cost,
@@ -32,33 +83,4 @@ class ProductCardService:
             niche_id=niche_id,
             brand=product.brand,
             seller=product.seller,
-        )
-        self.__product_card_repository.add(db_product)
-        self.__history_service.create(product.history, db_product.id)
-
-    def create_products(self, products: Iterable[Product], niche_id: int):
-        for product in products:
-            self.create_product(product, niche_id)
-
-    def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
-        niche_products = self.__product_card_repository.find_all_in_niche(niche_id)
-        return {
-            product.id: self.__table_mapper.map(product) for product in niche_products
-        }
-
-    def update(self, product_id: int, product: Product):
-        product_card = self.__product_card_repository.find_by_id(product_id)
-        product_card.cost = product.cost
-        product_card.global_id = product.global_id
-        product_card.name = product.name
-        product_card.rating = int(product.rating * 100)
-        product_card.brand = product.brand
-        product_card.seller = product.seller
-        self.__product_card_repository.update(product_card)
-
-    def filter_existing_global_ids(
-        self, niche_id: int, ids: Iterable[int]
-    ) -> list[int]:
-        return self.__product_card_repository.filter_existing_global_ids(
-            niche_id, list(ids)
         )

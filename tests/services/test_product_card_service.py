@@ -2,21 +2,14 @@ import unittest
 
 from jorm.market.items import Product
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
+from jarvis_db.factories.services import create_product_card_service
 from jarvis_db.repositores.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
 )
-from jarvis_db.repositores.market.items.product_card_repository import (
-    ProductCardRepository,
-)
-from jarvis_db.services.market.items.product_card_service import ProductCardService
 from jarvis_db.tables import Niche, ProductCard
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
-from tests.services.test_product_history_service import (
-    create_service as create_history_service,
-)
 
 
 class ProductCardServiceTest(unittest.TestCase):
@@ -43,7 +36,7 @@ class ProductCardServiceTest(unittest.TestCase):
             "qwerty", 100, 200, 5.0, "brand", "seller", "niche_name", "category_name"
         )
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_product_card_service(session)
             service.create_product(expected, self.__niche_id)
         with self.__db_context.session() as session:
             found = session.execute(
@@ -72,7 +65,7 @@ class ProductCardServiceTest(unittest.TestCase):
             for i in range(10)
         ]
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_product_card_service(session)
             service.create_products(expected_products, self.__niche_id)
         with self.__db_context.session() as session:
             found = (
@@ -104,7 +97,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 if product.niche_id == self.__niche_id
             ]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_product_card_service(session)
             actual_products = list(service.find_all_in_niche(self.__niche_id).values())
             for expected, actual in zip(
                 expected_products, actual_products, strict=True
@@ -132,7 +125,7 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add_all(products)
         new_ids = [i for i in range(200, 211)]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_product_card_service(session)
             filtered_ids = service.filter_existing_global_ids(
                 self.__niche_id, [*existing_ids, *new_ids]
             )
@@ -154,7 +147,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_product_card_service(session)
             expected = Product(
                 "product_1",
                 100,
@@ -174,10 +167,3 @@ class ProductCardServiceTest(unittest.TestCase):
             self.assert_product_equal(expected, actual)
             self.assertEqual(self.__niche_name, actual.niche_name)
             self.assertEqual(self.__category_name, actual.category_name)
-
-
-def create_service(session: Session) -> ProductCardService:
-    history_service = create_history_service(session)
-    return ProductCardService(
-        ProductCardRepository(session), history_service, ProductTableToJormMapper()
-    )
