@@ -40,18 +40,20 @@ from jarvis_db.services.market.service.economy_service import EconomyService
 from jorm.market.infrastructure import Niche
 
 
-def create_niche_service(session: Session) -> NicheService:
-    return NicheService(
-        NicheRepository(session), NicheTableToJormMapper(ProductTableToJormMapper())
-    )
+def create_niche_service(
+    session: Session, niche_mapper: Mapper[tables.Niche, Niche] | None = None
+) -> NicheService:
+    if niche_mapper is None:
+        niche_mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+    return NicheService(session, NicheTableToJormMapper(ProductTableToJormMapper()))
 
 
 def create_category_service(
     session: Session,
-    niche_mapper: Mapper[tables.Niche, Niche] = NicheTableToJormMapper(
-        ProductTableToJormMapper()
-    ),
+    niche_mapper: Mapper[tables.Niche, Niche] | None = None,
 ) -> CategoryService:
+    if niche_mapper is None:
+        niche_mapper = NicheTableToJormMapper(ProductTableToJormMapper())
     return CategoryService(
         CategoryRepository(session),
         CategoryTableToJormMapper(niche_mapper),
@@ -69,6 +71,6 @@ def create_economy_service(session: Session) -> EconomyService:
         EconomyResultRepository(session),
         EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper()),
         create_category_service(session, niche_mapper),
-        NicheService(NicheRepository(session), niche_mapper),
+        create_niche_service(session, niche_mapper),
         WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper()),
     )

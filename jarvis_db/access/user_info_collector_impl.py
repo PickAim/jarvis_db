@@ -1,5 +1,4 @@
 from jorm.jarvis.db_access import UserInfoCollector
-from jorm.market.infrastructure import Warehouse
 from jorm.market.person import Account, User
 from jorm.server.token.types import TokenType
 
@@ -10,10 +9,10 @@ from jarvis_db.services.market.person.user_service import UserService
 
 class UserInfoCollectorImpl(UserInfoCollector):
     def __init__(
-        self,
-        account_service: AccountService,
-        user_service: UserService,
-        token_service: TokenService,
+            self,
+            account_service: AccountService,
+            user_service: UserService,
+            token_service: TokenService,
     ):
         self.__account_service = account_service
         self.__user_service = user_service
@@ -39,10 +38,7 @@ class UserInfoCollectorImpl(UserInfoCollector):
         return self.__user_service.find_by_id(user_id)
 
     def get_token_rnd_part(
-        self, user_id: int, imprint: str, token_type: TokenType
+            self, user_id: int, imprint: str, token_type: TokenType
     ) -> str:
         access, refresh = self.__token_service.find_by_imprint(user_id, imprint)
         return access if token_type == TokenType.ACCESS else refresh
-
-    def get_users_warehouses(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
-        return []

@@ -1,6 +1,5 @@
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jorm.jarvis.db_access import JORMCollector
-from jorm.market.infrastructure import Niche, Product, Warehouse
+from jorm.market.infrastructure import Niche, Product, Warehouse, Category, Marketplace
 from jorm.market.service import (
     FrequencyRequest,
     FrequencyResult,
@@ -9,6 +8,7 @@ from jorm.market.service import (
     UnitEconomyResult,
 )
 
+from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.service.economy_service import EconomyService
@@ -30,6 +30,16 @@ class JormCollectorImpl(JORMCollector):
         self.__unit_economy_service = unit_economy_service
         self.__frequency_service = frequency_service
 
+    def get_all_marketplaces(self) -> dict[int, Marketplace]:
+        pass
+
+    def get_all_categories(self, marketplace_id: int) -> dict[int, Category]:
+        pass
+
+    def get_all_niches(self, category_id: int, marketplace_id: int) -> dict[int, Niche]:
+        # TODO redundant marketplace_id parameter
+        return self.__niche_service.fetch_all_in_category_with_products(category_id)
+
     def get_niche(
         self, niche_name: str, category_name: str, marketplace_id: int
     ) -> Niche | None:
@@ -45,7 +55,10 @@ class JormCollectorImpl(JORMCollector):
         _, niche_id = niche_result
         return self.__niche_service.fetch_by_id_with_products(niche_id)
 
-    def get_warehouse(self, warehouse_name: str) -> Warehouse | None:
+    def get_warehouse(
+        self, warehouse_name: str, marketplace_id: int
+    ) -> Warehouse | None:
+        # TODO use marketplace_id
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
             warehouse_name
         )
@@ -54,11 +67,11 @@ class JormCollectorImpl(JORMCollector):
         warehouse, _ = warehouse_result
         return warehouse
 
-    def get_all_warehouses(self) -> list[Warehouse]:
+    def get_all_warehouses(self, marketplace_id: int) -> list[Warehouse]:
         return list(self.__warehouse_service.find_all_warehouses().values())
 
     def get_products_by_user(self, user_int: int) -> list[Product]:
-        # TODO how to store user producs
+        # TODO how to store user products
         ...
 
     def get_users_warehouses(
