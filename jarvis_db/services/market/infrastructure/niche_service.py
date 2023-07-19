@@ -22,6 +22,7 @@ class NicheService:
         self.__session.add(
             NicheService.__create_niche_record(niche_entity, category_id)
         )
+        self.__session.flush()
 
     def create_all(self, niche_entities: Iterable[NicheEntity], category_id: int):
         self.__session.add_all(
@@ -30,6 +31,7 @@ class NicheService:
                 for niche in niche_entities
             )
         )
+        self.__session.flush()
 
     def fetch_by_id_with_products(self, niche_id: int) -> NicheEntity:
         niche = self.__session.execute(

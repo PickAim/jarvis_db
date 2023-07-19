@@ -21,6 +21,7 @@ class MarketplaceService:
         self.__session.add(
             MarketplaceService.__create_marketplace_record(marketplace_entity)
         )
+        self.__session.flush()
 
     def create_all(self, marketplace_entities: Iterable[MarketplaceEntity]):
         self.__session.add_all(
@@ -29,6 +30,7 @@ class MarketplaceService:
                 for marketplace in marketplace_entities
             )
         )
+        self.__session.flush()
 
     def find_all(self) -> dict[int, MarketplaceEntity]:
         marketplaces = self.__session.execute(select(Marketplace)).scalars().all()

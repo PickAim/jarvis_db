@@ -26,6 +26,7 @@ class ProductCardService:
         db_product = ProductCardService.__create_product_record(product, niche_id)
         self.__session.add(db_product)
         self.__history_service.create(product.history, db_product.id)
+        self.__session.flush()
 
     def create_products(self, products: Iterable[Product], niche_id: int):
         self.__session.add_all(
@@ -34,6 +35,7 @@ class ProductCardService:
                 for product in products
             )
         )
+        self.__session.flush()
 
     def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         niche_products = (
@@ -57,6 +59,7 @@ class ProductCardService:
         product_card.rating = int(product.rating * 100)
         product_card.brand = product.brand
         product_card.seller = product.seller
+        self.__session.flush()
 
     def filter_existing_global_ids(
         self, niche_id: int, ids: Iterable[int]

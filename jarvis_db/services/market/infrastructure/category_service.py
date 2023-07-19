@@ -21,6 +21,7 @@ class CategoryService:
         self.__session.add(
             CategoryService.__create_category_record(category_entity, marketplace_id)
         )
+        self.__session.flush()
 
     def create_all(
         self, category_entities: Iterable[CategoryEntity], marketplace_id: int
@@ -31,6 +32,7 @@ class CategoryService:
                 for category in category_entities
             )
         )
+        self.__session.flush()
 
     def find_by_name(
         self, name: str, marketplace_id: int
