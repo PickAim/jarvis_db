@@ -1,4 +1,6 @@
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from jarvis_db.tables import (
     Account,
     Address,
@@ -11,7 +13,6 @@ from jarvis_db.tables import (
     User,
     Warehouse,
 )
-from sqlalchemy.orm import Session
 
 
 class AlchemySeeder:

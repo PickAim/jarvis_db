@@ -3,8 +3,9 @@ import unittest
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
-from jarvis_db import tables
 
+from jarvis_db import tables
+from jarvis_db.factories.services import create_niche_service
 from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
     NicheTableToJormMapper,
 )
@@ -13,7 +14,6 @@ from jarvis_db.repositores.mappers.market.items.product_mappers import (
 )
 from jarvis_db.tables import Niche
 from tests.db_context import DbContext
-from jarvis_db.factories.services import create_niche_service
 from tests.fixtures import AlchemySeeder
 
 

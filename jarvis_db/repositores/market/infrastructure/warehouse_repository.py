@@ -1,4 +1,5 @@
 from typing import Iterable
+
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository

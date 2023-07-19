@@ -1,4 +1,6 @@
+from jorm.market.infrastructure import Niche, Marketplace
 from sqlalchemy.orm import Session
+
 from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
@@ -35,11 +37,9 @@ from jarvis_db.services.market.infrastructure.category_service import CategorySe
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
 )
-
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jorm.market.infrastructure import Niche, Marketplace
 
 
 def create_marketplace_service(

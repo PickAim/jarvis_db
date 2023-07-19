@@ -58,7 +58,7 @@ class CategoryService:
             category.id: self.__table_mapper.map(category) for category in categories
         }
 
-    def fetch_all_in_marketplace_with_niches(
+    def fetch_all_in_marketplace_atomic(
         self, marketplace_id
     ) -> dict[int, CategoryEntity]:
         categories = (
@@ -76,12 +76,12 @@ class CategoryService:
         }
 
     def exists_with_name(self, name: str, marketplace_id: int) -> bool:
-        category = self.__session.execute(
-            select(Category)
+        category_id = self.__session.execute(
+            select(Category.id)
             .where(Category.marketplace_id == marketplace_id)
             .where(Category.name.ilike(name))
         ).scalar_one_or_none()
-        return category is not None
+        return category_id is not None
 
     def filter_existing_names(self, names: Iterable[str], marketplace_id) -> list[str]:
         names = list(names)

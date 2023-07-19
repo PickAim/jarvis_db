@@ -3,10 +3,10 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.tables import Category, Niche
-from sqlalchemy.orm import Session
 
 
 class NicheService:
@@ -57,9 +57,7 @@ class NicheService:
         )
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
 
-    def fetch_all_in_category_with_products(
-        self, category_id: int
-    ) -> dict[int, NicheEntity]:
+    def fetch_all_in_category_atomic(self, category_id: int) -> dict[int, NicheEntity]:
         niches = (
             self.__session.execute(
                 select(Niche)
@@ -84,12 +82,12 @@ class NicheService:
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
 
     def exists_with_name(self, name: str, category_id: int) -> bool:
-        niche = self.__session.execute(
-            select(Niche)
+        niche_id = self.__session.execute(
+            select(Niche.id)
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
         ).scalar_one_or_none()
-        return niche is not None
+        return niche_id is not None
 
     def filter_existing_names(
         self, names: Iterable[str], category_id: int

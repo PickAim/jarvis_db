@@ -1,8 +1,8 @@
 import unittest
+
 from jarvis_db.repositores.market.infrastructure.category_repository import (
     CategoryRepository,
 )
-
 from jarvis_db.tables import Category, Marketplace
 from tests.db_context import DbContext
 

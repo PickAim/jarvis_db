@@ -9,10 +9,10 @@ from jarvis_db.services.market.person.user_service import UserService
 
 class UserInfoCollectorImpl(UserInfoCollector):
     def __init__(
-            self,
-            account_service: AccountService,
-            user_service: UserService,
-            token_service: TokenService,
+        self,
+        account_service: AccountService,
+        user_service: UserService,
+        token_service: TokenService,
     ):
         self.__account_service = account_service
         self.__user_service = user_service
@@ -38,7 +38,7 @@ class UserInfoCollectorImpl(UserInfoCollector):
         return self.__user_service.find_by_id(user_id)
 
     def get_token_rnd_part(
-            self, user_id: int, imprint: str, token_type: TokenType
+        self, user_id: int, imprint: str, token_type: TokenType
     ) -> str:
         access, refresh = self.__token_service.find_by_imprint(user_id, imprint)
         return access if token_type == TokenType.ACCESS else refresh

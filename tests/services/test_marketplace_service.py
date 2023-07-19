@@ -1,10 +1,10 @@
-from typing import cast
 import unittest
+from typing import cast
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 from sqlalchemy import select
-from jarvis_db.factories.services import create_marketplace_service
 
+from jarvis_db.factories.services import create_marketplace_service
 from jarvis_db.tables import Marketplace
 from tests.db_context import DbContext
 

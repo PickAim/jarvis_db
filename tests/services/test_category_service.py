@@ -1,10 +1,10 @@
-from typing import cast
 import unittest
+from typing import cast
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select
-from jarvis_db.factories.services import create_category_service
 
+from jarvis_db.factories.services import create_category_service
 from jarvis_db.tables import Category, Marketplace
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder

@@ -11,12 +11,12 @@ from jarvis_db.repositores.market.items.product_card_repository import (
     ProductCardRepository,
 )
 from jarvis_db.services.market.items.product_card_service import ProductCardService
+from jarvis_db.tables import Niche, ProductCard
+from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 from tests.services.test_product_history_service import (
     create_service as create_history_service,
 )
-from jarvis_db.tables import Category, Marketplace, Niche, ProductCard
-from tests.db_context import DbContext
 
 
 class ProductCardServiceTest(unittest.TestCase):
@@ -98,7 +98,11 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_niches(2)
             seeder.seed_products(100)
             products = session.execute(select(ProductCard)).scalars().all()
-            expected_products = [mapper.map(product) for product in products if product.niche_id == self.__niche_id]
+            expected_products = [
+                mapper.map(product)
+                for product in products
+                if product.niche_id == self.__niche_id
+            ]
         with self.__db_context.session() as session:
             service = create_service(session)
             actual_products = list(service.find_all_in_niche(self.__niche_id).values())
