@@ -34,7 +34,9 @@ class JormCollectorImpl(JORMCollector):
         pass
 
     def get_all_categories(self, marketplace_id: int) -> dict[int, Category]:
-        pass
+        return self.__category_service.fetch_all_in_marketplace_with_niches(
+            marketplace_id
+        )
 
     def get_all_niches(self, category_id: int, marketplace_id: int) -> dict[int, Niche]:
         # TODO redundant marketplace_id parameter

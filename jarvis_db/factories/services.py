@@ -55,7 +55,7 @@ def create_category_service(
     if niche_mapper is None:
         niche_mapper = NicheTableToJormMapper(ProductTableToJormMapper())
     return CategoryService(
-        CategoryRepository(session),
+        session,
         CategoryTableToJormMapper(niche_mapper),
     )
 
