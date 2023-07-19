@@ -9,6 +9,9 @@ from jorm.market.service import (
 )
 
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
+from jarvis_db.services.market.infrastructure.marketplace_service import (
+    MarketplaceService,
+)
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.service.economy_service import EconomyService
@@ -18,12 +21,14 @@ from jarvis_db.services.market.service.frequency_service import FrequencyService
 class JormCollectorImpl(JORMCollector):
     def __init__(
         self,
+        marketplace_service: MarketplaceService,
         niche_service: NicheService,
         category_service: CategoryService,
         warehouse_service: WarehouseService,
         unit_economy_service: EconomyService,
         frequency_service: FrequencyService,
     ):
+        self.__marketplace_service = marketplace_service
         self.__niche_service = niche_service
         self.__category_service = category_service
         self.__warehouse_service = warehouse_service
@@ -31,7 +36,7 @@ class JormCollectorImpl(JORMCollector):
         self.__frequency_service = frequency_service
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
-        pass
+        return self.__marketplace_service.fetch_all_atomic()
 
     def get_all_categories(self, marketplace_id: int) -> dict[int, Category]:
         return self.__category_service.fetch_all_in_marketplace_with_niches(
