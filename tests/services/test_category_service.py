@@ -6,6 +6,12 @@ from sqlalchemy import select
 
 from jarvis_db.factories.services import create_category_service
 from jarvis_db.tables import Category, Marketplace
+from jarvis_db.repositores.mappers.market.infrastructure import (
+    CategoryTableToJormMapper,
+    NicheTableToJormMapper,
+)
+
+from jarvis_db.repositores.mappers.market.items import ProductTableToJormMapper
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -48,12 +54,15 @@ class CategoryServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(2)
+            seeder.seed_categories(10)
+            mapper = CategoryTableToJormMapper(
+                NicheTableToJormMapper(ProductTableToJormMapper())
+            )
             expected_categories = [
-                Category(name=f"category_{i}", marketplace_id=self.__marketplace_id)
-                for i in range(1, 11)
+                mapper.map(category)
+                for category in session.execute(select(Category)).scalars().all()
+                if category.marketplace_id == self.__marketplace_id
             ]
-            session.add_all(expected_categories)
-            session.flush()
             service = create_category_service(session)
             actual_categories = service.find_all_in_marketplace(
                 self.__marketplace_id
@@ -61,7 +70,34 @@ class CategoryServiceTest(unittest.TestCase):
             for expected, actual in zip(
                 expected_categories, actual_categories, strict=True
             ):
-                self.assertEqual(expected.name, actual.name)
+                self.assertEqual(expected, actual)
+
+    def test_fetch_all_in_marketplace_atomic(self):
+        with self.__db_context.session() as session:
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(2)
+            seeder.seed_categories(10)
+            seeder.seed_niches(40)
+            mapper = CategoryTableToJormMapper(
+                NicheTableToJormMapper(ProductTableToJormMapper())
+            )
+            expected_categories = [
+                mapper.map(category)
+                for category in session.execute(
+                    select(Category).outerjoin(Category.niches).distinct()
+                )
+                .scalars()
+                .all()
+                if category.marketplace_id == self.__marketplace_id
+            ]
+            service = create_category_service(session)
+            actual_categories = list(
+                service.fetch_all_in_marketplace_atomic(self.__marketplace_id).values()
+            )
+            for expected, actual in zip(
+                expected_categories, actual_categories, strict=True
+            ):
+                self.assertEqual(expected, actual)
 
     def test_exists_with_name_returns_true(self):
         category_name = "qwerty"

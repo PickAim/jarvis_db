@@ -41,7 +41,9 @@ class MarketplaceService:
 
     def fetch_all_atomic(self) -> dict[int, MarketplaceEntity]:
         marketplaces = (
-            self.__session.execute(select(Marketplace).join(Marketplace.warehouses))
+            self.__session.execute(
+                select(Marketplace).outerjoin(Marketplace.warehouses).distinct()
+            )
             .scalars()
             .all()
         )

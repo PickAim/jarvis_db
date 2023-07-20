@@ -35,7 +35,10 @@ class NicheService:
 
     def fetch_by_id_with_products(self, niche_id: int) -> NicheEntity:
         niche = self.__session.execute(
-            select(Niche).join(Niche.products).where(Niche.id == niche_id)
+            select(Niche)
+            .outerjoin(Niche.products)
+            .where(Niche.id == niche_id)
+            .distinct()
         ).scalar_one()
         return self.__table_mapper.map(niche)
 
@@ -63,8 +66,9 @@ class NicheService:
         niches = (
             self.__session.execute(
                 select(Niche)
-                .join(Niche.products)
+                .outerjoin(Niche.products)
                 .where(Niche.category_id == category_id)
+                .distinct()
             )
             .scalars()
             .all()
@@ -75,8 +79,9 @@ class NicheService:
         niches = (
             self.__session.execute(
                 select(Niche)
-                .join(Niche.category)
+                .outerjoin(Niche.category)
                 .where(Category.marketplace_id == marketplace_id)
+                .distinct()
             )
             .scalars()
             .all()

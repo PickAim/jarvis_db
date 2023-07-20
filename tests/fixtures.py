@@ -33,6 +33,29 @@ class AlchemySeeder:
         self.__session.add_all(create_marketplaces(quantity))
         self.__session.flush()
 
+    def seed_addresses(self, quantity: int):
+        self.__session.add_all(create_addresses(quantity))
+        self.__session.flush()
+
+    def seed_warehouses(self, quantity: int):
+        def retrieve_addresses():
+            return list(self.__session.execute(select(Address)).scalars().all())
+
+        def retrieve_marketplaces():
+            return list(self.__session.execute(select(Marketplace)).scalars().all())
+
+        addresses = retrieve_addresses()
+        if not addresses:
+            self.seed_addresses(quantity)
+            addresses = retrieve_addresses()
+        marketplaces = retrieve_marketplaces()
+        if not marketplaces:
+            self.seed_marketplaces(3)
+            marketplaces = retrieve_marketplaces()
+        warehouses = create_warehouses(quantity, marketplaces, addresses)
+        self.__session.add_all(warehouses)
+        self.__session.flush()
+
     def seed_categories(self, quantity: int):
         def retrieve_marketplaces():
             return list(self.__session.execute(select(Marketplace)).scalars().all())
@@ -179,5 +202,22 @@ def create_products(quantity: int, niches: list[Niche]) -> list[ProductCard]:
     ]
 
 
-def create_warehouses(self) -> list[Warehouse]:
-    return [Warehouse() for i, address in enumerate(self.create_addresses())]
+def create_warehouses(
+    quantity: int, marketplaces: list[Marketplace], addresses: list[Address]
+) -> list[Warehouse]:
+    return [
+        Warehouse(
+            owner=marketplaces[i % len(marketplaces)],
+            global_id=200 + i,
+            type=1,
+            name=f"warehouse_name_{i}",
+            address=addresses[i % len(addresses)],
+            basic_logistic_to_customer_commission=0,
+            additional_logistic_to_customer_commission=0,
+            logistic_from_customer_commission=0,
+            basic_storage_commission=0,
+            additional_storage_commission=0,
+            monopalette_storage_commission=0,
+        )
+        for i in range(quantity)
+    ]
