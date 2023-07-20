@@ -25,6 +25,7 @@ class ProductCardService:
     def create_product(self, product: Product, niche_id: int):
         db_product = ProductCardService.__create_product_record(product, niche_id)
         self.__session.add(db_product)
+        self.__session.flush()
         self.__history_service.create(product.history, db_product.id)
         self.__session.flush()
 
