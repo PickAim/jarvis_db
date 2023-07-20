@@ -122,6 +122,42 @@ class NicheServiceTest(unittest.TestCase):
             niche_entity, _ = result
             self.assertEqual(niche_name, niche_entity.name)
 
+    def test_fetch_by_id_atomic(self):
+        niche_id = 100
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                Niche(
+                    id=niche_id,
+                    category_id=self.__category_id,
+                    name="niche_name",
+                    marketplace_commission=0.01,
+                    partial_client_commission=0.02,
+                    client_commission=0.03,
+                    return_percent=0.04,
+                )
+            )
+            session.flush()
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(10)
+            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            expected_niche = mapper.map(
+                session.execute(
+                    select(Niche)
+                    .outerjoin(Niche.products)
+                    .where(Niche.id == niche_id)
+                    .distinct()
+                ).scalar_one()
+            )
+        with self.__db_context.session() as session:
+            service = create_niche_service(session)
+            actual_niche = service.fetch_by_id_with_products(niche_id)
+            self.assertEqual(expected_niche.name, actual_niche.name)
+            self.assertEqual(expected_niche.commissions, actual_niche.commissions)
+            self.assertEqual(
+                expected_niche.returned_percent, actual_niche.returned_percent
+            )
+            self.assertEqual(len(expected_niche.products), len(actual_niche.products))
+
     def test_find_all_in_category(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
@@ -136,11 +172,39 @@ class NicheServiceTest(unittest.TestCase):
             ]
         with self.__db_context.session() as session:
             service = create_niche_service(session)
-            niche_entities = service.find_all_in_category(self.__category_id).values()
-            for niche_entity, niche in zip(
-                niche_entities, expected_niches, strict=True
-            ):
-                self.assertEqual(niche, niche_entity)
+            actual_niches = service.find_all_in_category(self.__category_id).values()
+            for expected, actual in zip(expected_niches, actual_niches, strict=True):
+                self.assertEqual(expected, actual)
+
+    def test_fetch_all_in_category_atomic(self):
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_categories(2)
+            seeder.seed_niches(30)
+            seeder.seed_products(300)
+            niches = (
+                session.execute(
+                    select(tables.Niche).outerjoin(tables.Niche.products).distinct()
+                )
+                .scalars()
+                .all()
+            )
+            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            expected_niches = [
+                mapper.map(niche)
+                for niche in niches
+                if niche.category_id == self.__category_id
+            ]
+        with self.__db_context.session() as session:
+            service = create_niche_service(session)
+            actual_niches = service.fetch_all_in_category_atomic(
+                self.__category_id
+            ).values()
+            for expected, actual in zip(expected_niches, actual_niches, strict=True):
+                self.assertEqual(expected.name, actual.name)
+                self.assertEqual(expected.commissions, actual.commissions)
+                self.assertEqual(expected.returned_percent, actual.returned_percent)
+                self.assertEqual(len(expected.products), len(actual.products))
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session, session.begin():
