@@ -65,7 +65,7 @@ class ProductCardService:
         self, niche_id: int, ids: Iterable[int]
     ) -> list[int]:
         ids = list(ids)
-        existnig_ids = (
+        existing_ids = (
             self.__session.execute(
                 select(ProductCard.global_id)
                 .where(ProductCard.niche_id == niche_id)
@@ -74,7 +74,7 @@ class ProductCardService:
             .scalars()
             .all()
         )
-        return list(set(ids) - set(existnig_ids))
+        return list(set(ids) - set(existing_ids))
 
     @staticmethod
     def __create_product_record(product: Product, niche_id: int) -> ProductCard:

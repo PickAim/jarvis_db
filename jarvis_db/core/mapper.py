@@ -3,11 +3,11 @@ from abc import abstractmethod
 from typing import Generic
 from typing import TypeVar
 
-I = TypeVar("I")
-O = TypeVar("O")
+_I = TypeVar("_I")
+_O = TypeVar("_O")
 
 
-class Mapper(ABC, Generic[I, O]):
+class Mapper(ABC, Generic[_I, _O]):
     @abstractmethod
-    def map(self, value: I) -> O:
+    def map(self, value: _I) -> _O:
         pass

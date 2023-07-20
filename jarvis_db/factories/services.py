@@ -62,14 +62,14 @@ from jarvis_db.services.market.service.economy_service import EconomyService
 
 def create_marketplace_service(
     session: Session,
-    markeplace_mapper: Mapper[tables.Marketplace, Marketplace] | None = None,
+    marketplace_mapper: Mapper[tables.Marketplace, Marketplace] | None = None,
 ) -> MarketplaceService:
-    markeplace_mapper = (
+    marketplace_mapper = (
         MarketplaceTableToJormMapper(WarehouseTableToJormMapper())
-        if markeplace_mapper is None
-        else markeplace_mapper
+        if marketplace_mapper is None
+        else marketplace_mapper
     )
-    return MarketplaceService(session, markeplace_mapper)
+    return MarketplaceService(session, marketplace_mapper)
 
 
 def create_category_service(

@@ -228,7 +228,7 @@ class WarehouseServiceTest(unittest.TestCase):
                         owner_id=self.__marketplace_id,
                         global_id=global_id,
                         type=1,
-                        name=f"waregouse_{global_id}",
+                        name=f"warehouse_{global_id}",
                         address=Address(
                             country="AS",
                             region="QS",
