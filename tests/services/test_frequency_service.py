@@ -50,11 +50,11 @@ class FrequencyServiceTest(unittest.TestCase):
     def test_save(self):
         request_info = RequestInfo(date=datetime(2020, 2, 2), name="name")
         request = FrequencyRequest(
-            niche_name=self.__niche_name,
-            category_name=self.__category_name,
+            niche=self.__niche_name,
+            category=self.__category_name,
             marketplace_id=self.__marketplace_id,
         )
-        result = FrequencyResult({i: i + 1 for i in range(10)})
+        result = FrequencyResult(x=[i for i in range(10)], y=[i * 2 for i in range(10)])
         with self.__db_context.session() as session, session.begin():
             service = create_service(session)
             request_id = service.save(
@@ -74,15 +74,14 @@ class FrequencyServiceTest(unittest.TestCase):
             ).scalar_one()
             self.assertEqual(request_info.name, db_request.name)
             self.assertEqual(request_info.date, db_request.date)
-            self.assertEqual(request.niche_name, db_request.niche.name)
-            self.assertEqual(request.category_name, db_request.niche.category.name)
+            self.assertEqual(request.niche, db_request.niche.name)
+            self.assertEqual(request.category, db_request.niche.category.name)
             self.assertEqual(
                 request.marketplace_id, db_request.niche.category.marketplace_id
             )
-            for result_pair, result_unit in zip(
-                result.frequencies.items(), db_request.results, strict=True
+            for cost, frequency, result_unit in zip(
+                result.x, result.y, db_request.results, strict=True
             ):
-                cost, frequency = result_pair
                 self.assertEqual(cost, result_unit.cost)
                 self.assertEqual(frequency, result_unit.frequency)
 

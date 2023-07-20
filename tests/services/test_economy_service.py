@@ -3,41 +3,15 @@ from datetime import datetime
 
 from jorm.market.service import RequestInfo, UnitEconomyRequest, UnitEconomyResult
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db import tables
-from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
-    CategoryTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
-    NicheTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
-    WarehouseTableToJormMapper,
-)
+from jarvis_db.factories.services import create_economy_service
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
-from jarvis_db.repositores.market.infrastructure.category_repository import (
-    CategoryRepository,
-)
-from jarvis_db.repositores.market.infrastructure.niche_repository import NicheRepository
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
-    WarehouseRepository,
-)
-from jarvis_db.repositores.market.service.economy_request_repository import (
-    EconomyRequestRepository,
-)
-from jarvis_db.repositores.market.service.economy_result_repository import (
-    EconomyResultRepository,
-)
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.tables import (
     Account,
     Address,
@@ -97,18 +71,18 @@ class EconomyServiceTest(unittest.TestCase):
     def test_save(self):
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         request_entity = UnitEconomyRequest(
-            100,
-            20,
             self.__niche_name,
             self.__category_name,
             self.__marketplace_id,
+            100,
+            20,
             121,
             33,
             warehouse_name="qwerty",
         )
         result = UnitEconomyResult(200, 300, 12, 25, 151, 134, 12355, 2, 1.2, 2.0)
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_economy_service(session)
             request_id = service.save_request(
                 request_info,
                 request_entity,
@@ -134,8 +108,10 @@ class EconomyServiceTest(unittest.TestCase):
             self.assertEqual(result.margin, db_result.margin)
             self.assertEqual(result.recommended_price, db_result.recommended_price)
             self.assertEqual(result.transit_profit, db_result.transit_profit)
-            self.assertEqual(result.roi, db_result.roi)
-            self.assertEqual(result.transit_margin, db_result.transit_margin_percent)
+            self.assertEqual(int(result.roi * 100), db_result.roi)
+            self.assertEqual(
+                int(result.transit_margin * 100), db_result.transit_margin_percent
+            )
             self.assertEqual(result.storage_price, db_result.storage_price)
             self.assertEqual(self.__warehouse_id, request.warehouse_id)
             self.assertEqual(self.__warehouse_name, request.warehouse.name)
@@ -173,7 +149,7 @@ class EconomyServiceTest(unittest.TestCase):
             )
             session.add(result)
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_economy_service(session)
             is_removed = service.remove(request_id)
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
@@ -224,29 +200,14 @@ class EconomyServiceTest(unittest.TestCase):
             session.flush()
             expected_requests = [mapper.map(request) for request in db_results]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_economy_service(session)
             actual_response = service.find_user_requests(self.__user_id)
-            for expected_tuple, (reqeusts_id, actual_tuple) in zip(
+            for expected_tuple, (requests_id, actual_tuple) in zip(
                 expected_requests, actual_response.items(), strict=True
             ):
                 expected_request, expected_result, expected_info = expected_tuple
                 actual_request, actual_result, actual_info = actual_tuple
-                self.assertEqual(expected_info.id, reqeusts_id)
+                self.assertEqual(expected_info.id, requests_id)
                 self.assertEqual(expected_request, actual_request)
                 self.assertEqual(expected_result, actual_result)
                 self.assertEqual(expected_info, actual_info)
-
-
-def create_service(session: Session) -> EconomyService:
-    niche_mapper = NicheTableToJormMapper()
-    return EconomyService(
-        EconomyRequestRepository(session),
-        EconomyResultRepository(session),
-        EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper()),
-        CategoryService(
-            CategoryRepository(session),
-            CategoryTableToJormMapper(niche_mapper),
-        ),
-        NicheService(NicheRepository(session), niche_mapper),
-        WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper()),
-    )

@@ -1,43 +1,71 @@
 from typing import Iterable
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.market.infrastructure.marketplace_repository import (
-    MarketplaceRepository,
-)
 from jarvis_db.tables import Marketplace
 
 
 class MarketplaceService:
     def __init__(
         self,
-        marketplace_repository: MarketplaceRepository,
+        session: Session,
         table_mapper: Mapper[Marketplace, MarketplaceEntity],
     ):
-        self.__marketplace_repository = marketplace_repository
+        self.__session = session
         self.__table_mapper = table_mapper
 
-    def create(self, entity: MarketplaceEntity):
-        marketplace = Marketplace(name=entity.name)
-        self.__marketplace_repository.add(marketplace)
+    def create(self, marketplace_entity: MarketplaceEntity):
+        self.__session.add(
+            MarketplaceService.__create_marketplace_record(marketplace_entity)
+        )
+        self.__session.flush()
 
-    def create_all(self, entities: Iterable[MarketplaceEntity]):
-        marketplaces = (Marketplace(name=entity.name) for entity in entities)
-        self.__marketplace_repository.add_all(marketplaces)
+    def create_all(self, marketplace_entities: Iterable[MarketplaceEntity]):
+        self.__session.add_all(
+            (
+                MarketplaceService.__create_marketplace_record(marketplace)
+                for marketplace in marketplace_entities
+            )
+        )
+        self.__session.flush()
 
     def find_all(self) -> dict[int, MarketplaceEntity]:
-        marketplaces = self.__marketplace_repository.find_all()
+        marketplaces = self.__session.execute(select(Marketplace)).scalars().all()
+        return {
+            marketplace.id: self.__table_mapper.map(marketplace)
+            for marketplace in marketplaces
+        }
+
+    def fetch_all_atomic(self) -> dict[int, MarketplaceEntity]:
+        marketplaces = (
+            self.__session.execute(select(Marketplace).join(Marketplace.warehouses))
+            .scalars()
+            .all()
+        )
         return {
             marketplace.id: self.__table_mapper.map(marketplace)
             for marketplace in marketplaces
         }
 
     def find_by_name(self, name: str) -> tuple[MarketplaceEntity, int] | None:
-        marketplace = self.__marketplace_repository.find_by_name(name)
-        if marketplace is None:
-            return None
-        return self.__table_mapper.map(marketplace), marketplace.id
+        marketplace = self.__session.execute(
+            select(Marketplace).where(Marketplace.name.ilike(name))
+        ).scalar_one_or_none()
+        return (
+            (self.__table_mapper.map(marketplace), marketplace.id)
+            if marketplace is not None
+            else None
+        )
 
     def exists_with_name(self, name: str) -> bool:
-        return self.__marketplace_repository.exists_with_name(name)
+        marketplace_id = self.__session.execute(
+            select(Marketplace.id).where(Marketplace.name.ilike(name))
+        ).scalar_one_or_none()
+        return marketplace_id is not None
+
+    @staticmethod
+    def __create_marketplace_record(marketplace: MarketplaceEntity) -> Marketplace:
+        return Marketplace(name=marketplace.name.lower())

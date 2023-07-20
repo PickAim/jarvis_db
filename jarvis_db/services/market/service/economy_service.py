@@ -47,7 +47,10 @@ class EconomyService:
         )
         if category_result is None:
             raise Exception(
-                f"Category with name {request_entity.category} is not found"
+                (
+                    f"Category with name {request_entity.category} is not found",
+                    f"in marketplace with id '{request_entity.marketplace_id}'",
+                )
             )
         _, category_id = category_result
         niche_result = self.__niche_service.find_by_name(
@@ -87,8 +90,8 @@ class EconomyService:
             margin=result_entity.margin,
             recommended_price=result_entity.recommended_price,
             transit_profit=result_entity.transit_profit,
-            roi=result_entity.roi,
-            transit_margin_percent=result_entity.transit_margin,
+            roi=int(result_entity.roi * 100),
+            transit_margin_percent=int(result_entity.transit_margin * 100),
             storage_price=result_entity.storage_price,
         )
         self.__result_repository.add(result)
