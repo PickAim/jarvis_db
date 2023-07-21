@@ -69,6 +69,7 @@ class CategoryService:
                 .outerjoin(Category.niches)
                 .outerjoin(Niche.products)
                 .where(Category.marketplace_id == marketplace_id)
+                .distinct()
             )
             .scalars()
             .all()

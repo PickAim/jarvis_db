@@ -92,7 +92,7 @@ def create_niche_service(
         if niche_mapper is None
         else niche_mapper
     )
-    return NicheService(session, NicheTableToJormMapper(ProductTableToJormMapper()))
+    return NicheService(session, niche_mapper)
 
 
 def create_warehouse_service(session: Session) -> WarehouseService:
