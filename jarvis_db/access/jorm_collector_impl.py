@@ -19,15 +19,14 @@ from jarvis_db.services.market.service.frequency_service import FrequencyService
 
 
 class JormCollectorImpl(JORMCollector):
-
     def __init__(
-            self,
-            marketplace_service: MarketplaceService,
-            niche_service: NicheService,
-            category_service: CategoryService,
-            warehouse_service: WarehouseService,
-            unit_economy_service: EconomyService,
-            frequency_service: FrequencyService,
+        self,
+        marketplace_service: MarketplaceService,
+        niche_service: NicheService,
+        category_service: CategoryService,
+        warehouse_service: WarehouseService,
+        unit_economy_service: EconomyService,
+        frequency_service: FrequencyService,
     ):
         self.__marketplace_service = marketplace_service
         self.__niche_service = niche_service
@@ -55,7 +54,7 @@ class JormCollectorImpl(JORMCollector):
         return self.__niche_service.fetch_all_in_category_atomic(category_id)
 
     def get_niche(
-            self, niche_name: str, category_name: str, marketplace_id: int
+        self, niche_name: str, category_name: str, marketplace_id: int
     ) -> Niche | None:
         category_result = self.__category_service.find_by_name(
             category_name, marketplace_id
@@ -70,7 +69,7 @@ class JormCollectorImpl(JORMCollector):
         return self.__niche_service.fetch_by_id_with_products(niche_id)
 
     def get_warehouse(
-            self, warehouse_name: str, marketplace_id: int
+        self, warehouse_name: str, marketplace_id: int
     ) -> Warehouse | None:
         # TODO use marketplace_id
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
@@ -92,16 +91,16 @@ class JormCollectorImpl(JORMCollector):
         ...
 
     def get_users_warehouses(
-            self, user_id: int, marketplace_id: int
+        self, user_id: int, marketplace_id: int
     ) -> list[Warehouse]:
         ...
 
     def get_all_unit_economy_results(
-            self, user_id: int
+        self, user_id: int
     ) -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
         return list(self.__unit_economy_service.find_user_requests(user_id).values())
 
     def get_all_frequency_results(
-            self, user_id: int
+        self, user_id: int
     ) -> list[tuple[FrequencyRequest, FrequencyResult, RequestInfo]]:
         return list(self.__frequency_service.find_user_requests(user_id).values())
