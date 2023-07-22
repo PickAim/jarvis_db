@@ -4,17 +4,13 @@ from jorm.market.infrastructure import Address as AddressEntity
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
-    WarehouseRepository,
-)
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.tables import Address, Marketplace, Warehouse
 from tests.db_context import DbContext
+from jarvis_db.factories.services import create_warehouse_service
 
 
 class WarehouseServiceTest(unittest.TestCase):
@@ -35,7 +31,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 HandlerType.CLIENT,
                 AddressEntity(""),
             )
-            service = create_service(session)
+            service = create_warehouse_service(session)
             service.create_warehouse(warehouse_entity, self.__marketplace_id)
         with self.__db_context.session() as session:
             warehouse = session.execute(
@@ -53,7 +49,7 @@ class WarehouseServiceTest(unittest.TestCase):
             for i in range(10)
         ]
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_warehouse_service(session)
             service.create_all(expected_warehouses, self.__marketplace_id)
         with self.__db_context.session() as session:
             warehouses = (
@@ -88,7 +84,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             find_result = service.find_warehouse_by_name(warehouse_name)
             assert find_result is not None
             found, _ = find_result
@@ -115,7 +111,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             result = service.find_by_global_id(self.__marketplace_id, global_id)
             assert result is not None
             _, actual_warehouse = result
@@ -146,7 +142,7 @@ class WarehouseServiceTest(unittest.TestCase):
             session.add_all(db_warehouses)
             expected_warehouses = [mapper.map(warehouse) for warehouse in db_warehouses]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             actual_warehouses = service.find_all_warehouses().values()
             for expected, actual in zip(
                 expected_warehouses, actual_warehouses, strict=True
@@ -174,14 +170,14 @@ class WarehouseServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             exists = service.exists_with_name(warehouse_name)
             self.assertTrue(exists)
 
     def test_exists_with_name_returns_false(self):
         warehouse_name = "warehouse_1"
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             exists = service.exists_with_name(warehouse_name)
             self.assertFalse(exists)
 
@@ -215,7 +211,7 @@ class WarehouseServiceTest(unittest.TestCase):
         new_names = [f"new_warehouse_{i}" for i in range(1, 11)]
         names_to_filter = [*existing_names, *new_names]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             filtered_names = service.filter_existing_names(names_to_filter)
             self.assertEqual(sorted(new_names), sorted(filtered_names))
 
@@ -249,10 +245,6 @@ class WarehouseServiceTest(unittest.TestCase):
         new_ids = [i for i in range(200, 225)]
         ids_to_filter = [*existing_ids, *new_ids]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_warehouse_service(session)
             filtered_ids = service.fileter_existing_global_ids(ids_to_filter)
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
-
-
-def create_service(session: Session):
-    return WarehouseService(WarehouseRepository(session), WarehouseTableToJormMapper())
