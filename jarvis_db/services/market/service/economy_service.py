@@ -42,19 +42,8 @@ class EconomyService:
         result_entity: UnitEconomyResultEntity,
         user_id: int,
     ) -> int:
-        category_result = self.__category_service.find_by_name(
-            request_entity.category, request_entity.marketplace_id
-        )
-        if category_result is None:
-            raise Exception(
-                (
-                    f"Category with name {request_entity.category} is not found",
-                    f"in marketplace with id '{request_entity.marketplace_id}'",
-                )
-            )
-        _, category_id = category_result
         niche_result = self.__niche_service.find_by_name(
-            request_entity.niche, category_id
+            request_entity.niche, request_entity.category_id
         )
         if niche_result is None:
             raise Exception(f'niche with name "{request_entity.niche}" is not found')
