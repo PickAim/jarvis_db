@@ -6,9 +6,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core import Mapper
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
-    WarehouseRepository,
-)
 from jarvis_db.tables import Address, Warehouse
 
 
@@ -76,7 +73,7 @@ class WarehouseService:
         return (
             self.__session.execute(
                 select(Warehouse).where(Warehouse.name.ilike(name))
-            ).scalar()
+            ).scalar_one_or_none()
             is not None
         )
 
