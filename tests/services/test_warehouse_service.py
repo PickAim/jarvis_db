@@ -5,12 +5,12 @@ from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 from sqlalchemy import select
 
+from jarvis_db.factories.services import create_warehouse_service
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
 from jarvis_db.tables import Address, Marketplace, Warehouse
 from tests.db_context import DbContext
-from jarvis_db.factories.services import create_warehouse_service
 
 
 class WarehouseServiceTest(unittest.TestCase):
