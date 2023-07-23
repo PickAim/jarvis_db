@@ -11,7 +11,7 @@ from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers imp
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.tables import Marketplace, Warehouse
+from jarvis_db.tables import Marketplace
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
