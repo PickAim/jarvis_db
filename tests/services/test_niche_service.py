@@ -150,7 +150,7 @@ class NicheServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             service = create_niche_service(session)
-            actual_niche = service.fetch_by_id_with_products(niche_id)
+            actual_niche = service.fetch_by_id_atomic(niche_id)
             self.assertEqual(expected_niche.name, actual_niche.name)
             self.assertEqual(expected_niche.commissions, actual_niche.commissions)
             self.assertEqual(

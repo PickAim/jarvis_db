@@ -33,7 +33,7 @@ class NicheService:
         )
         self.__session.flush()
 
-    def fetch_by_id_with_products(self, niche_id: int) -> NicheEntity:
+    def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity:
         niche = self.__session.execute(
             select(Niche)
             .outerjoin(Niche.products)

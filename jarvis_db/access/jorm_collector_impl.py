@@ -66,7 +66,7 @@ class JormCollectorImpl(JORMCollector):
         if niche_result is None:
             return None
         _, niche_id = niche_result
-        return self.__niche_service.fetch_by_id_with_products(niche_id)
+        return self.__niche_service.fetch_by_id_atomic(niche_id)
 
     def get_warehouse(
         self, warehouse_name: str, marketplace_id: int
