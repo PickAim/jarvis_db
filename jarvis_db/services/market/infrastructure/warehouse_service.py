@@ -112,7 +112,7 @@ class WarehouseService:
             HandlerType.PARTIAL_CLIENT: 1,
             HandlerType.CLIENT: 2,
         }
-        handeler_type_code = handler_type_to_int[warehouse.handler_type]
+        handler_type_code = handler_type_to_int[warehouse.handler_type]
         return Warehouse(
             owner_id=marketplace_id,
             global_id=warehouse.global_id,
@@ -125,6 +125,6 @@ class WarehouseService:
                 warehouse.additional_storage_commission * 100
             ),
             monopalette_storage_commission=warehouse.mono_palette_storage_commission,
-            type=handeler_type_code,
+            type=handler_type_code,
             address=Address(country="", region="", street="", number="", corpus=""),
         )
