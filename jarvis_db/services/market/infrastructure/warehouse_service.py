@@ -35,9 +35,14 @@ class WarehouseService:
         )
         self.__session.flush()
 
-    def find_warehouse_by_name(self, name: str) -> tuple[WarehouseEntity, int] | None:
+    def find_warehouse_by_name(
+        self, name: str, marketplace_id: int
+    ) -> tuple[WarehouseEntity, int] | None:
         warehouse = self.__session.execute(
-            select(Warehouse).join(Warehouse.address).where(Warehouse.name.ilike(name))
+            select(Warehouse)
+            .join(Warehouse.address)
+            .where(Warehouse.owner_id == marketplace_id)
+            .where(Warehouse.name.ilike(name))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(warehouse), warehouse.id)

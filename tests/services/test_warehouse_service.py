@@ -85,7 +85,9 @@ class WarehouseServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            find_result = service.find_warehouse_by_name(warehouse_name)
+            find_result = service.find_warehouse_by_name(
+                warehouse_name, self.__marketplace_id
+            )
             assert find_result is not None
             found, _ = find_result
             self.assertEqual(warehouse_name, found.name)
@@ -121,7 +123,9 @@ class WarehouseServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(Marketplace(name="marketplace_2"))
             session.flush()
-            marketplace_ids = list(session.execute(select(Marketplace.id)).scalars().all())
+            marketplace_ids = list(
+                session.execute(select(Marketplace.id)).scalars().all()
+            )
             db_warehouses = [
                 Warehouse(
                     owner_id=marketplace_ids[i % len(marketplace_ids)],
@@ -142,13 +146,18 @@ class WarehouseServiceTest(unittest.TestCase):
             ]
             mapper = WarehouseTableToJormMapper()
             session.add_all(db_warehouses)
-            expected_warehouses = [mapper.map(warehouse) for warehouse in db_warehouses if
-                                   warehouse.owner_id == self.__marketplace_id]
+            expected_warehouses = [
+                mapper.map(warehouse)
+                for warehouse in db_warehouses
+                if warehouse.owner_id == self.__marketplace_id
+            ]
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            actual_warehouses = service.find_all_warehouses(self.__marketplace_id).values()
+            actual_warehouses = service.find_all_warehouses(
+                self.__marketplace_id
+            ).values()
             for expected, actual in zip(
-                    expected_warehouses, actual_warehouses, strict=True
+                expected_warehouses, actual_warehouses, strict=True
             ):
                 self.assertEqual(expected, actual)
 

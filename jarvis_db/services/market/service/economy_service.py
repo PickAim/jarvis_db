@@ -48,7 +48,7 @@ class EconomyService:
         if niche_result is None:
             raise Exception(f'niche with name "{request_entity.niche}" is not found')
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
-            request_entity.warehouse_name
+            request_entity.warehouse_name, request_entity.marketplace_id
         )
         if warehouse_result is None:
             raise Exception(
