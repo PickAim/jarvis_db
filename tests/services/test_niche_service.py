@@ -277,3 +277,50 @@ class NicheServiceTest(unittest.TestCase):
                 names_to_filter, self.__category_id
             )
             self.assertEqual(sorted(new_names), sorted(filtered_names))
+
+    def test_update(self):
+        niche_id = 100
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                Niche(
+                    id=niche_id,
+                    category_id=self.__category_id,
+                    name="niche_name",
+                    marketplace_commission=0.01,
+                    partial_client_commission=0.02,
+                    client_commission=0.03,
+                    return_percent=0.04,
+                )
+            )
+        updated_name = "updated_name"
+        marketplace_commission = 0.015
+        partial_client_commission = 0.025
+        client_commission = 0.035
+        return_percent = 0.045
+        with self.__db_context.session() as session:
+            service = create_niche_service(session)
+            service.update(
+                niche_id,
+                NicheEntity(
+                    updated_name,
+                    {
+                        HandlerType.MARKETPLACE: marketplace_commission,
+                        HandlerType.PARTIAL_CLIENT: partial_client_commission,
+                        HandlerType.CLIENT: client_commission,
+                    },
+                    return_percent,
+                ),
+            )
+            session.flush()
+            actual = session.execute(
+                select(Niche).where(Niche.id == niche_id)
+            ).scalar_one()
+            self.assertEqual(updated_name, actual.name)
+            self.assertEqual(
+                int(marketplace_commission * 100), actual.marketplace_commission
+            )
+            self.assertEqual(
+                int(partial_client_commission * 100), actual.partial_client_commission
+            )
+            self.assertEqual(int(client_commission * 100), actual.client_commission)
+            self.assertEqual(int(return_percent * 100), actual.return_percent)
