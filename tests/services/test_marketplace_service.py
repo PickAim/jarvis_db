@@ -43,10 +43,10 @@ class MarketplaceServiceTest(unittest.TestCase):
             self.assertEqual(marketplace_name, found.name)
 
     def test_find_all(self):
-        with self.__db_context.session() as sesion, sesion.begin():
-            seeder = AlchemySeeder(sesion)
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(3)
-            marketplaces = sesion.execute(select(Marketplace)).scalars().all()
+            marketplaces = session.execute(select(Marketplace)).scalars().all()
             mapper = MarketplaceTableToJormMapper(WarehouseTableToJormMapper())
             expected_marketplaces = [
                 mapper.map(marketplace) for marketplace in marketplaces

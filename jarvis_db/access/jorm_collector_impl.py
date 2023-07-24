@@ -71,17 +71,16 @@ class JormCollectorImpl(JORMCollector):
     def get_warehouse(
         self, warehouse_name: str, marketplace_id: int
     ) -> Warehouse | None:
-        # TODO use marketplace_id
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
-            warehouse_name
+            warehouse_name, marketplace_id
         )
         if warehouse_result is None:
             return None
         warehouse, _ = warehouse_result
         return warehouse
 
-    def get_all_warehouses(self, marketplace_id: int) -> list[Warehouse]:
-        return list(self.__warehouse_service.find_all_warehouses(marketplace_id).values())
+    def get_all_warehouses(self, marketplace_id: int) -> dict[int, Warehouse]:
+        return self.__warehouse_service.find_all_warehouses(marketplace_id)
 
     def get_all_warehouses_atomic(self, marketplace_id: int) -> dict[int, Warehouse]:
         return self.__warehouse_service.find_all_warehouses(marketplace_id)
