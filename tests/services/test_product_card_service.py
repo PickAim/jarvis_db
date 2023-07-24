@@ -23,7 +23,7 @@ class ProductCardServiceTest(unittest.TestCase):
             self.__niche_name = niche.name
             self.__category_name = niche.category.name
 
-    def assert_product_equal(self, expected: Product, actual: Product):
+    def __assert_product_equal(self, expected: Product, actual: Product):
         self.assertEqual(expected.name, actual.name)
         self.assertEqual(expected.cost, actual.cost)
         self.assertEqual(expected.global_id, actual.global_id)
@@ -46,7 +46,7 @@ class ProductCardServiceTest(unittest.TestCase):
             ).scalar_one()
             mapper = ProductTableToJormMapper()
             actual = mapper.map(found)
-            self.assert_product_equal(expected, actual)
+            self.__assert_product_equal(expected, actual)
             self.assertEqual(self.__niche_name, actual.niche_name)
             self.assertEqual(self.__category_name, actual.category_name)
 
@@ -80,7 +80,7 @@ class ProductCardServiceTest(unittest.TestCase):
             for expected, actual in zip(
                 expected_products, actual_products, strict=True
             ):
-                self.assert_product_equal(expected, actual)
+                self.__assert_product_equal(expected, actual)
                 self.assertEqual(self.__niche_name, actual.niche_name)
                 self.assertEqual(self.__category_name, actual.category_name)
 
@@ -102,7 +102,7 @@ class ProductCardServiceTest(unittest.TestCase):
             for expected, actual in zip(
                 expected_products, actual_products, strict=True
             ):
-                self.assert_product_equal(expected, actual)
+                self.__assert_product_equal(expected, actual)
                 self.assertEqual(self.__niche_name, actual.niche_name)
                 self.assertEqual(self.__category_name, actual.category_name)
 
@@ -154,7 +154,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 25,
                 8.0,
                 "new_brand",
-                "eew_seller",
+                "new_seller",
                 "niche_name",
                 "category_name",
             )
@@ -164,6 +164,6 @@ class ProductCardServiceTest(unittest.TestCase):
             ).scalar_one()
             mapper = ProductTableToJormMapper()
             actual = mapper.map(product)
-            self.assert_product_equal(expected, actual)
+            self.__assert_product_equal(expected, actual)
             self.assertEqual(self.__niche_name, actual.niche_name)
             self.assertEqual(self.__category_name, actual.category_name)
