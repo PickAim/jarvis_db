@@ -11,7 +11,7 @@ from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers imp
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.tables import Marketplace, Warehouse
+from jarvis_db.tables import Marketplace
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -98,3 +98,17 @@ class MarketplaceServiceTest(unittest.TestCase):
             service = create_marketplace_service(session)
             exists = service.exists_with_name(marketplace_name)
             self.assertFalse(exists)
+
+    def test_update(self):
+        updated_name = "qwerty"
+        marketplace_id = 100
+        with self.__db_context.session() as session, session.begin():
+            session.add(Marketplace(id=marketplace_id, name="old_name"))
+        with self.__db_context.session() as session:
+            service = create_marketplace_service(session)
+            service.update(marketplace_id, MarketplaceEntity(updated_name))
+            session.flush()
+            actual = session.execute(
+                select(Marketplace).where(Marketplace.id == marketplace_id)
+            ).scalar_one()
+            self.assertEqual(updated_name, actual.name)

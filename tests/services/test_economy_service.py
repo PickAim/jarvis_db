@@ -62,6 +62,7 @@ class EconomyServiceTest(unittest.TestCase):
             session.add(niche)
             session.add(warehouse)
             session.flush()
+            self.__category_id = category.id
             self.__niche_id = niche.id
             self.__user_id = user.id
             self.__marketplace_id = marketplace.id
@@ -72,7 +73,7 @@ class EconomyServiceTest(unittest.TestCase):
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         request_entity = UnitEconomyRequest(
             self.__niche_name,
-            self.__category_name,
+            self.__category_id,
             self.__marketplace_id,
             100,
             20,

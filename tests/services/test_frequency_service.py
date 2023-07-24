@@ -44,6 +44,7 @@ class FrequencyServiceTest(unittest.TestCase):
             session.add(niche)
             session.flush()
             self.__user_id = user.id
+            self.__category_id = category.id
             self.__niche_id = niche.id
             self.__marketplace_id = marketplace.id
 
@@ -51,7 +52,7 @@ class FrequencyServiceTest(unittest.TestCase):
         request_info = RequestInfo(date=datetime(2020, 2, 2), name="name")
         request = FrequencyRequest(
             niche=self.__niche_name,
-            category=self.__category_name,
+            category_id=self.__category_id,
             marketplace_id=self.__marketplace_id,
         )
         result = FrequencyResult(x=[i for i in range(10)], y=[i * 2 for i in range(10)])
@@ -75,7 +76,7 @@ class FrequencyServiceTest(unittest.TestCase):
             self.assertEqual(request_info.name, db_request.name)
             self.assertEqual(request_info.date, db_request.date)
             self.assertEqual(request.niche, db_request.niche.name)
-            self.assertEqual(request.category, db_request.niche.category.name)
+            self.assertEqual(request.category_id, db_request.niche.category.id)
             self.assertEqual(
                 request.marketplace_id, db_request.niche.category.marketplace_id
             )

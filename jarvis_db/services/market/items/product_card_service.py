@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from jorm.market.items import Product
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
@@ -51,15 +51,18 @@ class ProductCardService:
         }
 
     def update(self, product_id: int, product: Product):
-        product_card = self.__session.execute(
-            select(ProductCard).where(ProductCard.id == product_id)
-        ).scalar_one()
-        product_card.cost = product.cost
-        product_card.global_id = product.global_id
-        product_card.name = product.name
-        product_card.rating = int(product.rating * 100)
-        product_card.brand = product.brand
-        product_card.seller = product.seller
+        self.__session.execute(
+            update(ProductCard)
+            .where(ProductCard.id == product_id)
+            .values(
+                cost=product.cost,
+                global_id=product.global_id,
+                name=product.name,
+                rating=int(product.rating * 100),
+                brand=product.brand,
+                seller=product.seller,
+            )
+        )
         self.__session.flush()
 
     def filter_existing_global_ids(

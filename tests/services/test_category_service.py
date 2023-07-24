@@ -137,6 +137,26 @@ class CategoryServiceTest(unittest.TestCase):
             )
             self.assertEqual(sorted(new_names), sorted(filtered_names))
 
+    def test_update(self):
+        category_id = 100
+        updated_name = "new_name"
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                Category(
+                    id=category_id,
+                    marketplace_id=self.__marketplace_id,
+                    name="old_name",
+                )
+            )
+        with self.__db_context.session() as session:
+            service = create_category_service(session)
+            service.update(category_id, CategoryEntity(updated_name))
+            session.flush()
+            actual = session.execute(
+                select(Category).where(Category.id == category_id)
+            ).scalar_one()
+            self.assertEqual(updated_name, actual.name)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
@@ -33,7 +33,7 @@ class NicheService:
         )
         self.__session.flush()
 
-    def fetch_by_id_with_products(self, niche_id: int) -> NicheEntity:
+    def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity:
         niche = self.__session.execute(
             select(Niche)
             .outerjoin(Niche.products)
@@ -110,6 +110,24 @@ class NicheService:
             .all()
         )
         return list(set(names) - set(existing_names))
+
+    def update(self, niche_id: int, niche: NicheEntity):
+        self.__session.execute(
+            update(Niche)
+            .where(Niche.id == niche_id)
+            .values(
+                name=niche.name,
+                marketplace_commission=int(
+                    niche.commissions[HandlerType.MARKETPLACE] * 100
+                ),
+                partial_client_commission=int(
+                    niche.commissions[HandlerType.PARTIAL_CLIENT] * 100
+                ),
+                client_commission=int(niche.commissions[HandlerType.CLIENT] * 100),
+                return_percent=int(niche.returned_percent * 100),
+            )
+        )
+        self.__session.flush()
 
     @staticmethod
     def __create_niche_record(niche: NicheEntity, category_id: int) -> Niche:

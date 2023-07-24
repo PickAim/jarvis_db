@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from jorm.market.infrastructure import Category as CategoryEntity
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
@@ -98,6 +98,13 @@ class CategoryService:
             .all()
         )
         return list(set(names) - set(existing_names))
+
+    def update(self, category_id: int, category: CategoryEntity):
+        self.__session.execute(
+            update(Category)
+            .where(Category.id == category_id)
+            .values(name=category.name)
+        )
 
     @staticmethod
     def __create_category_record(

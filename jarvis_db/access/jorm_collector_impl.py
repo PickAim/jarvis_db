@@ -1,5 +1,5 @@
 from jorm.jarvis.db_access import JORMCollector
-from jorm.market.infrastructure import Niche, Product, Warehouse, Category, Marketplace
+from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
 from jorm.market.service import (
     FrequencyRequest,
     FrequencyResult,
@@ -36,12 +36,21 @@ class JormCollectorImpl(JORMCollector):
         self.__frequency_service = frequency_service
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
+        return self.__marketplace_service.find_all()
+
+    def get_all_marketplaces_atomic(self) -> dict[int, Marketplace]:
         return self.__marketplace_service.fetch_all_atomic()
 
     def get_all_categories(self, marketplace_id: int) -> dict[int, Category]:
+        return self.__category_service.find_all_in_marketplace(marketplace_id)
+
+    def get_all_categories_atomic(self, marketplace_id: int) -> dict[int, Category]:
         return self.__category_service.fetch_all_in_marketplace_atomic(marketplace_id)
 
     def get_all_niches(self, category_id: int) -> dict[int, Niche]:
+        return self.__niche_service.find_all_in_category(category_id)
+
+    def get_all_niches_atomic(self, category_id: int) -> dict[int, Niche]:
         return self.__niche_service.fetch_all_in_category_atomic(category_id)
 
     def get_niche(
@@ -57,7 +66,7 @@ class JormCollectorImpl(JORMCollector):
         if niche_result is None:
             return None
         _, niche_id = niche_result
-        return self.__niche_service.fetch_by_id_with_products(niche_id)
+        return self.__niche_service.fetch_by_id_atomic(niche_id)
 
     def get_warehouse(
         self, warehouse_name: str, marketplace_id: int
@@ -72,7 +81,10 @@ class JormCollectorImpl(JORMCollector):
         return warehouse
 
     def get_all_warehouses(self, marketplace_id: int) -> list[Warehouse]:
-        return list(self.__warehouse_service.find_all_warehouses().values())
+        return list(self.__warehouse_service.find_all_warehouses(marketplace_id).values())
+
+    def get_all_warehouses_atomic(self, marketplace_id: int) -> dict[int, Warehouse]:
+        return self.__warehouse_service.find_all_warehouses(marketplace_id)
 
     def get_products_by_user(self, user_int: int) -> list[Product]:
         # TODO how to store user products

@@ -36,10 +36,8 @@ class FrequencyService:
         result_entity: FrequencyResultEntity,
         user_id: int,
     ) -> int:
-        db_niche = self.__niche_repository.find_by_niche_name_and_category_name(
-            request_entity.niche,
-            request_entity.category,
-            request_entity.marketplace_id,
+        db_niche = self.__niche_repository.find_by_name(
+            request_entity.niche, request_entity.category_id
         )
         if db_niche is None:
             raise Exception(f"No niche matching request {request_entity}")
