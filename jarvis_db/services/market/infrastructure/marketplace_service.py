@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
@@ -67,6 +67,13 @@ class MarketplaceService:
             select(Marketplace.id).where(Marketplace.name.ilike(name))
         ).scalar_one_or_none()
         return marketplace_id is not None
+
+    def update(self, marketplace_id: int, marketplace: MarketplaceEntity):
+        self.__session.execute(
+            update(Marketplace)
+            .where(Marketplace.id == marketplace_id)
+            .values(name=marketplace.name.lower())
+        )
 
     @staticmethod
     def __create_marketplace_record(marketplace: MarketplaceEntity) -> Marketplace:
