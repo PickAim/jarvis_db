@@ -118,11 +118,13 @@ class WarehouseServiceTest(unittest.TestCase):
             self.assertEqual(global_id, actual_warehouse.global_id)
 
     def test_find_all(self):
-        expected_count = 10
         with self.__db_context.session() as session, session.begin():
+            session.add(Marketplace(name="marketplace_2"))
+            session.flush()
+            marketplace_ids = list(session.execute(select(Marketplace.id)).scalars().all())
             db_warehouses = [
                 Warehouse(
-                    owner_id=self.__marketplace_id,
+                    owner_id=marketplace_ids[i % len(marketplace_ids)],
                     global_id=200 + 10 * i,
                     type=i % 3,
                     name=f"warehouse_{i}",
@@ -136,16 +138,17 @@ class WarehouseServiceTest(unittest.TestCase):
                     additional_storage_commission=i * 4,
                     monopalette_storage_commission=i + 6,
                 )
-                for i in range(1, expected_count + 1)
+                for i in range(1, 21)
             ]
             mapper = WarehouseTableToJormMapper()
             session.add_all(db_warehouses)
-            expected_warehouses = [mapper.map(warehouse) for warehouse in db_warehouses]
+            expected_warehouses = [mapper.map(warehouse) for warehouse in db_warehouses if
+                                   warehouse.owner_id == self.__marketplace_id]
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            actual_warehouses = service.find_all_warehouses().values()
+            actual_warehouses = service.find_all_warehouses(self.__marketplace_id).values()
             for expected, actual in zip(
-                expected_warehouses, actual_warehouses, strict=True
+                    expected_warehouses, actual_warehouses, strict=True
             ):
                 self.assertEqual(expected, actual)
 

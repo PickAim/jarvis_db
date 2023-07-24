@@ -59,9 +59,13 @@ class WarehouseService:
             else None
         )
 
-    def find_all_warehouses(self) -> dict[int, WarehouseEntity]:
+    def find_all_warehouses(self, marketplace_id: int) -> dict[int, WarehouseEntity]:
         warehouses = (
-            self.__session.execute(select(Warehouse).join(Warehouse.address))
+            self.__session.execute(
+                select(Warehouse)
+                .join(Warehouse.address)
+                .where(Warehouse.owner_id == marketplace_id)
+            )
             .scalars()
             .all()
         )
@@ -103,12 +107,12 @@ class WarehouseService:
     def __create_warehouse_entity(
         warehouse: WarehouseEntity, marketplace_id: int
     ) -> Warehouse:
-        handler_type = 0
-        match warehouse.handler_type:
-            case HandlerType.PARTIAL_CLIENT:
-                handler_type = 1
-            case HandlerType.CLIENT:
-                handler_type = 2
+        handler_type_to_int = {
+            HandlerType.MARKETPLACE: 0,
+            HandlerType.PARTIAL_CLIENT: 1,
+            HandlerType.CLIENT: 2,
+        }
+        handeler_type_code = handler_type_to_int[warehouse.handler_type]
         return Warehouse(
             owner_id=marketplace_id,
             global_id=warehouse.global_id,
@@ -121,6 +125,6 @@ class WarehouseService:
                 warehouse.additional_storage_commission * 100
             ),
             monopalette_storage_commission=warehouse.mono_palette_storage_commission,
-            type=handler_type,
+            type=handeler_type_code,
             address=Address(country="", region="", street="", number="", corpus=""),
         )
