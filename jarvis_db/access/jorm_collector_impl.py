@@ -71,9 +71,8 @@ class JormCollectorImpl(JORMCollector):
     def get_warehouse(
         self, warehouse_name: str, marketplace_id: int
     ) -> Warehouse | None:
-        # TODO use marketplace_id
         warehouse_result = self.__warehouse_service.find_warehouse_by_name(
-            warehouse_name
+            warehouse_name, marketplace_id
         )
         if warehouse_result is None:
             return None
