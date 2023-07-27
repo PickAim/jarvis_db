@@ -2,13 +2,8 @@ import unittest
 
 from jorm.market.person import User as UserEntity
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from jarvis_db.repositores.mappers.market.person.user_mappers import (
-    UserTableToJormMapper,
-)
-from jarvis_db.repositores.market.person import UserRepository
-from jarvis_db.services.market.person.user_service import UserService
+from jarvis_db.factories.services import create_user_service
 from jarvis_db.tables import Account, User
 from tests.db_context import DbContext
 
@@ -25,7 +20,7 @@ class UserServiceTest(unittest.TestCase):
     def test_create(self):
         user_entity = UserEntity(name="user1")
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_user_service(session)
             service.create(user_entity, self.__account_id)
         with self.__db_context.session() as session:
             user = session.execute(
@@ -41,10 +36,6 @@ class UserServiceTest(unittest.TestCase):
                 User(name=user_name, profit_tax=0, account_id=self.__account_id)
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_user_service(session)
             user, _ = service.find_by_account_id(self.__account_id)
             self.assertEqual(user_name, user.name)
-
-
-def create_service(session: Session) -> UserService:
-    return UserService(UserRepository(session), UserTableToJormMapper())

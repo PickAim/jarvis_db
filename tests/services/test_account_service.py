@@ -4,6 +4,7 @@ from jorm.market.person import Account as AccountEntity
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from jarvis_db.factories.services import create_account_service
 from jarvis_db.repositores.mappers.market.person.account_mappers import (
     AccountTableToJormMapper,
 )
@@ -19,7 +20,7 @@ class AccountServiceTest(unittest.TestCase):
 
     def test_create(self):
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_account_service(session)
             account_entity = AccountEntity("user@mail.org", "123", "789456123")
             service.create(account_entity)
         with self.__db_context.session() as session:
@@ -35,7 +36,7 @@ class AccountServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(Account(email=email, phone="789456123", password="123"))
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_account_service(session)
             account_result = service.find_by_email(email)
             assert account_result is not None
             account, _ = account_result
@@ -46,7 +47,7 @@ class AccountServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(Account(email="user@mail.org", phone=phone, password="123"))
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_account_service(session)
             account_result = service.find_by_phone(phone)
             assert account_result is not None
             account, _ = account_result
@@ -57,7 +58,7 @@ class AccountServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(Account(email=email, phone="789456123", password="123"))
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_account_service(session)
             account_result = service.find_by_email_or_phone(email, "")
             assert account_result is not None
             account, _ = account_result
@@ -68,12 +69,8 @@ class AccountServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(Account(email="user@mail.org", phone=phone, password="123"))
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_account_service(session)
             account_result = service.find_by_email_or_phone("", phone)
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(phone, account.phone_number)
-
-
-def create_service(session: Session) -> AccountService:
-    return AccountService(AccountRepository(session), AccountTableToJormMapper())

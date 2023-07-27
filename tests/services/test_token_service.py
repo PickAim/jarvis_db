@@ -3,6 +3,7 @@ import unittest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from jarvis_db.factories.services import create_token_service
 from jarvis_db.repositores.mappers.market.person.token_mappers import TokenTableMapper
 from jarvis_db.repositores.market.person.token_repository import TokenRepository
 from jarvis_db.services.market.person import TokenService
@@ -26,7 +27,7 @@ class TokenServiceTest(unittest.TestCase):
         update_token = "456"
         imprint_token = "789"
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_token_service(session)
             service.create(self.__user_id, access_token, update_token, imprint_token)
         with self.__db_context.session() as session:
             token = session.execute(
@@ -52,7 +53,7 @@ class TokenServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_token_service(session)
             found_access, found_update = service.find_by_imprint(
                 self.__user_id, imprint_token
             )
@@ -71,7 +72,7 @@ class TokenServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_token_service(session)
             new_access = "qwerty"
             new_update = "asdfg"
             service.update_by_imprint(
@@ -98,7 +99,7 @@ class TokenServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_token_service(session)
             new_access = "qwerty"
             new_update = "asdfg"
             service.update_by_access(
@@ -125,7 +126,7 @@ class TokenServiceTest(unittest.TestCase):
                 )
             )
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_token_service(session)
             service.delete_by_imprint(self.__user_id, imprint_token)
         with self.__db_context.session() as session:
             token = session.execute(
@@ -134,7 +135,3 @@ class TokenServiceTest(unittest.TestCase):
                 .where(TokenSet.fingerprint_token == imprint_token)
             ).scalar_one_or_none()
             self.assertIsNone(token)
-
-
-def create_service(session: Session) -> TokenService:
-    return TokenService(TokenRepository(session), TokenTableMapper())

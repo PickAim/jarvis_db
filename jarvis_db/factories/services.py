@@ -20,6 +20,11 @@ from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
 from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
     ProductHistoryTableToJormMapper,
 )
+from jarvis_db.repositores.mappers.market.person import (
+    AccountTableToJormMapper,
+    UserTableToJormMapper,
+)
+from jarvis_db.repositores.mappers.market.person.token_mappers import TokenTableMapper
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
 )
@@ -33,6 +38,8 @@ from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepos
 from jarvis_db.repositores.market.items.product_history_repository import (
     ProductHistoryRepository,
 )
+from jarvis_db.repositores.market.person import AccountRepository, UserRepository
+from jarvis_db.repositores.market.person.token_repository import TokenRepository
 from jarvis_db.repositores.market.service.economy_request_repository import (
     EconomyRequestRepository,
 )
@@ -53,7 +60,29 @@ from jarvis_db.services.market.items.product_history_service import (
 from jarvis_db.services.market.items.product_history_unit_service import (
     ProductHistoryUnitService,
 )
+from jarvis_db.services.market.person import AccountService, UserService, TokenService
 from jarvis_db.services.market.service.economy_service import EconomyService
+from jarvis_db.repositores.mappers.market.service import (
+    FrequencyRequestTableToJormMapper,
+)
+from jarvis_db.repositores.market.infrastructure import NicheRepository
+from jarvis_db.repositores.market.service import (
+    FrequencyRequestRepository,
+    FrequencyResultRepository,
+)
+from jarvis_db.services.market.service.frequency_service import FrequencyService
+
+
+def create_account_service(session: Session) -> AccountService:
+    return AccountService(AccountRepository(session), AccountTableToJormMapper())
+
+
+def create_user_service(session: Session) -> UserService:
+    return UserService(UserRepository(session), UserTableToJormMapper())
+
+
+def create_token_service(session: Session) -> TokenService:
+    return TokenService(TokenRepository(session), TokenTableMapper())
 
 
 def create_marketplace_service(
@@ -106,6 +135,15 @@ def create_economy_service(session: Session) -> EconomyService:
         create_category_service(session, niche_mapper),
         create_niche_service(session, niche_mapper),
         create_warehouse_service(session),
+    )
+
+
+def create_frequency_service(session: Session) -> FrequencyService:
+    return FrequencyService(
+        FrequencyRequestRepository(session),
+        NicheRepository(session),
+        FrequencyResultRepository(session),
+        FrequencyRequestTableToJormMapper(),
     )
 
 

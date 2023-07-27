@@ -4,27 +4,9 @@ from datetime import datetime
 from jorm.market.items import ProductHistory, ProductHistoryUnit, StorageDict
 from jorm.support.types import SpecifiedLeftover
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db import tables
-from jarvis_db.repositores.mappers.market.items import ProductHistoryTableToJormMapper
-from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
-    LeftoverTableToJormMapper,
-)
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
-    WarehouseRepository,
-)
-from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepository
-from jarvis_db.repositores.market.items.product_history_repository import (
-    ProductHistoryRepository,
-)
-from jarvis_db.services.market.items.leftover_service import LeftoverService
-from jarvis_db.services.market.items.product_history_service import (
-    ProductHistoryService,
-)
-from jarvis_db.services.market.items.product_history_unit_service import (
-    ProductHistoryUnitService,
-)
+from jarvis_db.factories.services import create_product_history_service
 from jarvis_db.tables import (
     Address,
     Category,
@@ -86,7 +68,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
 
     def test_add(self):
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_product_history_service(session)
             units_to_add = 10
             leftovers_per_unit = 5
             product_history = ProductHistory(
@@ -142,7 +124,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
             ]
             session.add_all(history_units)
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_product_history_service(session)
             histories = service.find_product_history(self.__product_id).get_history()
             self.assertEqual(units_to_add, len(histories))
             for unit in histories:
@@ -150,18 +132,6 @@ class ProductHistoryServiceTest(unittest.TestCase):
                     leftovers_per_unit,
                     sum((len(leftovers) for leftovers in unit.leftover.values())),
                 )
-
-
-def create_service(session: Session) -> ProductHistoryService:
-    unit_service = ProductHistoryUnitService(ProductHistoryRepository(session))
-    return ProductHistoryService(
-        unit_service,
-        LeftoverService(
-            LeftoverRepository(session), WarehouseRepository(session), unit_service
-        ),
-        ProductHistoryRepository(session),
-        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()),
-    )
 
 
 if __name__ == "__main__":
