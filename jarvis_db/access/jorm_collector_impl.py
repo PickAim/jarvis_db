@@ -85,14 +85,11 @@ class JormCollectorImpl(JORMCollector):
     def get_all_warehouses_atomic(self, marketplace_id: int) -> dict[int, Warehouse]:
         return self.__warehouse_service.find_all_warehouses(marketplace_id)
 
-    def get_products_by_user(self, user_int: int) -> list[Product]:
-        # TODO how to store user products
-        ...
+    def get_products_by_user(self, user_id: int) -> dict[int, Product]:
+        return {}
 
-    def get_users_warehouses(
-        self, user_id: int, marketplace_id: int
-    ) -> list[Warehouse]:
-        ...
+    def get_users_warehouses(self, user_id: int, marketplace_id: int) -> dict[int, Warehouse]:
+        return {}
 
     def get_all_unit_economy_results(
         self, user_id: int

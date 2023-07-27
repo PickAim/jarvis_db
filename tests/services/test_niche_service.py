@@ -148,24 +148,7 @@ class NicheServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             actual_niche = service.fetch_by_id_atomic(niche_id)
-            self.assertEqual(expected_niche.name, actual_niche.name)
-            self.assertEqual(expected_niche.commissions, actual_niche.commissions)
-            self.assertEqual(
-                expected_niche.returned_percent, actual_niche.returned_percent
-            )
-            for expected_product, actual_product in zip(
-                expected_niche.products, actual_niche.products, strict=True
-            ):
-                expected_history = expected_product.history
-                actual_history = actual_product.history
-                self.assertEqual(
-                    len(actual_history.get_history()),
-                    len(expected_history.get_history()),
-                )
-                self.assertEqual(
-                    len(actual_history.get_all_leftovers()),
-                    len(expected_history.get_all_leftovers()),
-                )
+            self.assertEqual(expected_niche, actual_niche)
 
     def test_find_all_in_category(self):
         with self.__db_context.session() as session, session.begin():
@@ -210,10 +193,7 @@ class NicheServiceTest(unittest.TestCase):
                 self.__category_id
             ).values()
             for expected, actual in zip(expected_niches, actual_niches, strict=True):
-                self.assertEqual(expected.name, actual.name)
-                self.assertEqual(expected.commissions, actual.commissions)
-                self.assertEqual(expected.returned_percent, actual.returned_percent)
-                self.assertEqual(len(expected.products), len(actual.products))
+                self.assertEqual(expected, actual)
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session, session.begin():
