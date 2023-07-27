@@ -5,13 +5,8 @@ from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
 
 from jarvis_db import tables
+from jarvis_db.factories.mappers import create_niche_table_mapper
 from jarvis_db.factories.services import create_niche_service
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
-    NicheTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
-    ProductTableToJormMapper,
-)
 from jarvis_db.tables import Niche
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
@@ -139,7 +134,7 @@ class NicheServiceTest(unittest.TestCase):
             session.flush()
             seeder = AlchemySeeder(session)
             seeder.seed_products(10)
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niche = mapper.map(
                 session.execute(
                     select(Niche)
@@ -164,7 +159,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder.seed_categories(2)
             seeder.seed_niches(30)
             niches = session.execute(select(tables.Niche)).scalars().all()
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches
@@ -189,7 +184,7 @@ class NicheServiceTest(unittest.TestCase):
                 .scalars()
                 .all()
             )
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches
@@ -211,7 +206,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder = AlchemySeeder(session)
             seeder.seed_niches(30)
             niches = session.execute(select(tables.Niche)).scalars().all()
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches

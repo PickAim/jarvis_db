@@ -50,21 +50,6 @@ class ProductCardService:
             product.id: self.__table_mapper.map(product) for product in niche_products
         }
 
-    def update(self, product_id: int, product: Product):
-        self.__session.execute(
-            update(ProductCard)
-            .where(ProductCard.id == product_id)
-            .values(
-                cost=product.cost,
-                global_id=product.global_id,
-                name=product.name,
-                rating=int(product.rating * 100),
-                brand=product.brand,
-                seller=product.seller,
-            )
-        )
-        self.__session.flush()
-
     def filter_existing_global_ids(
         self, niche_id: int, ids: Iterable[int]
     ) -> list[int]:
@@ -79,6 +64,21 @@ class ProductCardService:
             .all()
         )
         return list(set(ids) - set(existing_ids))
+
+    def update(self, product_id: int, product: Product):
+        self.__session.execute(
+            update(ProductCard)
+            .where(ProductCard.id == product_id)
+            .values(
+                cost=product.cost,
+                global_id=product.global_id,
+                name=product.name,
+                rating=int(product.rating * 100),
+                brand=product.brand,
+                seller=product.seller,
+            )
+        )
+        self.__session.flush()
 
     @staticmethod
     def __create_product_record(product: Product, niche_id: int) -> ProductCard:

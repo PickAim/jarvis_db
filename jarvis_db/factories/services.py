@@ -1,16 +1,15 @@
-from jorm.market.infrastructure import Marketplace, Niche
+from jorm.market.infrastructure import Marketplace, Niche, Warehouse
 from sqlalchemy.orm import Session
 
 from jarvis_db import tables
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.factories.mappers import (
+    create_marketplace_table_mapper,
+    create_niche_table_mapper,
+    create_product_table_mapper,
+)
 from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
     CategoryTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers import (
-    MarketplaceTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
-    NicheTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
@@ -20,9 +19,6 @@ from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
 )
 from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
     ProductHistoryTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
-    ProductTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
@@ -65,7 +61,7 @@ def create_marketplace_service(
     marketplace_mapper: Mapper[tables.Marketplace, Marketplace] | None = None,
 ) -> MarketplaceService:
     marketplace_mapper = (
-        MarketplaceTableToJormMapper(WarehouseTableToJormMapper())
+        create_marketplace_table_mapper()
         if marketplace_mapper is None
         else marketplace_mapper
     )
@@ -77,7 +73,7 @@ def create_category_service(
     niche_mapper: Mapper[tables.Niche, Niche] | None = None,
 ) -> CategoryService:
     if niche_mapper is None:
-        niche_mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+        niche_mapper = create_niche_table_mapper()
     return CategoryService(
         session,
         CategoryTableToJormMapper(niche_mapper),
@@ -87,20 +83,22 @@ def create_category_service(
 def create_niche_service(
     session: Session, niche_mapper: Mapper[tables.Niche, Niche] | None = None
 ) -> NicheService:
-    niche_mapper = (
-        NicheTableToJormMapper(ProductTableToJormMapper())
-        if niche_mapper is None
-        else niche_mapper
-    )
+    niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
     return NicheService(session, niche_mapper)
 
 
-def create_warehouse_service(session: Session) -> WarehouseService:
-    return WarehouseService(session, WarehouseTableToJormMapper())
+def create_warehouse_service(
+    session: Session,
+    warehouse_mapper: Mapper[tables.Warehouse, Warehouse] | None = None,
+) -> WarehouseService:
+    warehouse_mapper = (
+        WarehouseTableToJormMapper() if warehouse_mapper is None else warehouse_mapper
+    )
+    return WarehouseService(session, warehouse_mapper)
 
 
 def create_economy_service(session: Session) -> EconomyService:
-    niche_mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+    niche_mapper = create_niche_table_mapper()
     return EconomyService(
         EconomyRequestRepository(session),
         EconomyResultRepository(session),
@@ -131,4 +129,8 @@ def create_product_card_service(
         if history_service is None
         else history_service
     )
-    return ProductCardService(session, history_service, ProductTableToJormMapper())
+    return ProductCardService(
+        session,
+        history_service,
+        create_product_table_mapper(),
+    )

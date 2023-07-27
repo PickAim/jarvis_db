@@ -2,11 +2,9 @@ import unittest
 
 from jorm.market.items import Product
 from sqlalchemy import select
+from jarvis_db.factories.mappers import create_product_table_mapper
 
 from jarvis_db.factories.services import create_product_card_service
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
-    ProductTableToJormMapper,
-)
 from jarvis_db.tables import Niche, ProductCard
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
@@ -44,7 +42,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 .where(ProductCard.niche_id == self.__niche_id)
                 .where(ProductCard.name == expected.name)
             ).scalar_one()
-            mapper = ProductTableToJormMapper()
+            mapper = create_product_table_mapper()
             actual = mapper.map(found)
             self.__assert_product_equal(expected, actual)
             self.assertEqual(self.__niche_name, actual.niche_name)
@@ -75,7 +73,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 .scalars()
                 .all()
             )
-            mapper = ProductTableToJormMapper()
+            mapper = create_product_table_mapper()
             actual_products = [mapper.map(product) for product in found]
             for expected, actual in zip(
                 expected_products, actual_products, strict=True
@@ -85,7 +83,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 self.assertEqual(self.__category_name, actual.category_name)
 
     def test_find_all_in_niche(self):
-        mapper = ProductTableToJormMapper()
+        mapper = create_product_table_mapper()
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_niches(2)
@@ -162,7 +160,7 @@ class ProductCardServiceTest(unittest.TestCase):
             product = session.execute(
                 select(ProductCard).where(ProductCard.id == product_id)
             ).scalar_one()
-            mapper = ProductTableToJormMapper()
+            mapper = create_product_table_mapper()
             actual = mapper.map(product)
             self.__assert_product_equal(expected, actual)
             self.assertEqual(self.__niche_name, actual.niche_name)
