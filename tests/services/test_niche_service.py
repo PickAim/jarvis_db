@@ -7,7 +7,7 @@ from sqlalchemy import select
 from jarvis_db import tables
 from jarvis_db.factories.mappers import create_niche_table_mapper
 from jarvis_db.factories.services import create_niche_service
-from jarvis_db.tables import Niche
+from jarvis_db.tables import Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -133,12 +133,14 @@ class NicheServiceTest(unittest.TestCase):
             )
             session.flush()
             seeder = AlchemySeeder(session)
-            seeder.seed_products(10)
+            seeder.seed_leftovers(500)
             mapper = create_niche_table_mapper()
             expected_niche = mapper.map(
                 session.execute(
                     select(Niche)
                     .outerjoin(Niche.products)
+                    .outerjoin(ProductCard.histories)
+                    .outerjoin(ProductHistory.leftovers)
                     .where(Niche.id == niche_id)
                     .distinct()
                 ).scalar_one()
@@ -151,7 +153,19 @@ class NicheServiceTest(unittest.TestCase):
             self.assertEqual(
                 expected_niche.returned_percent, actual_niche.returned_percent
             )
-            self.assertEqual(len(expected_niche.products), len(actual_niche.products))
+            for expected_product, actual_product in zip(
+                expected_niche.products, actual_niche.products, strict=True
+            ):
+                expected_history = expected_product.history
+                actual_history = actual_product.history
+                self.assertEqual(
+                    len(actual_history.get_history()),
+                    len(expected_history.get_history()),
+                )
+                self.assertEqual(
+                    len(actual_history.get_all_leftovers()),
+                    len(expected_history.get_all_leftovers()),
+                )
 
     def test_find_all_in_category(self):
         with self.__db_context.session() as session, session.begin():
