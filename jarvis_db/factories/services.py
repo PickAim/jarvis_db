@@ -25,12 +25,16 @@ from jarvis_db.repositores.mappers.market.person import (
     UserTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.person.token_mappers import TokenTableMapper
+from jarvis_db.repositores.mappers.market.service import (
+    FrequencyRequestTableToJormMapper,
+)
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
+from jarvis_db.repositores.market.infrastructure import NicheRepository
 from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
     WarehouseRepository,
 )
@@ -40,6 +44,10 @@ from jarvis_db.repositores.market.items.product_history_repository import (
 )
 from jarvis_db.repositores.market.person import AccountRepository, UserRepository
 from jarvis_db.repositores.market.person.token_repository import TokenRepository
+from jarvis_db.repositores.market.service import (
+    FrequencyRequestRepository,
+    FrequencyResultRepository,
+)
 from jarvis_db.repositores.market.service.economy_request_repository import (
     EconomyRequestRepository,
 )
@@ -62,14 +70,6 @@ from jarvis_db.services.market.items.product_history_unit_service import (
 )
 from jarvis_db.services.market.person import AccountService, UserService, TokenService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.repositores.mappers.market.service import (
-    FrequencyRequestTableToJormMapper,
-)
-from jarvis_db.repositores.market.infrastructure import NicheRepository
-from jarvis_db.repositores.market.service import (
-    FrequencyRequestRepository,
-    FrequencyResultRepository,
-)
 from jarvis_db.services.market.service.frequency_service import FrequencyService
 
 

@@ -1,12 +1,8 @@
 import unittest
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db.factories.services import create_token_service
-from jarvis_db.repositores.mappers.market.person.token_mappers import TokenTableMapper
-from jarvis_db.repositores.market.person.token_repository import TokenRepository
-from jarvis_db.services.market.person import TokenService
 from jarvis_db.tables import Account, TokenSet, User
 from tests.db_context import DbContext
 

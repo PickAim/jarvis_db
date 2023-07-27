@@ -2,8 +2,8 @@ import unittest
 
 from jorm.market.items import Product
 from sqlalchemy import select
-from jarvis_db.factories.mappers import create_product_table_mapper
 
+from jarvis_db.factories.mappers import create_product_table_mapper
 from jarvis_db.factories.services import create_product_card_service
 from jarvis_db.tables import Niche, ProductCard
 from tests.db_context import DbContext

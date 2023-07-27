@@ -2,14 +2,8 @@ import unittest
 
 from jorm.market.person import Account as AccountEntity
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db.factories.services import create_account_service
-from jarvis_db.repositores.mappers.market.person.account_mappers import (
-    AccountTableToJormMapper,
-)
-from jarvis_db.repositores.market.person.account_repository import AccountRepository
-from jarvis_db.services.market.person.account_service import AccountService
 from jarvis_db.tables import Account
 from tests.db_context import DbContext
 
