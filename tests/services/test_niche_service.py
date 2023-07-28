@@ -313,3 +313,7 @@ class NicheServiceTest(unittest.TestCase):
             )
             self.assertEqual(int(client_commission * 100), actual.client_commission)
             self.assertEqual(int(return_percent * 100), actual.return_percent)
+
+
+if __name__ == "__main__":
+    unittest.main()

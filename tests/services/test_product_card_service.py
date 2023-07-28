@@ -23,7 +23,14 @@ class ProductCardServiceTest(unittest.TestCase):
 
     def test_create(self):
         expected = Product(
-            "qwerty", 100, 200, 5.0, "brand", "seller", self.__niche_name, self.__category_name
+            "qwerty",
+            100,
+            200,
+            5.0,
+            "brand",
+            "seller",
+            self.__niche_name,
+            self.__category_name,
         )
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)

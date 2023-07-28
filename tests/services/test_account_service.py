@@ -68,3 +68,7 @@ class AccountServiceTest(unittest.TestCase):
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(phone, account.phone_number)
+
+
+if __name__ == "__main__":
+    unittest.main()

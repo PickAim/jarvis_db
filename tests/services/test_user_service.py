@@ -39,3 +39,7 @@ class UserServiceTest(unittest.TestCase):
             service = create_user_service(session)
             user, _ = service.find_by_account_id(self.__account_id)
             self.assertEqual(user_name, user.name)
+
+
+if __name__ == "__main__":
+    unittest.main()

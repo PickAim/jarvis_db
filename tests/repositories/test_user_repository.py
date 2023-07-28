@@ -31,3 +31,7 @@ class UserRepositoryTest(unittest.TestCase):
 
     def test_find_by_account(self):
         ...
+
+
+if __name__ == "__main__":
+    unittest.main()

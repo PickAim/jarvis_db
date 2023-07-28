@@ -131,3 +131,7 @@ class TokenServiceTest(unittest.TestCase):
                 .where(TokenSet.fingerprint_token == imprint_token)
             ).scalar_one_or_none()
             self.assertIsNone(token)
+
+
+if __name__ == "__main__":
+    unittest.main()

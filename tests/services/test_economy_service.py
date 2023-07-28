@@ -212,3 +212,7 @@ class EconomyServiceTest(unittest.TestCase):
                 self.assertEqual(expected_request, actual_request)
                 self.assertEqual(expected_result, actual_result)
                 self.assertEqual(expected_info, actual_info)
+
+
+if __name__ == "__main__":
+    unittest.main()

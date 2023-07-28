@@ -12,3 +12,7 @@ class AccountRepositoryTest(unittest.TestCase):
 
     def test_add_all(self):
         ...
+
+
+if __name__ == "__main__":
+    unittest.main()
