@@ -36,10 +36,10 @@ class Account(Base):
 
 
 users_to_products = Table(
-    "usesr_to_products",
+    "users_to_products",
     Base.metadata,
     Column("user_id", ForeignKey("users.id")),
-    Column("product_id", ForeignKey("products.id")),
+    Column("product_id", ForeignKey("product_cards.id")),
 )
 
 
@@ -363,7 +363,7 @@ class Warehouse(Base):
 
 
 class ProductCard(Base):
-    __tablename__ = "products_cards"
+    __tablename__ = "product_cards"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
