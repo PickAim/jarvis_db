@@ -35,6 +35,14 @@ class Account(Base):
         )
 
 
+users_to_products = Table(
+    "usesr_to_products",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id")),
+    Column("product_id", ForeignKey("products.id")),
+)
+
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -59,6 +67,7 @@ class User(Base):
         cascade="all,delete-orphan",
         passive_deletes=True,
     )
+    products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
 
     def __repr__(self) -> str:
         return (
