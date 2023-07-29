@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 
+from jorm.market.person import UserPrivilege
 from jorm.market.service import FrequencyRequest, FrequencyResult, RequestInfo
 from sqlalchemy import select
 
@@ -18,7 +19,9 @@ class FrequencyServiceTest(unittest.TestCase):
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             account = Account(phone="", email="", password="")
-            user = User(name="", profit_tax=1, account=account)
+            user = User(
+                name="", profit_tax=1, account=account, status=UserPrivilege.BASIC
+            )
             self.__category_name = "category#1"
             self.__niche_name = "niche#1"
             self.__marketplace_name = "marketplace_1"

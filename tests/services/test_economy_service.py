@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 
+from jorm.market.person import UserPrivilege
 from jorm.market.service import RequestInfo, UnitEconomyRequest, UnitEconomyResult
 from sqlalchemy import select
 
@@ -41,7 +42,9 @@ class EconomyServiceTest(unittest.TestCase):
                 category=category,
             )
             account = Account(phone="", email="", password="")
-            user = User(name="", profit_tax=1, account=account)
+            user = User(
+                name="", profit_tax=1, account=account, status=UserPrivilege.BASIC
+            )
             address = Address(
                 country="AS", region="QS", street="DD", number="HH", corpus="YU"
             )

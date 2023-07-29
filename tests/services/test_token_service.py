@@ -1,5 +1,6 @@
 import unittest
 
+from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_token_service
@@ -12,7 +13,9 @@ class TokenServiceTest(unittest.TestCase):
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             account = Account(email="user@mail.org", phone="789456123", password="123")
-            user = User(name="NoName", profit_tax=0, account=account)
+            user = User(
+                name="NoName", profit_tax=0, account=account, status=UserPrivilege.BASIC
+            )
             session.add(account)
             session.add(user)
             session.flush()

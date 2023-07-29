@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from jorm.market.person import UserPrivilege
 from sqlalchemy import (
     Boolean,
     Column,
@@ -38,8 +39,12 @@ class Account(Base):
 users_to_products = Table(
     "users_to_products",
     Base.metadata,
-    Column("user_id", ForeignKey("users.id")),
-    Column("product_id", ForeignKey("product_cards.id")),
+    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "product_id",
+        ForeignKey("product_cards.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 
@@ -54,6 +59,7 @@ class User(Base):
     account: Mapped[Account] = relationship(
         Account, uselist=False, back_populates="user"
     )
+    status: Mapped[UserPrivilege]
     token_set: Mapped["TokenSet"] = relationship(
         "TokenSet",
         back_populates="user",

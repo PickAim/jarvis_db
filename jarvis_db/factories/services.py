@@ -42,7 +42,7 @@ from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepos
 from jarvis_db.repositores.market.items.product_history_repository import (
     ProductHistoryRepository,
 )
-from jarvis_db.repositores.market.person import AccountRepository, UserRepository
+from jarvis_db.repositores.market.person import AccountRepository
 from jarvis_db.repositores.market.person.token_repository import TokenRepository
 from jarvis_db.repositores.market.service import (
     FrequencyRequestRepository,
@@ -78,7 +78,7 @@ def create_account_service(session: Session) -> AccountService:
 
 
 def create_user_service(session: Session) -> UserService:
-    return UserService(UserRepository(session), UserTableToJormMapper())
+    return UserService(session, UserTableToJormMapper())
 
 
 def create_token_service(session: Session) -> TokenService:
