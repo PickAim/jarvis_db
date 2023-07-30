@@ -19,6 +19,7 @@ class UserService:
             status=user_entity.privilege,
         )
         self.__session.add(user)
+        self.__session.flush()
 
     def find_by_id(self, user_id: int) -> UserEntity | None:
         user = self.__session.execute(
