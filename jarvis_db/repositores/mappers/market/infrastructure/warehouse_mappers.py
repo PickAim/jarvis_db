@@ -1,6 +1,4 @@
-from jorm.market.infrastructure import Address
-from jorm.market.infrastructure import HandlerType
-from jorm.market.infrastructure import Warehouse
+from jorm.market.infrastructure import Address, HandlerType, Warehouse
 
 from jarvis_db import tables
 from jarvis_db.core import Mapper

@@ -5,10 +5,12 @@ from jarvis_db.tables import (
     Account,
     Address,
     Category,
+    Leftover,
     Marketplace,
     Niche,
     Pay,
     ProductCard,
+    ProductHistory,
     TokenSet,
     User,
     Warehouse,
@@ -110,6 +112,37 @@ class AlchemySeeder:
             niches = retrieve_niches()
         products = create_products(quantity, niches)
         self.__session.add_all(products)
+        self.__session.flush()
+
+    def seed_product_histories(self, quantity: int):
+        def retrieve_products():
+            return list(self.__session.execute(select(ProductCard)).scalars().all())
+
+        products = retrieve_products()
+        if not products:
+            self.seed_products(10)
+            products = retrieve_products()
+        histories = create_product_histories(quantity, products)
+        self.__session.add_all(histories)
+        self.__session.flush()
+
+    def seed_leftovers(self, quantity: int):
+        def retrieve_histories():
+            return list(self.__session.execute(select(ProductHistory)).scalars().all())
+
+        def retrieve_warehouses():
+            return list(self.__session.execute(select(Warehouse)).scalars().all())
+
+        histories = retrieve_histories()
+        if not histories:
+            self.seed_product_histories(50)
+            histories = retrieve_histories()
+        warehouses = retrieve_warehouses()
+        if not warehouses:
+            self.seed_warehouses(5)
+            warehouses = retrieve_warehouses()
+        leftovers = create_leftovers(quantity, histories, warehouses)
+        self.__session.add_all(leftovers)
         self.__session.flush()
 
 
@@ -218,6 +251,30 @@ def create_warehouses(
             basic_storage_commission=0,
             additional_storage_commission=0,
             monopalette_storage_commission=0,
+        )
+        for i in range(quantity)
+    ]
+
+
+def create_product_histories(
+    quantity: int,
+    products: list[ProductCard],
+) -> list[ProductHistory]:
+    return [
+        ProductHistory(cost=100 + 200 * i, product=products[i % len(products)])
+        for i in range(quantity)
+    ]
+
+
+def create_leftovers(
+    quantity: int, histories: list[ProductHistory], warehouses: list[Warehouse]
+) -> list[Leftover]:
+    return [
+        Leftover(
+            type=f"leftover_type_{i}",
+            quantity=10 * i,
+            warehouse=warehouses[i % len(warehouses)],
+            product_history=histories[i % len(histories)],
         )
         for i in range(quantity)
     ]

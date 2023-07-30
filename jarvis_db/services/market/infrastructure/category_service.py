@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import Category, Niche
+from jarvis_db.tables import Category, Niche, ProductCard, ProductHistory
 
 
 class CategoryService:
@@ -68,6 +68,8 @@ class CategoryService:
                 select(Category)
                 .outerjoin(Category.niches)
                 .outerjoin(Niche.products)
+                .outerjoin(ProductCard.histories)
+                .outerjoin(ProductHistory.leftovers)
                 .where(Category.marketplace_id == marketplace_id)
                 .distinct()
             )

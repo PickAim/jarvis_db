@@ -112,3 +112,7 @@ class MarketplaceServiceTest(unittest.TestCase):
                 select(Marketplace).where(Marketplace.id == marketplace_id)
             ).scalar_one()
             self.assertEqual(updated_name, actual.name)
+
+
+if __name__ == "__main__":
+    unittest.main()

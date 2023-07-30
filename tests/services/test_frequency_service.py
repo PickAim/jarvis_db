@@ -1,22 +1,15 @@
 import unittest
 from datetime import datetime
 
+from jorm.market.person import UserPrivilege
 from jorm.market.service import FrequencyRequest, FrequencyResult, RequestInfo
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from jarvis_db import tables
+from jarvis_db.factories.services import create_frequency_service
 from jarvis_db.repositores.mappers.market.service.frequency_request_mappers import (
     FrequencyRequestTableToJormMapper,
 )
-from jarvis_db.repositores.market.infrastructure.niche_repository import NicheRepository
-from jarvis_db.repositores.market.service.frequency_request_repository import (
-    FrequencyRequestRepository,
-)
-from jarvis_db.repositores.market.service.frequency_result_repository import (
-    FrequencyResultRepository,
-)
-from jarvis_db.services.market.service.frequency_service import FrequencyService
 from jarvis_db.tables import Account, Category, Marketplace, Niche, User
 from tests.db_context import DbContext
 
@@ -26,7 +19,9 @@ class FrequencyServiceTest(unittest.TestCase):
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             account = Account(phone="", email="", password="")
-            user = User(name="", profit_tax=1, account=account)
+            user = User(
+                name="", profit_tax=1, account=account, status=UserPrivilege.BASIC
+            )
             self.__category_name = "category#1"
             self.__niche_name = "niche#1"
             self.__marketplace_name = "marketplace_1"
@@ -57,7 +52,7 @@ class FrequencyServiceTest(unittest.TestCase):
         )
         result = FrequencyResult(x=[i for i in range(10)], y=[i * 2 for i in range(10)])
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_frequency_service(session)
             request_id = service.save(
                 request_info,
                 request,
@@ -102,7 +97,7 @@ class FrequencyServiceTest(unittest.TestCase):
             ]
             session.add_all(results)
         with self.__db_context.session() as session, session.begin():
-            service = create_service(session)
+            service = create_frequency_service(session)
             is_removed = service.remove(request_id)
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
@@ -144,7 +139,7 @@ class FrequencyServiceTest(unittest.TestCase):
             session.flush()
             requests = [mapper.map(request) for request in db_requests]
         with self.__db_context.session() as session:
-            service = create_service(session)
+            service = create_frequency_service(session)
             actual_user_requests = service.find_user_requests(self.__user_id)
             for expected_request_tuple, (request_id, response_tuple) in zip(
                 requests, actual_user_requests.items(), strict=True
@@ -161,10 +156,5 @@ class FrequencyServiceTest(unittest.TestCase):
                 self.assertEqual(expected_info, actual_info)
 
 
-def create_service(session: Session) -> FrequencyService:
-    return FrequencyService(
-        FrequencyRequestRepository(session),
-        NicheRepository(session),
-        FrequencyResultRepository(session),
-        FrequencyRequestTableToJormMapper(),
-    )
+if __name__ == "__main__":
+    unittest.main()

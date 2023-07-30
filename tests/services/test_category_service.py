@@ -4,12 +4,8 @@ from typing import cast
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select
 
+from jarvis_db.factories.mappers import create_category_table_mapper
 from jarvis_db.factories.services import create_category_service
-from jarvis_db.repositores.mappers.market.infrastructure import (
-    CategoryTableToJormMapper,
-    NicheTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.items import ProductTableToJormMapper
 from jarvis_db.tables import Category, Marketplace, Niche
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
@@ -54,9 +50,7 @@ class CategoryServiceTest(unittest.TestCase):
             seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(2)
             seeder.seed_categories(10)
-            mapper = CategoryTableToJormMapper(
-                NicheTableToJormMapper(ProductTableToJormMapper())
-            )
+            mapper = create_category_table_mapper()
             expected_categories = [
                 mapper.map(category)
                 for category in session.execute(select(Category)).scalars().all()
@@ -77,9 +71,7 @@ class CategoryServiceTest(unittest.TestCase):
             seeder.seed_marketplaces(2)
             seeder.seed_categories(10)
             seeder.seed_niches(40)
-            mapper = CategoryTableToJormMapper(
-                NicheTableToJormMapper(ProductTableToJormMapper())
-            )
+            mapper = create_category_table_mapper()
             expected_categories = [
                 mapper.map(category)
                 for category in session.execute(

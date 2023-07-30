@@ -260,3 +260,7 @@ class WarehouseServiceTest(unittest.TestCase):
             service = create_warehouse_service(session)
             filtered_ids = service.fileter_existing_global_ids(ids_to_filter)
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
+
+
+if __name__ == "__main__":
+    unittest.main()

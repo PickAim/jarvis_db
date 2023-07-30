@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import Category, Niche
+from jarvis_db.tables import Category, Niche, ProductCard, ProductHistory
 
 
 class NicheService:
@@ -67,6 +67,8 @@ class NicheService:
             self.__session.execute(
                 select(Niche)
                 .outerjoin(Niche.products)
+                .outerjoin(ProductCard.histories)
+                .outerjoin(ProductHistory.leftovers)
                 .where(Niche.category_id == category_id)
                 .distinct()
             )

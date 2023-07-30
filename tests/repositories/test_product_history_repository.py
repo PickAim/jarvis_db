@@ -71,3 +71,7 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
             repository = ProductHistoryRepository(session)
             histories = repository.find_product_histories(self.__product_id)
             self.assertEqual(histories_to_add, len(histories))
+
+
+if __name__ == "__main__":
+    unittest.main()

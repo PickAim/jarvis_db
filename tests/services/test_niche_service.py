@@ -5,14 +5,9 @@ from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
 
 from jarvis_db import tables
+from jarvis_db.factories.mappers import create_niche_table_mapper
 from jarvis_db.factories.services import create_niche_service
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
-    NicheTableToJormMapper,
-)
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
-    ProductTableToJormMapper,
-)
-from jarvis_db.tables import Niche
+from jarvis_db.tables import Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -138,12 +133,14 @@ class NicheServiceTest(unittest.TestCase):
             )
             session.flush()
             seeder = AlchemySeeder(session)
-            seeder.seed_products(10)
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            seeder.seed_leftovers(500)
+            mapper = create_niche_table_mapper()
             expected_niche = mapper.map(
                 session.execute(
                     select(Niche)
                     .outerjoin(Niche.products)
+                    .outerjoin(ProductCard.histories)
+                    .outerjoin(ProductHistory.leftovers)
                     .where(Niche.id == niche_id)
                     .distinct()
                 ).scalar_one()
@@ -151,12 +148,7 @@ class NicheServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             actual_niche = service.fetch_by_id_atomic(niche_id)
-            self.assertEqual(expected_niche.name, actual_niche.name)
-            self.assertEqual(expected_niche.commissions, actual_niche.commissions)
-            self.assertEqual(
-                expected_niche.returned_percent, actual_niche.returned_percent
-            )
-            self.assertEqual(len(expected_niche.products), len(actual_niche.products))
+            self.assertEqual(expected_niche, actual_niche)
 
     def test_find_all_in_category(self):
         with self.__db_context.session() as session, session.begin():
@@ -164,7 +156,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder.seed_categories(2)
             seeder.seed_niches(30)
             niches = session.execute(select(tables.Niche)).scalars().all()
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches
@@ -189,7 +181,7 @@ class NicheServiceTest(unittest.TestCase):
                 .scalars()
                 .all()
             )
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches
@@ -201,17 +193,14 @@ class NicheServiceTest(unittest.TestCase):
                 self.__category_id
             ).values()
             for expected, actual in zip(expected_niches, actual_niches, strict=True):
-                self.assertEqual(expected.name, actual.name)
-                self.assertEqual(expected.commissions, actual.commissions)
-                self.assertEqual(expected.returned_percent, actual.returned_percent)
-                self.assertEqual(len(expected.products), len(actual.products))
+                self.assertEqual(expected, actual)
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_niches(30)
             niches = session.execute(select(tables.Niche)).scalars().all()
-            mapper = NicheTableToJormMapper(ProductTableToJormMapper())
+            mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
                 for niche in niches
@@ -324,3 +313,7 @@ class NicheServiceTest(unittest.TestCase):
             )
             self.assertEqual(int(client_commission * 100), actual.client_commission)
             self.assertEqual(int(return_percent * 100), actual.return_percent)
+
+
+if __name__ == "__main__":
+    unittest.main()

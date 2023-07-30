@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from jorm.market.person import UserPrivilege
 from sqlalchemy import (
     Boolean,
     Column,
@@ -35,6 +36,18 @@ class Account(Base):
         )
 
 
+users_to_products = Table(
+    "users_to_products",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "product_id",
+        ForeignKey("product_cards.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -46,6 +59,7 @@ class User(Base):
     account: Mapped[Account] = relationship(
         Account, uselist=False, back_populates="user"
     )
+    status: Mapped[UserPrivilege]
     token_set: Mapped["TokenSet"] = relationship(
         "TokenSet",
         back_populates="user",
@@ -59,6 +73,7 @@ class User(Base):
         cascade="all,delete-orphan",
         passive_deletes=True,
     )
+    products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
 
     def __repr__(self) -> str:
         return (
@@ -354,7 +369,7 @@ class Warehouse(Base):
 
 
 class ProductCard(Base):
-    __tablename__ = "products_cards"
+    __tablename__ = "product_cards"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
