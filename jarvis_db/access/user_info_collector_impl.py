@@ -19,22 +19,25 @@ class UserInfoCollectorImpl(UserInfoCollector):
         self.__token_service = token_service
 
     def get_user_by_account(self, account: Account) -> User:
-        user_result = self.__account_service.find_by_email_or_phone(
+        account_tuple = self.__account_service.find_by_email_or_phone(
             account.email, account.phone_number
         )
-        if user_result is None:
+        if account_tuple is None:
             raise Exception(
                 f"No account with {account.email} or "
                 f"phone {account.phone_number} is found"
             )
-        _, account_id = user_result
-        user, _ = self.__user_service.find_by_account_id(account_id)
+        account, account_id = account_tuple
+        user_tuple = self.__user_service.find_by_account_id(account_id)
+        if user_tuple is None:
+            raise Exception(f"No user for account with id {account_id} was found")
+        user, _ = user_tuple
         return user
 
     def get_account_and_id(self, email: str, phone: str) -> tuple[Account, int] | None:
         return self.__account_service.find_by_email_or_phone(email, phone)
 
-    def get_user_by_id(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: int) -> User | None:
         return self.__user_service.find_by_id(user_id)
 
     def get_token_rnd_part(
