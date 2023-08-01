@@ -217,7 +217,10 @@ class Marketplace(Base):
         passive_deletes=True,
     )
     warehouses: Mapped[list["Warehouse"]] = relationship(
-        "Warehouse", back_populates="owner"
+        "Warehouse",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     categories: Mapped[list["Category"]] = relationship(
         "Category",
@@ -310,7 +313,7 @@ class Warehouse(Base):
     __tablename__ = "warehouses"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     owner_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Marketplace.id), nullable=False
+        Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
     owner: Mapped[Marketplace] = relationship(
         "Marketplace", back_populates="warehouses"
