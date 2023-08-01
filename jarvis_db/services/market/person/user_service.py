@@ -1,9 +1,10 @@
 from jorm.market.person import User as UserEntity
-from sqlalchemy import select
+from sqlalchemy import delete, exists, insert, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.tables import User
+from jarvis_db.tables import users_to_products
 
 
 class UserService:
@@ -36,3 +37,17 @@ class UserService:
     def find_all(self) -> dict[int, UserEntity]:
         users = self.__session.execute(select(User).join(User.account)).scalars().all()
         return {user.id: self.__table_mapper.map(user) for user in users}
+
+    def append_product(self, user_id: int, product_id: int):
+        self.__session.execute(
+            insert(users_to_products).values(user_id=user_id, product_id=product_id)
+        )
+        self.__session.flush()
+
+    def remove_product(self, user_id: int, product_id: int):
+        self.__session.execute(
+            delete(users_to_products)
+            .where(users_to_products.columns.user_id == user_id)
+            .where(users_to_products.columns.product_id == product_id)
+        )
+        self.__session.flush()

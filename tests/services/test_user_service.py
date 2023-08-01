@@ -4,9 +4,11 @@ from jorm.market.person import User as UserEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_user_service
-from jarvis_db.tables import Account, User
+from jarvis_db.tables import Account, ProductCard, User
 from tests.db_context import DbContext
 from jorm.market.person import UserPrivilege
+
+from tests.fixtures import AlchemySeeder
 
 
 class UserServiceTest(unittest.TestCase):
@@ -57,6 +59,42 @@ class UserServiceTest(unittest.TestCase):
             self.assertEqual(user_name, user.name)
             self.assertEqual(profit_tax, user.profit_tax)
             self.assertEqual(privilege, user.privilege)
+
+    def test_appends_product(self):
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(1)
+            product_id = session.execute(select(ProductCard.id)).scalar_one()
+            seeder.seed_users(1)
+            user_id = session.execute(select(User.id)).scalar_one()
+        with self.__db_context.session() as session, session.begin():
+            service = create_user_service(session)
+            service.append_product(user_id, product_id)
+        with self.__db_context.session() as session:
+            user = session.execute(
+                select(User).outerjoin(User.products).where(User.id == user_id)
+            ).scalar_one()
+            self.assertEqual(1, len(user.products))
+            product = user.products[0]
+            self.assertEqual(product_id, product.id)
+
+    def test_remove_product(self):
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(1)
+            product = session.execute(select(ProductCard)).scalar_one()
+            seeder.seed_users(1)
+            user = session.execute(select(User).outerjoin(User.products)).scalar_one()
+            user.products.append(product)
+            user_id = user.id
+            product_id = product.id
+        with self.__db_context.session() as session, session.begin():
+            service = create_user_service(session)
+            service.remove_product(user_id, product_id)
+            user = session.execute(
+                select(User).outerjoin(User.products).where(User.id == user_id)
+            ).scalar_one()
+            self.assertEqual(0, len(user.products))
 
 
 if __name__ == "__main__":

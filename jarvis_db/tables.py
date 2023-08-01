@@ -44,6 +44,7 @@ users_to_products = Table(
         "product_id",
         ForeignKey("product_cards.id", ondelete="CASCADE"),
         primary_key=True,
+        unique=True,
     ),
 )
 
