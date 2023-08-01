@@ -1,5 +1,5 @@
 from jorm.market.person import User as UserEntity
-from sqlalchemy import delete, exists, insert, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper

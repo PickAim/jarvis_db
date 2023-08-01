@@ -183,14 +183,14 @@ class WarehouseServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            exists = service.exists_with_name(warehouse_name)
+            exists = service.exists_with_name(warehouse_name, self.__marketplace_id)
             self.assertTrue(exists)
 
     def test_exists_with_name_returns_false(self):
         warehouse_name = "warehouse_1"
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            exists = service.exists_with_name(warehouse_name)
+            exists = service.exists_with_name(warehouse_name, self.__marketplace_id)
             self.assertFalse(exists)
 
     def test_filter_existing_names(self):
