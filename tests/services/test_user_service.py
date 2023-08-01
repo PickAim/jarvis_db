@@ -96,6 +96,31 @@ class UserServiceTest(unittest.TestCase):
             ).scalar_one()
             self.assertEqual(0, len(user.products))
 
+    def test_delete(self):
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            session.add(
+                User(
+                    id=user_id,
+                    name="user_name",
+                    profit_tax=0.1,
+                    account_id=self.__account_id,
+                    status=UserPrivilege.BASIC,
+                )
+            )
+        with self.__db_context.session() as session, session.begin():
+            service = create_user_service(session)
+            service.delete(user_id)
+        with self.__db_context.session() as session:
+            user = session.execute(
+                select(User).where(User.id == user_id)
+            ).scalar_one_or_none()
+            account = session.execute(
+                select(Account).where(Account.id == self.__account_id)
+            ).scalar_one_or_none()
+            self.assertIsNone(user)
+            self.assertIsNone(account)
+
 
 if __name__ == "__main__":
     unittest.main()

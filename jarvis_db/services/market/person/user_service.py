@@ -3,7 +3,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import User
+from jarvis_db.tables import Account, User
 from jarvis_db.tables import users_to_products
 
 
@@ -49,5 +49,17 @@ class UserService:
             delete(users_to_products)
             .where(users_to_products.columns.user_id == user_id)
             .where(users_to_products.columns.product_id == product_id)
+        )
+        self.__session.flush()
+
+    def delete(self, user_id: int):
+        self.__session.execute(
+            delete(Account).where(
+                Account.id
+                == select(Account.id)
+                .join(User.account)
+                .where(User.id == user_id)
+                .scalar_subquery()
+            )
         )
         self.__session.flush()
