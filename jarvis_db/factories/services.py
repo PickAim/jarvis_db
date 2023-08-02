@@ -1,7 +1,7 @@
 from jorm.market.infrastructure import Marketplace, Niche, Warehouse
 from sqlalchemy.orm import Session
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.factories.mappers import (
     create_marketplace_table_mapper,
@@ -87,7 +87,7 @@ def create_token_service(session: Session) -> TokenService:
 
 def create_marketplace_service(
     session: Session,
-    marketplace_mapper: Mapper[tables.Marketplace, Marketplace] | None = None,
+    marketplace_mapper: Mapper[schemas.Marketplace, Marketplace] | None = None,
 ) -> MarketplaceService:
     marketplace_mapper = (
         create_marketplace_table_mapper()
@@ -99,7 +99,7 @@ def create_marketplace_service(
 
 def create_category_service(
     session: Session,
-    niche_mapper: Mapper[tables.Niche, Niche] | None = None,
+    niche_mapper: Mapper[schemas.Niche, Niche] | None = None,
 ) -> CategoryService:
     if niche_mapper is None:
         niche_mapper = create_niche_table_mapper()
@@ -110,7 +110,7 @@ def create_category_service(
 
 
 def create_niche_service(
-    session: Session, niche_mapper: Mapper[tables.Niche, Niche] | None = None
+    session: Session, niche_mapper: Mapper[schemas.Niche, Niche] | None = None
 ) -> NicheService:
     niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
     return NicheService(session, niche_mapper)
@@ -118,7 +118,7 @@ def create_niche_service(
 
 def create_warehouse_service(
     session: Session,
-    warehouse_mapper: Mapper[tables.Warehouse, Warehouse] | None = None,
+    warehouse_mapper: Mapper[schemas.Warehouse, Warehouse] | None = None,
 ) -> WarehouseService:
     warehouse_mapper = (
         WarehouseTableToJormMapper() if warehouse_mapper is None else warehouse_mapper

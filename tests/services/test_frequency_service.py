@@ -5,12 +5,12 @@ from jorm.market.person import UserPrivilege
 from jorm.market.service import FrequencyRequest, FrequencyResult, RequestInfo
 from sqlalchemy import select
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.factories.services import create_frequency_service
 from jarvis_db.repositores.mappers.market.service.frequency_request_mappers import (
     FrequencyRequestTableToJormMapper,
 )
-from jarvis_db.tables import Account, Category, Marketplace, Niche, User
+from jarvis_db.schemas import Account, Category, Marketplace, Niche, User
 from tests.db_context import DbContext
 
 
@@ -61,11 +61,11 @@ class FrequencyServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             db_request = session.execute(
-                select(tables.FrequencyRequest)
-                .where(tables.FrequencyRequest.id == request_id)
-                .join(tables.FrequencyRequest.results)
-                .join(tables.FrequencyRequest.niche)
-                .join(tables.Niche.category)
+                select(schemas.FrequencyRequest)
+                .where(schemas.FrequencyRequest.id == request_id)
+                .join(schemas.FrequencyRequest.results)
+                .join(schemas.FrequencyRequest.niche)
+                .join(schemas.Niche.category)
                 .distinct()
             ).scalar_one()
             self.assertEqual(request_info.name, db_request.name)
@@ -84,7 +84,7 @@ class FrequencyServiceTest(unittest.TestCase):
     def test_remove(self):
         with self.__db_context.session() as session, session.begin():
             request_id = 100
-            request = tables.FrequencyRequest(
+            request = schemas.FrequencyRequest(
                 id=request_id,
                 name="name",
                 user_id=self.__user_id,
@@ -92,7 +92,7 @@ class FrequencyServiceTest(unittest.TestCase):
                 niche_id=self.__niche_id,
             )
             results = [
-                tables.FrequencyResult(cost=i * 10, frequency=i * 20, request=request)
+                schemas.FrequencyResult(cost=i * 10, frequency=i * 20, request=request)
                 for i in range(10)
             ]
             session.add_all(results)
@@ -102,16 +102,16 @@ class FrequencyServiceTest(unittest.TestCase):
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
             db_request = session.execute(
-                select(tables.FrequencyRequest).where(
-                    tables.FrequencyRequest.id == request_id
+                select(schemas.FrequencyRequest).where(
+                    schemas.FrequencyRequest.id == request_id
                 )
             ).scalar_one_or_none()
             self.assertIsNone(db_request)
             db_results = (
                 (
                     session.execute(
-                        select(tables.FrequencyResult).where(
-                            tables.FrequencyResult.request_id == request_id
+                        select(schemas.FrequencyResult).where(
+                            schemas.FrequencyResult.request_id == request_id
                         )
                     )
                 )
@@ -124,12 +124,12 @@ class FrequencyServiceTest(unittest.TestCase):
         mapper = FrequencyRequestTableToJormMapper()
         with self.__db_context.session() as session, session.begin():
             db_requests = [
-                tables.FrequencyRequest(
+                schemas.FrequencyRequest(
                     name=f"request_name_{i}",
                     user_id=self.__user_id,
                     niche_id=self.__niche_id,
                     results=[
-                        tables.FrequencyResult(cost=10 * j, frequency=20 * j)
+                        schemas.FrequencyResult(cost=10 * j, frequency=20 * j)
                         for j in range(1, i + 1)
                     ],
                 )

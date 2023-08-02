@@ -3,7 +3,7 @@ from jorm.market.items import ProductHistoryUnit as ProductHistoryUnitEntity
 from jarvis_db.repositores.market.items.product_history_repository import (
     ProductHistoryRepository,
 )
-from jarvis_db.tables import ProductHistory
+from jarvis_db.schemas import ProductHistory
 
 
 class ProductHistoryUnitService:

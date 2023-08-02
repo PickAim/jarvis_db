@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from tests.db_context import DbContext
 
 
@@ -9,9 +9,9 @@ class ProductCardRepositoryTest(unittest.TestCase):
         self.__db_context = DbContext()
         niche_id = 1
         with self.__db_context.session() as s, s.begin():
-            marketplace = tables.Marketplace(name="marketplace_1")
-            category = tables.Category(name="category_1", marketplace=marketplace)
-            niche = tables.Niche(
+            marketplace = schemas.Marketplace(name="marketplace_1")
+            category = schemas.Category(name="category_1", marketplace=marketplace)
+            niche = schemas.Niche(
                 id=niche_id,
                 name="niche_1",
                 marketplace_commission=10,
@@ -21,7 +21,7 @@ class ProductCardRepositoryTest(unittest.TestCase):
                 category=category,
             )
             niche.products = [
-                tables.ProductCard(
+                schemas.ProductCard(
                     name=f"product#{i}",
                     article=i,
                     cost=i * 10,

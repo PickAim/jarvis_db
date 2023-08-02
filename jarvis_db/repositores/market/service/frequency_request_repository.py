@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
-from jarvis_db.tables import FrequencyRequest, User
+from jarvis_db.schemas import FrequencyRequest, User
 
 
 class FrequencyRequestRepository(AlchemyRepository[FrequencyRequest]):

@@ -12,7 +12,7 @@ from jarvis_db.repositores.market.service.economy_result_repository import (
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.tables import UnitEconomyRequest, UnitEconomyResult
+from jarvis_db.schemas import UnitEconomyRequest, UnitEconomyResult
 
 
 class EconomyService:

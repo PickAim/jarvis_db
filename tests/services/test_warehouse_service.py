@@ -9,7 +9,7 @@ from jarvis_db.factories.services import create_warehouse_service
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.tables import Address, Marketplace, Warehouse
+from jarvis_db.schemas import Address, Marketplace, Warehouse
 from tests.db_context import DbContext
 
 

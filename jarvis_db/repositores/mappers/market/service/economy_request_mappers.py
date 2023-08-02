@@ -1,17 +1,17 @@
 from jorm.market.service import RequestInfo, UnitEconomyRequest
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 
 
 class EconomyRequestJormToTableMapper(
-    Mapper[tuple[RequestInfo, UnitEconomyRequest], tables.UnitEconomyRequest]
+    Mapper[tuple[RequestInfo, UnitEconomyRequest], schemas.UnitEconomyRequest]
 ):
     def map(
         self, value: tuple[RequestInfo, UnitEconomyRequest]
-    ) -> tables.UnitEconomyRequest:
+    ) -> schemas.UnitEconomyRequest:
         info, request = value
-        return tables.UnitEconomyRequest(
+        return schemas.UnitEconomyRequest(
             date=info.date,
             buy_cost=request.buy,
             transit_cost=request.transit_price,
@@ -21,10 +21,10 @@ class EconomyRequestJormToTableMapper(
 
 
 class EconomyRequestTableToJormMapper(
-    Mapper[tables.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]]
+    Mapper[schemas.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]]
 ):
     def map(
-        self, value: tables.UnitEconomyRequest
+        self, value: schemas.UnitEconomyRequest
     ) -> tuple[RequestInfo, UnitEconomyRequest]:
         info = RequestInfo(value.id, value.date, value.name)
         request = UnitEconomyRequest(

@@ -10,7 +10,7 @@ from jarvis_db.repositores.market.service.frequency_request_repository import (
 from jarvis_db.repositores.market.service.frequency_result_repository import (
     FrequencyResultRepository,
 )
-from jarvis_db.tables import FrequencyRequest, FrequencyResult
+from jarvis_db.schemas import FrequencyRequest, FrequencyResult
 
 
 class FrequencyService:

@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import Marketplace
+from jarvis_db.schemas import Marketplace
 
 
 class MarketplaceService:

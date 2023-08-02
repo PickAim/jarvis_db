@@ -2,7 +2,7 @@ from jorm.market.person import Account as AccountEntity
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.repositores.market.person.account_repository import AccountRepository
-from jarvis_db.tables import Account
+from jarvis_db.schemas import Account
 
 
 class AccountService:

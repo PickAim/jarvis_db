@@ -3,18 +3,20 @@ from typing import Iterable
 from jorm.market.items import ProductHistoryUnit
 from jorm.support.types import StorageDict
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 
 
 class ProductHistoryJormToTableMapper(
-    Mapper[ProductHistoryUnit, tables.ProductHistory]
+    Mapper[ProductHistoryUnit, schemas.ProductHistory]
 ):
-    def __init__(self, leftover_mapper: Mapper[StorageDict, Iterable[tables.Leftover]]):
+    def __init__(
+        self, leftover_mapper: Mapper[StorageDict, Iterable[schemas.Leftover]]
+    ):
         self.__leftover_mapper = leftover_mapper
 
-    def map(self, value: ProductHistoryUnit) -> tables.ProductHistory:
-        return tables.ProductHistory(
+    def map(self, value: ProductHistoryUnit) -> schemas.ProductHistory:
+        return schemas.ProductHistory(
             cost=value.cost,
             date=value.unit_date,
             leftovers=self.__leftover_mapper.map(value.leftover),
@@ -22,12 +24,14 @@ class ProductHistoryJormToTableMapper(
 
 
 class ProductHistoryTableToJormMapper(
-    Mapper[tables.ProductHistory, ProductHistoryUnit]
+    Mapper[schemas.ProductHistory, ProductHistoryUnit]
 ):
-    def __init__(self, leftover_mapper: Mapper[Iterable[tables.Leftover], StorageDict]):
+    def __init__(
+        self, leftover_mapper: Mapper[Iterable[schemas.Leftover], StorageDict]
+    ):
         self.__leftover_mapper = leftover_mapper
 
-    def map(self, value: tables.ProductHistory) -> ProductHistoryUnit:
+    def map(self, value: schemas.ProductHistory) -> ProductHistoryUnit:
         return ProductHistoryUnit(
             cost=value.cost,
             leftover=self.__leftover_mapper.map(value.leftovers),

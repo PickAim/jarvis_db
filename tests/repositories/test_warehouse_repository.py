@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
     WarehouseRepository,
 )
@@ -11,9 +11,9 @@ class WarehouseRepositoryTest(unittest.TestCase):
     def setUp(self):
         self.__db_context = DbContext()
         with self.__db_context.session() as s, s.begin():
-            marketplace = tables.Marketplace(name="marketplace#1")
+            marketplace = schemas.Marketplace(name="marketplace#1")
             s.add(marketplace)
-            address = tables.Address(
+            address = schemas.Address(
                 country="AS", region="QS", street="DD", number="HH", corpus="YU"
             )
             s.add(address)
@@ -24,7 +24,7 @@ class WarehouseRepositoryTest(unittest.TestCase):
     def test_find_by_global_id(self):
         gid = 200
         with self.__db_context.session() as session, session.begin():
-            warehouse = tables.Warehouse(
+            warehouse = schemas.Warehouse(
                 owner_id=self.__marketplace_id,
                 global_id=gid,
                 type=0,

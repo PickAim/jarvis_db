@@ -4,7 +4,7 @@ from jorm.market.person import User as UserEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_user_service
-from jarvis_db.tables import Account, ProductCard, User
+from jarvis_db.schemas import Account, ProductCard, User
 from tests.db_context import DbContext
 from jorm.market.person import UserPrivilege
 

@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from jarvis_db.factories.mappers import create_category_table_mapper
 from jarvis_db.factories.services import create_category_service
-from jarvis_db.tables import Category, Marketplace, Niche
+from jarvis_db.schemas import Category, Marketplace, Niche
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 

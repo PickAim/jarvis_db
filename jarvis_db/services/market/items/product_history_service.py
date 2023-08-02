@@ -1,7 +1,7 @@
 from jorm.market.items import ProductHistory
 from jorm.market.items import ProductHistoryUnit
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core import Mapper
 from jarvis_db.repositores.market.items import ProductHistoryRepository
 from jarvis_db.services.market.items.leftover_service import LeftoverService
@@ -16,7 +16,7 @@ class ProductHistoryService:
         unit_service: ProductHistoryUnitService,
         leftover_service: LeftoverService,
         product_history_repository: ProductHistoryRepository,
-        table_mapper: Mapper[tables.ProductHistory, ProductHistoryUnit],
+        table_mapper: Mapper[schemas.ProductHistory, ProductHistoryUnit],
     ):
         self.__product_history_repository = product_history_repository
         self.__table_mapper = table_mapper

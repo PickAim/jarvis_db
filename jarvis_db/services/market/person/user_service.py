@@ -3,8 +3,8 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import Account, User
-from jarvis_db.tables import users_to_products
+from jarvis_db.schemas import Account, User
+from jarvis_db.schemas import users_to_products
 
 
 class UserService:

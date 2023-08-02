@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core import Mapper
-from jarvis_db.tables import Address, Warehouse
+from jarvis_db.schemas import Address, Warehouse
 
 
 class WarehouseService:

@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from tests.db_context import DbContext
 
 
@@ -9,8 +9,8 @@ class NicheRepositoryTest(unittest.TestCase):
         self.__db_context = DbContext()
         marketplace_id = 1
         category_id = 1
-        db_marketplace = tables.Marketplace(id=marketplace_id, name="marketplace_1")
-        db_category = tables.Category(
+        db_marketplace = schemas.Marketplace(id=marketplace_id, name="marketplace_1")
+        db_category = schemas.Category(
             id=category_id, name="category_1", marketplace=db_marketplace
         )
         with self.__db_context.session() as s, s.begin():

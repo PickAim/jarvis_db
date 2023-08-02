@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from jarvis_db.repositores.alchemy_repository import AlchemyRepository
-from jarvis_db.tables import Account, User
+from jarvis_db.schemas import Account, User
 
 
 class UserRepository(AlchemyRepository[User]):

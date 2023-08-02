@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from jarvis_db.tables import (
+from jarvis_db.schemas import (
     Account,
     Address,
     Category,

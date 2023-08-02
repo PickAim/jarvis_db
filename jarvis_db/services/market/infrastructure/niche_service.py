@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import Category, Niche, ProductCard, ProductHistory
+from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
 
 
 class NicheService:
