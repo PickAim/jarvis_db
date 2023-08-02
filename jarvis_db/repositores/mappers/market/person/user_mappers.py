@@ -19,4 +19,8 @@ class UserTableToJormMapper(Mapper[schemas.User, User]):
             name=value.name,
             privilege=value.status,
             profit_tax=value.profit_tax,
+            marketplace_keys={
+                key_record.marketplace_id: key_record.api_key
+                for key_record in value.marketplace_api_keys
+            },
         )

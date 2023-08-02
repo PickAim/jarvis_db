@@ -3,7 +3,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Account, User
+from jarvis_db.schemas import Account, MarketplaceApiKey, User
 from jarvis_db.schemas import users_to_products
 
 
@@ -18,6 +18,10 @@ class UserService:
             profit_tax=user_entity.profit_tax,
             account_id=account_id,
             status=user_entity.privilege,
+            marketplace_api_keys=[
+                MarketplaceApiKey(marketplace_id=marketpalce_id, api_key=key)
+                for marketpalce_id, key in user_entity.marketplace_keys.items()
+            ],
         )
         self.__session.add(user)
         self.__session.flush()
@@ -30,7 +34,10 @@ class UserService:
 
     def find_by_account_id(self, account_id: int) -> tuple[UserEntity, int] | None:
         user = self.__session.execute(
-            select(User).join(User.account).where(User.account_id == account_id)
+            select(User)
+            .join(User.account)
+            .join(User.marketplace_api_keys)
+            .where(User.account_id == account_id)
         ).scalar_one_or_none()
         return (self.__table_mapper.map(user), user.id) if user is not None else None
 
