@@ -45,6 +45,22 @@ class UserService:
         users = self.__session.execute(select(User).join(User.account)).scalars().all()
         return {user.id: self.__table_mapper.map(user) for user in users}
 
+    def append_api_key(self, user_id: int, api_key: str, marketplace_id: int):
+        self.__session.add(
+            MarketplaceApiKey(
+                user_id=user_id, marketplace_id=marketplace_id, api_key=api_key
+            )
+        )
+        self.__session.flush()
+
+    def remove_api_key(self, user_id: int, marketplace_id: int):
+        self.__session.execute(
+            delete(MarketplaceApiKey)
+            .where(MarketplaceApiKey.user_id == user_id)
+            .where(MarketplaceApiKey.marketplace_id == marketplace_id)
+        )
+        self.__session.flush()
+
     def append_product(self, user_id: int, product_id: int):
         self.__session.execute(
             insert(users_to_products).values(user_id=user_id, product_id=product_id)

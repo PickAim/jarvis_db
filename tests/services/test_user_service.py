@@ -70,6 +70,60 @@ class UserServiceTest(unittest.TestCase):
             actual, _ = user_tuple
             self.assertEqual(expected, actual)
 
+    def test_append_api_key(self):
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(1)
+            marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
+            session.add(
+                User(
+                    id=user_id,
+                    name="user_name",
+                    profit_tax=0.2,
+                    account_id=self.__account_id,
+                    status=UserPrivilege.ADVANCED,
+                )
+            )
+        api_key = "api_key"
+        with self.__db_context.session() as session, session.begin():
+            service = create_user_service(session)
+            service.append_api_key(user_id, api_key, marketplace_id)
+        with self.__db_context.session() as session:
+            user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+            self.assertEqual(1, len(user.marketplace_api_keys))
+            api_key_record = user.marketplace_api_keys[0]
+            self.assertEqual(user_id, api_key_record.user_id)
+            self.assertEqual(marketplace_id, api_key_record.marketplace_id)
+            self.assertEqual(api_key, api_key_record.api_key)
+
+    def test_remove_api_key(self):
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(1)
+            marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
+            session.add(
+                User(
+                    id=user_id,
+                    name="user_name",
+                    profit_tax=0.2,
+                    account_id=self.__account_id,
+                    status=UserPrivilege.ADVANCED,
+                    marketplace_api_keys=[
+                        MarketplaceApiKey(
+                            marketplace_id=marketplace_id, api_key="api_key"
+                        )
+                    ],
+                )
+            )
+        with self.__db_context.session() as session, session.begin():
+            service = create_user_service(session)
+            service.remove_api_key(user_id, marketplace_id)
+        with self.__db_context.session() as session:
+            user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+            self.assertEqual(0, len(user.marketplace_api_keys))
+
     def test_appends_product(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
