@@ -8,7 +8,7 @@ from jarvis_db.core.mapper import Mapper
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
-from jarvis_db.tables import ProductCard
+from jarvis_db.schemas import ProductCard
 
 
 class ProductCardService:

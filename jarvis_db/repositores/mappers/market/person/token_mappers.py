@@ -1,5 +1,5 @@
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.tables import TokenSet
+from jarvis_db.schemas import TokenSet
 
 
 class TokenTableMapper(Mapper[TokenSet, tuple[int, str, str, str]]):

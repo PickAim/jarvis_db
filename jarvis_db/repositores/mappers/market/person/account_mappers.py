@@ -1,18 +1,18 @@
 from jorm.market.person import Account
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 
 
-class AccountJormToTableMapper(Mapper[Account, tables.Account]):
-    def map(self, value: Account) -> tables.Account:
-        return tables.Account(
+class AccountJormToTableMapper(Mapper[Account, schemas.Account]):
+    def map(self, value: Account) -> schemas.Account:
+        return schemas.Account(
             phone=value.phone_number, email=value.email, password=value.hashed_password
         )
 
 
-class AccountTableToJormMapper(Mapper[tables.Account, Account]):
-    def map(self, value: tables.Account) -> Account:
+class AccountTableToJormMapper(Mapper[schemas.Account, Account]):
+    def map(self, value: schemas.Account) -> Account:
         return Account(
             phone_number=value.phone, email=value.email, hashed_password=value.password
         )

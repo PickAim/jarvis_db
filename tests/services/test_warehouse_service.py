@@ -9,7 +9,7 @@ from jarvis_db.factories.services import create_warehouse_service
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.tables import Address, Marketplace, Warehouse
+from jarvis_db.schemas import Address, Marketplace, Warehouse
 from tests.db_context import DbContext
 
 
@@ -183,14 +183,14 @@ class WarehouseServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            exists = service.exists_with_name(warehouse_name)
+            exists = service.exists_with_name(warehouse_name, self.__marketplace_id)
             self.assertTrue(exists)
 
     def test_exists_with_name_returns_false(self):
         warehouse_name = "warehouse_1"
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            exists = service.exists_with_name(warehouse_name)
+            exists = service.exists_with_name(warehouse_name, self.__marketplace_id)
             self.assertFalse(exists)
 
     def test_filter_existing_names(self):

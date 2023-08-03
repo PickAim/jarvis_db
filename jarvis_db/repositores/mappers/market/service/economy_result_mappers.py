@@ -1,14 +1,14 @@
 from jorm.market.service import RequestInfo, UnitEconomyRequest, UnitEconomyResult
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 
 
 class EconomyResultJormToTableMapper(
-    Mapper[UnitEconomyResult, tables.UnitEconomyResult]
+    Mapper[UnitEconomyResult, schemas.UnitEconomyResult]
 ):
-    def map(self, value: UnitEconomyResult) -> tables.UnitEconomyResult:
-        return tables.UnitEconomyResult(
+    def map(self, value: UnitEconomyResult) -> schemas.UnitEconomyResult:
+        return schemas.UnitEconomyResult(
             product_cost=value.product_cost,
             pack_cost=value.pack_cost,
             marketplace_commission=value.marketplace_commission,
@@ -23,20 +23,20 @@ class EconomyResultJormToTableMapper(
 
 class EconomyResultTableToJormMapper(
     Mapper[
-        tables.UnitEconomyResult,
+        schemas.UnitEconomyResult,
         tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo],
     ]
 ):
     def __init__(
         self,
         request_mapper: Mapper[
-            tables.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]
+            schemas.UnitEconomyRequest, tuple[RequestInfo, UnitEconomyRequest]
         ],
     ):
         self.__request_mapper = request_mapper
 
     def map(
-        self, value: tables.UnitEconomyResult
+        self, value: schemas.UnitEconomyResult
     ) -> tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]:
         result = UnitEconomyResult(
             product_cost=value.product_cost,

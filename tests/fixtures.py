@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from jarvis_db.tables import (
+from jarvis_db.schemas import (
     Account,
     Address,
     Category,
@@ -15,19 +15,22 @@ from jarvis_db.tables import (
     User,
     Warehouse,
 )
+from jorm.market.person import UserPrivilege
 
 
 class AlchemySeeder:
     def __init__(self, session: Session):
         self.__session = session
 
-    def seed_accounts(self):
-        self.__session.add_all(create_accounts(25))
+    def seed_accounts(self, quantity: int):
+        self.__session.add_all(create_accounts(quantity))
         self.__session.flush()
 
-    def seed_users(self):
-        accounts = list(self.__session.execute(select(Account)).scalars().all())
+    def seed_users(self, quantity: int):
+        accounts = create_accounts(quantity)
         users = create_users(accounts)
+        for user, account in zip(users, accounts, strict=True):
+            user.account = account
         self.__session.add_all(users)
         self.__session.flush()
 
@@ -158,8 +161,15 @@ def create_accounts(quantity: int) -> list[Account]:
 
 
 def create_users(accounts: list[Account]) -> list[User]:
+    statuses = [status for status in UserPrivilege]
     return [
-        User(name=f"username{i}", account=account) for i, account in enumerate(accounts)
+        User(
+            name=f"username{i}",
+            profit_tax=0.01 * i,
+            status=statuses[i % len(statuses)],
+            account=account,
+        )
+        for i, account in enumerate(accounts)
     ]
 
 

@@ -5,7 +5,7 @@ from jorm.market.person import UserPrivilege
 from jorm.market.service import RequestInfo, UnitEconomyRequest, UnitEconomyResult
 from sqlalchemy import select
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.factories.services import create_economy_service
 from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
@@ -13,7 +13,7 @@ from jarvis_db.repositores.mappers.market.service.economy_request_mappers import
 from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
-from jarvis_db.tables import (
+from jarvis_db.schemas import (
     Account,
     Address,
     Category,
@@ -95,10 +95,10 @@ class EconomyServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             db_result = session.execute(
-                select(tables.UnitEconomyResult)
-                .where(tables.UnitEconomyResult.request_id == request_id)
-                .join(tables.UnitEconomyResult.request)
-                .join(tables.UnitEconomyRequest.warehouse)
+                select(schemas.UnitEconomyResult)
+                .where(schemas.UnitEconomyResult.request_id == request_id)
+                .join(schemas.UnitEconomyResult.request)
+                .join(schemas.UnitEconomyRequest.warehouse)
             ).scalar_one()
             request = db_result.request
             self.assertEqual(request_info.date, request.date)
@@ -124,7 +124,7 @@ class EconomyServiceTest(unittest.TestCase):
         request_id = 100
         result_id = 100
         with self.__db_context.session() as session, session.begin():
-            request = tables.UnitEconomyRequest(
+            request = schemas.UnitEconomyRequest(
                 id=request_id,
                 name="name",
                 user_id=self.__user_id,
@@ -137,7 +137,7 @@ class EconomyServiceTest(unittest.TestCase):
                 transit_count=123450,
                 warehouse_id=self.__warehouse_id,
             )
-            result = tables.UnitEconomyResult(
+            result = schemas.UnitEconomyResult(
                 id=result_id,
                 request=request,
                 product_cost=10,
@@ -158,13 +158,13 @@ class EconomyServiceTest(unittest.TestCase):
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
             request = session.execute(
-                select(tables.UnitEconomyRequest).where(
-                    tables.UnitEconomyRequest.id == request_id
+                select(schemas.UnitEconomyRequest).where(
+                    schemas.UnitEconomyRequest.id == request_id
                 )
             ).scalar_one_or_none()
             result = session.execute(
-                select(tables.UnitEconomyResult).where(
-                    tables.UnitEconomyResult.id == result_id
+                select(schemas.UnitEconomyResult).where(
+                    schemas.UnitEconomyResult.id == result_id
                 )
             ).scalar_one_or_none()
             self.assertIsNone(request)
@@ -174,7 +174,7 @@ class EconomyServiceTest(unittest.TestCase):
         mapper = EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper())
         with self.__db_context.session() as session, session.begin():
             db_results = [
-                tables.UnitEconomyResult(
+                schemas.UnitEconomyResult(
                     product_cost=10 * i,
                     pack_cost=120 + i * 20,
                     marketplace_commission=1230 + i * 30,
@@ -185,7 +185,7 @@ class EconomyServiceTest(unittest.TestCase):
                     roi=230 + i * 25,
                     transit_margin_percent=2340 + i * 300,
                     storage_price=23450 + i * 1000,
-                    request=tables.UnitEconomyRequest(
+                    request=schemas.UnitEconomyRequest(
                         name=f"request_{i}",
                         user_id=self.__user_id,
                         niche_id=self.__niche_id,

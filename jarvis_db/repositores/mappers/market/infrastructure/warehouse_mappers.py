@@ -1,12 +1,12 @@
 from jorm.market.infrastructure import Address, HandlerType, Warehouse
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core import Mapper
 
 
-class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
-    def map(self, value: Warehouse) -> tables.Warehouse:
-        return tables.Warehouse(
+class WarehouseJormToTableMapper(Mapper[Warehouse, schemas.Warehouse]):
+    def map(self, value: Warehouse) -> schemas.Warehouse:
+        return schemas.Warehouse(
             global_id=value.global_id,
             name=value.name,
             basic_logistic_to_customer_commission=value.basic_logistic_to_customer_commission,
@@ -18,14 +18,14 @@ class WarehouseJormToTableMapper(Mapper[Warehouse, tables.Warehouse]):
             ),
             monopalette_storage_commission=value.mono_palette_storage_commission,
             type=value.handler_type.value,
-            address=tables.Address(
+            address=schemas.Address(
                 country="", region="", street="", number="", corpus=""
             ),
         )
 
 
-class WarehouseTableToJormMapper(Mapper[tables.Warehouse, Warehouse]):
-    def map(self, value: tables.Warehouse) -> Warehouse:
+class WarehouseTableToJormMapper(Mapper[schemas.Warehouse, Warehouse]):
+    def map(self, value: schemas.Warehouse) -> Warehouse:
         handler_type = HandlerType.CLIENT
         match value.type:
             case 0:

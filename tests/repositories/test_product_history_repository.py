@@ -1,6 +1,6 @@
 import unittest
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.repositores.market.items.product_history_repository import (
     ProductHistoryRepository,
 )
@@ -15,11 +15,13 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
         warehouse_global_id = 20
         with self.__db_context.session() as s, s.begin():
             marketplace_id = 1
-            db_marketplace = tables.Marketplace(id=marketplace_id, name="marketplace_1")
-            db_category = tables.Category(
+            db_marketplace = schemas.Marketplace(
+                id=marketplace_id, name="marketplace_1"
+            )
+            db_category = schemas.Category(
                 name="category_id", marketplace=db_marketplace
             )
-            db_niche = tables.Niche(
+            db_niche = schemas.Niche(
                 name="niche_1",
                 marketplace_commission=0,
                 partial_client_commission=0,
@@ -28,7 +30,7 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
                 category=db_category,
             )
             db_niche.category = db_category
-            db_product = tables.ProductCard(
+            db_product = schemas.ProductCard(
                 id=product_id,
                 name="product_1",
                 global_id=1,
@@ -38,10 +40,10 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
                 brand="brand",
                 seller="seller",
             )
-            db_address = tables.Address(
+            db_address = schemas.Address(
                 country="AS", region="QS", street="DD", number="HH", corpus="YU"
             )
-            db_warehouse = tables.Warehouse(
+            db_warehouse = schemas.Warehouse(
                 id=warehouse_id,
                 owner_id=marketplace_id,
                 global_id=warehouse_global_id,
@@ -63,7 +65,7 @@ class ProductHistoryRepositoryTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             histories_to_add = 10
             histories = [
-                tables.ProductHistory(cost=10, product_id=self.__product_id)
+                schemas.ProductHistory(cost=10, product_id=self.__product_id)
                 for _ in range(histories_to_add)
             ]
             session.add_all(histories)

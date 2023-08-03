@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core import Mapper
-from jarvis_db.tables import Address, Warehouse
+from jarvis_db.schemas import Address, Warehouse
 
 
 class WarehouseService:
@@ -78,10 +78,12 @@ class WarehouseService:
             warehouse.id: self.__table_mapper.map(warehouse) for warehouse in warehouses
         }
 
-    def exists_with_name(self, name: str) -> bool:
+    def exists_with_name(self, name: str, marketplace_id: int) -> bool:
         return (
             self.__session.execute(
-                select(Warehouse).where(Warehouse.name.ilike(name))
+                select(Warehouse)
+                .where(Warehouse.owner_id == marketplace_id)
+                .where(Warehouse.name.ilike(name))
             ).scalar_one_or_none()
             is not None
         )

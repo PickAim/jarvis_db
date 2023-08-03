@@ -1,27 +1,27 @@
 from jorm.market.service import FrequencyRequest, FrequencyResult, RequestInfo
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 
 
 class FrequencyRequestJormToTableMapper(
-    Mapper[tuple[RequestInfo, FrequencyRequest], tables.FrequencyRequest]
+    Mapper[tuple[RequestInfo, FrequencyRequest], schemas.FrequencyRequest]
 ):
     def map(
         self, value: tuple[RequestInfo, FrequencyRequest]
-    ) -> tables.FrequencyRequest:
+    ) -> schemas.FrequencyRequest:
         info, request = value
-        return tables.FrequencyRequest(name=info.name, date=info.date)
+        return schemas.FrequencyRequest(name=info.name, date=info.date)
 
 
 class FrequencyRequestTableToJormMapper(
     Mapper[
-        tables.FrequencyRequest,
+        schemas.FrequencyRequest,
         tuple[FrequencyRequest, FrequencyResult, RequestInfo],
     ]
 ):
     def map(
-        self, value: tables.FrequencyRequest
+        self, value: schemas.FrequencyRequest
     ) -> tuple[FrequencyRequest, FrequencyResult, RequestInfo]:
         info = RequestInfo(id=value.id, date=value.date, name=value.name)
         request = FrequencyRequest(

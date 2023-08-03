@@ -5,9 +5,9 @@ from jorm.market.items import ProductHistory, ProductHistoryUnit, StorageDict
 from jorm.support.types import SpecifiedLeftover
 from sqlalchemy import select
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.factories.services import create_product_history_service
-from jarvis_db.tables import (
+from jarvis_db.schemas import (
     Address,
     Category,
     Leftover,
@@ -92,9 +92,9 @@ class ProductHistoryServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             histories = (
                 session.execute(
-                    select(tables.ProductHistory)
-                    .outerjoin(tables.ProductHistory.leftovers)
-                    .where(tables.ProductHistory.product_id == self.__product_id)
+                    select(schemas.ProductHistory)
+                    .outerjoin(schemas.ProductHistory.leftovers)
+                    .where(schemas.ProductHistory.product_id == self.__product_id)
                     .distinct()
                 )
                 .scalars()
@@ -109,7 +109,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
             units_to_add = 10
             leftovers_per_unit = 5
             history_units = [
-                tables.ProductHistory(
+                schemas.ProductHistory(
                     cost=200,
                     date=datetime(2022, 2, 1),
                     product_id=self.__product_id,

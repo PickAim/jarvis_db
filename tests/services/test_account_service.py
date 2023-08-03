@@ -4,7 +4,7 @@ from jorm.market.person import Account as AccountEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_account_service
-from jarvis_db.tables import Account
+from jarvis_db.schemas import Account
 from tests.db_context import DbContext
 
 

@@ -4,7 +4,7 @@ from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_token_service
-from jarvis_db.tables import Account, TokenSet, User
+from jarvis_db.schemas import Account, TokenSet, User
 from tests.db_context import DbContext
 
 

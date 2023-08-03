@@ -1,6 +1,6 @@
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.repositores.market.person.token_repository import TokenRepository
-from jarvis_db.tables import TokenSet
+from jarvis_db.schemas import TokenSet
 
 
 class TokenService:

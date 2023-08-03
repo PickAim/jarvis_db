@@ -4,10 +4,10 @@ from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
 
-from jarvis_db import tables
+from jarvis_db import schemas
 from jarvis_db.factories.mappers import create_niche_table_mapper
 from jarvis_db.factories.services import create_niche_service
-from jarvis_db.tables import Niche, ProductCard, ProductHistory
+from jarvis_db.schemas import Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -19,7 +19,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder = AlchemySeeder(session)
             seeder.seed_categories(1)
             session.flush()
-            category = session.execute(select(tables.Category)).scalar_one()
+            category = session.execute(select(schemas.Category)).scalar_one()
             self.__category_id = category.id
             self.__marketplace_id = category.marketplace_id
 
@@ -155,7 +155,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder = AlchemySeeder(session)
             seeder.seed_categories(2)
             seeder.seed_niches(30)
-            niches = session.execute(select(tables.Niche)).scalars().all()
+            niches = session.execute(select(schemas.Niche)).scalars().all()
             mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)
@@ -176,7 +176,7 @@ class NicheServiceTest(unittest.TestCase):
             seeder.seed_products(300)
             niches = (
                 session.execute(
-                    select(tables.Niche).outerjoin(tables.Niche.products).distinct()
+                    select(schemas.Niche).outerjoin(schemas.Niche.products).distinct()
                 )
                 .scalars()
                 .all()
@@ -199,7 +199,7 @@ class NicheServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_niches(30)
-            niches = session.execute(select(tables.Niche)).scalars().all()
+            niches = session.execute(select(schemas.Niche)).scalars().all()
             mapper = create_niche_table_mapper()
             expected_niches = [
                 mapper.map(niche)

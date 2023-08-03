@@ -7,7 +7,7 @@ from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepos
 from jarvis_db.services.market.items.product_history_unit_service import (
     ProductHistoryUnitService,
 )
-from jarvis_db.tables import Leftover
+from jarvis_db.schemas import Leftover
 
 
 class LeftoverService:

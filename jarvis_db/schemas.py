@@ -44,6 +44,7 @@ users_to_products = Table(
         "product_id",
         ForeignKey("product_cards.id", ondelete="CASCADE"),
         primary_key=True,
+        unique=True,
     ),
 )
 
@@ -67,10 +68,16 @@ class User(Base):
         cascade="delete",
         passive_deletes=True,
     )
+    marketplace_api_keys: Mapped[list["MarketplaceApiKey"]] = relationship(
+        "MarketplaceApiKey",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     pays: Mapped[list["Pay"]] = relationship(
         "Pay",
         back_populates="user",
-        cascade="all,delete-orphan",
+        cascade="all, delete-orphan",
         passive_deletes=True,
     )
     products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
@@ -209,15 +216,17 @@ class Marketplace(Base):
     __tablename__ = "marketplaces"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    info: Mapped["MarketplaceInfo"] = relationship(
-        "MarketplaceInfo",
+    api_keys: Mapped[list["MarketplaceApiKey"]] = relationship(
+        "MarketplaceApiKey",
         back_populates="marketplace",
-        uselist=False,
-        cascade="delete",
+        cascade="all, delete-orphan",
         passive_deletes=True,
     )
     warehouses: Mapped[list["Warehouse"]] = relationship(
-        "Warehouse", back_populates="owner"
+        "Warehouse",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     categories: Mapped[list["Category"]] = relationship(
         "Category",
@@ -230,20 +239,30 @@ class Marketplace(Base):
         return f"Marketplace(id={self.id!r}, name={self.name!r})"
 
 
-class MarketplaceInfo(Base):
-    __tablename__ = "marketplace_info"
+class MarketplaceApiKey(Base):
+    __tablename__ = "marketplace_api_keys"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
-    marketplace: Mapped[Marketplace] = relationship(Marketplace, back_populates="info")
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{User.__tablename__}.id"), nullable=False
+    marketplace: Mapped[Marketplace] = relationship(
+        Marketplace, back_populates="api_keys"
     )
-    api_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(User.id, ondelete="CASCADE"), nullable=False
+    )
+    user: Mapped[User] = relationship(User, back_populates="marketplace_api_keys")
+    api_key: Mapped[str] = mapped_column(String(1024), nullable=False)
+
+    __table_args__ = (UniqueConstraint(user_id, marketplace_id),)
 
     def __repr__(self) -> str:
-        return f"MarketplaceInfo(id={self.id!r}, api_key={self.api_key!r})"
+        return (
+            f"MarketplaceApiKey(id={self.id!r},"
+            f"marketplace_id={self.marketplace_id!r},"
+            f"user_id={self.user_id!r},"
+            f"api_key={self.api_key!r})"
+        )
 
 
 class Category(Base):
@@ -310,7 +329,7 @@ class Warehouse(Base):
     __tablename__ = "warehouses"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     owner_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(Marketplace.id), nullable=False
+        Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
     owner: Mapped[Marketplace] = relationship(
         "Marketplace", back_populates="warehouses"
