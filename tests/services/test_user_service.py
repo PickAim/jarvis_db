@@ -44,7 +44,68 @@ class UserServiceTest(unittest.TestCase):
             expected.user_id = actual.user_id
             self.assertEqual(expected, actual)
 
-    def test_find_by_account_id(self):
+    def test_find_by_id_without_api_keys(self):
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            db_user = User(
+                id=user_id,
+                name="user_name",
+                profit_tax=0.2,
+                account_id=self.__account_id,
+                status=UserPrivilege.ADVANCED,
+            )
+            session.add(db_user)
+            mapper = UserTableToJormMapper()
+            expected = mapper.map(db_user)
+        with self.__db_context.session() as session:
+            service = create_user_service(session)
+            actual = service.find_by_id(user_id)
+            self.assertEqual(expected, actual)
+
+    def test_find_by_id_with_api_keys(self):
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(1)
+            marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            db_user = User(
+                id=user_id,
+                name="user_name",
+                profit_tax=0.2,
+                account_id=self.__account_id,
+                status=UserPrivilege.ADVANCED,
+                marketplace_api_keys=[
+                    MarketplaceApiKey(marketplace_id=marketplace_id, api_key="api_key")
+                ],
+            )
+            session.add(db_user)
+            mapper = UserTableToJormMapper()
+            expected = mapper.map(db_user)
+        with self.__db_context.session() as session:
+            service = create_user_service(session)
+            actual = service.find_by_id(user_id)
+            self.assertEqual(expected, actual)
+
+    def test_find_by_account_id_without_api_keys(self):
+        user_id = 100
+        with self.__db_context.session() as session, session.begin():
+            db_user = User(
+                id=user_id,
+                name="user_name",
+                profit_tax=0.2,
+                account_id=self.__account_id,
+                status=UserPrivilege.ADVANCED,
+            )
+            session.add(db_user)
+            mapper = UserTableToJormMapper()
+            expected = mapper.map(db_user)
+        with self.__db_context.session() as session:
+            service = create_user_service(session)
+            actual = service.find_by_id(user_id)
+            self.assertEqual(expected, actual)
+
+    def test_find_by_account_id_with_api_keys(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(1)

@@ -28,7 +28,10 @@ class UserService:
 
     def find_by_id(self, user_id: int) -> UserEntity | None:
         user = self.__session.execute(
-            select(User).join(User.account).where(User.id == user_id)
+            select(User)
+            .join(User.account)
+            .outerjoin(User.marketplace_api_keys)
+            .where(User.id == user_id)
         ).scalar_one_or_none()
         return self.__table_mapper.map(user) if user is not None else None
 
@@ -36,7 +39,7 @@ class UserService:
         user = self.__session.execute(
             select(User)
             .join(User.account)
-            .join(User.marketplace_api_keys)
+            .outerjoin(User.marketplace_api_keys)
             .where(User.account_id == account_id)
         ).scalar_one_or_none()
         return (self.__table_mapper.map(user), user.id) if user is not None else None
