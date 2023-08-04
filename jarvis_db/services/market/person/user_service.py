@@ -19,8 +19,8 @@ class UserService:
             account_id=account_id,
             status=user_entity.privilege,
             marketplace_api_keys=[
-                MarketplaceApiKey(marketplace_id=marketpalce_id, api_key=key)
-                for marketpalce_id, key in user_entity.marketplace_keys.items()
+                MarketplaceApiKey(marketplace_id=marketplace_id, api_key=key)
+                for marketplace_id, key in user_entity.marketplace_keys.items()
             ],
         )
         self.__session.add(user)

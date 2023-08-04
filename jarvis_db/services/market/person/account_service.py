@@ -3,7 +3,6 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.market.person.account_repository import AccountRepository
 from jarvis_db.schemas import Account
 
 

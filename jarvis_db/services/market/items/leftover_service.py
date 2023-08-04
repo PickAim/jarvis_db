@@ -4,10 +4,10 @@ from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
     WarehouseRepository,
 )
 from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepository
+from jarvis_db.schemas import Leftover
 from jarvis_db.services.market.items.product_history_unit_service import (
     ProductHistoryUnitService,
 )
-from jarvis_db.schemas import Leftover
 
 
 class LeftoverService:

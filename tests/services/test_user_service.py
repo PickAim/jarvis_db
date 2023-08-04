@@ -1,6 +1,7 @@
 import unittest
 
 from jorm.market.person import User as UserEntity
+from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_user_service
@@ -9,8 +10,6 @@ from jarvis_db.repositores.mappers.market.person.user_mappers import (
 )
 from jarvis_db.schemas import Account, Marketplace, MarketplaceApiKey, ProductCard, User
 from tests.db_context import DbContext
-from jorm.market.person import UserPrivilege
-
 from tests.fixtures import AlchemySeeder
 
 

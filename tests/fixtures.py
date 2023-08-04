@@ -1,3 +1,4 @@
+from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -15,7 +16,6 @@ from jarvis_db.schemas import (
     User,
     Warehouse,
 )
-from jorm.market.person import UserPrivilege
 
 
 class AlchemySeeder:
