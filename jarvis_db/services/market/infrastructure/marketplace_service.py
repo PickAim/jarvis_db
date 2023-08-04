@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Marketplace
@@ -42,9 +42,10 @@ class MarketplaceService:
     def fetch_all_atomic(self) -> dict[int, MarketplaceEntity]:
         marketplaces = (
             self.__session.execute(
-                select(Marketplace).outerjoin(Marketplace.warehouses).distinct()
+                select(Marketplace).options(joinedload(Marketplace.warehouses))
             )
             .scalars()
+            .unique()
             .all()
         )
         return {

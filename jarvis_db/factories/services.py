@@ -9,9 +9,6 @@ from jarvis_db.factories.mappers import (
     create_niche_table_mapper,
     create_product_table_mapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
-    CategoryTableToJormMapper,
-)
 from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
