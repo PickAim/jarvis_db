@@ -13,7 +13,7 @@ from tests.fixtures import AlchemySeeder
 
 class CategoryServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             marketplace = Marketplace(name="qwerty")
             session.add(marketplace)
