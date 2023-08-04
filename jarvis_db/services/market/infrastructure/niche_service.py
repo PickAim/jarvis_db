@@ -33,14 +33,14 @@ class NicheService:
         )
         self.__session.flush()
 
-    def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity:
+    def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
         niche = self.__session.execute(
             select(Niche)
             .outerjoin(Niche.products)
             .where(Niche.id == niche_id)
             .distinct()
-        ).scalar_one()
-        return self.__table_mapper.map(niche)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(niche) if niche is not None else None
 
     def find_by_name(
         self, name: str, category_id: int
