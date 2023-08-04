@@ -1,3 +1,4 @@
+from itertools import groupby
 from typing import Iterable
 
 from jorm.market.items import StorageDict
@@ -9,14 +10,17 @@ from jarvis_db.core.mapper import Mapper
 
 class LeftoverTableToJormMapper(Mapper[Iterable[schemas.Leftover], StorageDict]):
     def map(self, value: Iterable[schemas.Leftover]) -> StorageDict:
-        result: dict[int, list[SpecifiedLeftover]] = {}
-        for leftover in value:
-            if leftover.warehouse.global_id not in result:
-                result[leftover.warehouse.global_id] = []
-            result[leftover.warehouse.global_id].append(
-                SpecifiedLeftover(leftover.type, leftover.quantity)
-            )
-        return StorageDict(result)
+        return StorageDict(
+            {
+                gid: [
+                    SpecifiedLeftover(leftover.type, leftover.quantity)
+                    for leftover in leftovers
+                ]
+                for gid, leftovers in groupby(
+                    value, key=lambda leftover: leftover.warehouse.global_id
+                )
+            }
+        )
 
 
 class LeftoverJormToTableMapper(Mapper[StorageDict, Iterable[schemas.Leftover]]):
