@@ -1,6 +1,6 @@
 from jorm.market.items import ProductHistory as ProductHistoryDomain, ProductHistoryUnit
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from jarvis_db.core import Mapper
 from jarvis_db.schemas import Leftover, ProductHistory
@@ -34,13 +34,16 @@ class ProductHistoryService:
     def find_product_history(self, product_id: int) -> ProductHistoryDomain:
         units = (
             self.__session.execute(
-                select(ProductHistory, ProductHistory.leftovers)
-                .outerjoin(ProductHistory.leftovers)
-                .join(Leftover.warehouse)
+                select(ProductHistory)
+                .options(
+                    selectinload(ProductHistory.leftovers).joinedload(
+                        Leftover.warehouse
+                    )
+                )
                 .where(ProductHistory.product_id == product_id)
-                .distinct()
             )
             .scalars()
+            .unique()
             .all()
         )
         return ProductHistoryDomain((self.__table_mapper.map(unit) for unit in units))

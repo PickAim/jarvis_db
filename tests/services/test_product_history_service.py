@@ -22,7 +22,7 @@ from tests.db_context import DbContext
 
 class ProductHistoryServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext(echo=True)
+        self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             marketplace = Marketplace(name="marketplace#1")
             category = Category(name="category#1", marketplace=marketplace)

@@ -3,7 +3,7 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
@@ -36,9 +36,12 @@ class NicheService:
     def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
         niche = self.__session.execute(
             select(Niche)
-            .outerjoin(Niche.products)
+            .options(
+                selectinload(Niche.products)
+                .selectinload(ProductCard.histories)
+                .selectinload(ProductHistory.leftovers)
+            )
             .where(Niche.id == niche_id)
-            .distinct()
         ).scalar_one_or_none()
         return self.__table_mapper.map(niche) if niche is not None else None
 
@@ -66,13 +69,15 @@ class NicheService:
         niches = (
             self.__session.execute(
                 select(Niche)
-                .outerjoin(Niche.products)
-                .outerjoin(ProductCard.histories)
-                .outerjoin(ProductHistory.leftovers)
+                .options(
+                    selectinload(Niche.products)
+                    .selectinload(ProductCard.histories)
+                    .selectinload(ProductHistory.leftovers)
+                )
                 .where(Niche.category_id == category_id)
-                .distinct()
             )
             .scalars()
+            .unique()
             .all()
         )
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
