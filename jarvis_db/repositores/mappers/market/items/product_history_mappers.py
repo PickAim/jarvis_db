@@ -23,7 +23,7 @@ class ProductHistoryJormToTableMapper(
         )
 
 
-class ProductHistoryTableToJormMapper(
+class ProductHistoryUnitTableToJormMapper(
     Mapper[schemas.ProductHistory, ProductHistoryUnit]
 ):
     def __init__(

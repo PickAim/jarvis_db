@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.factories.mappers import (
+    create_category_table_mapper,
     create_marketplace_table_mapper,
     create_niche_table_mapper,
     create_product_table_mapper,
@@ -18,7 +19,7 @@ from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
     LeftoverTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
-    ProductHistoryTableToJormMapper,
+    ProductHistoryUnitTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.person import (
     AccountTableToJormMapper,
@@ -104,7 +105,7 @@ def create_category_service(
         niche_mapper = create_niche_table_mapper()
     return CategoryService(
         session,
-        CategoryTableToJormMapper(niche_mapper),
+        create_category_table_mapper(niche_mapper),
     )
 
 
@@ -149,12 +150,12 @@ def create_frequency_service(session: Session) -> FrequencyService:
 def create_product_history_service(session: Session) -> ProductHistoryService:
     unit_service = ProductHistoryUnitService(ProductHistoryRepository(session))
     return ProductHistoryService(
+        session,
         unit_service,
         LeftoverService(
             LeftoverRepository(session), WarehouseRepository(session), unit_service
         ),
-        ProductHistoryRepository(session),
-        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper()),
+        ProductHistoryUnitTableToJormMapper(LeftoverTableToJormMapper()),
     )
 
 

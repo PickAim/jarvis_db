@@ -1,4 +1,5 @@
-from jorm.market.infrastructure import Marketplace, Niche, Product, Warehouse, Category
+from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
+from jorm.market.items import ProductHistoryUnit
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
@@ -18,7 +19,7 @@ from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
     LeftoverTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
-    ProductHistoryTableToJormMapper,
+    ProductHistoryUnitTableToJormMapper,
 )
 from jarvis_db.repositores.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
@@ -50,7 +51,16 @@ def create_niche_table_mapper(
     return NicheTableToJormMapper(product_mapper)
 
 
-def create_product_table_mapper() -> Mapper[schemas.ProductCard, Product]:
-    return ProductTableToJormMapper(
-        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper())
+def create_product_table_mapper(
+    history_mapper: Mapper[schemas.ProductHistory, ProductHistoryUnit] | None = None
+) -> Mapper[schemas.ProductCard, Product]:
+    history_mapper = (
+        create_product_history_mapper() if history_mapper is None else history_mapper
     )
+    return ProductTableToJormMapper(history_mapper)
+
+
+def create_product_history_mapper() -> (
+    Mapper[schemas.ProductHistory, ProductHistoryUnit]
+):
+    return ProductHistoryUnitTableToJormMapper(LeftoverTableToJormMapper())
