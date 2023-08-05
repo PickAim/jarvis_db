@@ -32,38 +32,16 @@ from jarvis_db.repositores.mappers.market.service.economy_request_mappers import
 from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
-from jarvis_db.repositores.market.infrastructure import NicheRepository
-from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
-    WarehouseRepository,
-)
-from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepository
-from jarvis_db.repositores.market.items.product_history_repository import (
-    ProductHistoryRepository,
-)
 from jarvis_db.repositores.market.person.token_repository import TokenRepository
-from jarvis_db.repositores.market.service import (
-    FrequencyRequestRepository,
-    FrequencyResultRepository,
-)
-from jarvis_db.repositores.market.service.economy_request_repository import (
-    EconomyRequestRepository,
-)
-from jarvis_db.repositores.market.service.economy_result_repository import (
-    EconomyResultRepository,
-)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
 )
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.items.leftover_service import LeftoverService
 from jarvis_db.services.market.items.product_card_service import ProductCardService
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
-)
-from jarvis_db.services.market.items.product_history_unit_service import (
-    ProductHistoryUnitService,
 )
 from jarvis_db.services.market.person import AccountService, UserService, TokenService
 from jarvis_db.services.market.service.economy_service import EconomyService
