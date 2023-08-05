@@ -15,7 +15,7 @@ from tests.fixtures import AlchemySeeder
 
 class UserServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             account = Account(email="user@mail.org", phone="789456123", password="123")
             session.add(account)
@@ -129,6 +129,25 @@ class UserServiceTest(unittest.TestCase):
             assert user_tuple is not None
             actual, _ = user_tuple
             self.assertEqual(expected, actual)
+
+    def test_find_all(self):
+        mapper = UserTableToJormMapper()
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_users(20)
+            expected = {
+                user.id: mapper.map(user)
+                for user in session.execute(
+                    select(User).join(User.account).outerjoin(User.marketplace_api_keys)
+                )
+                .scalars()
+                .unique()
+                .all()
+            }
+        with self.__db_context.session() as session:
+            service = create_user_service(session)
+            actual = service.find_all()
+            self.assertDictEqual(expected, actual)
 
     def test_append_api_key(self):
         user_id = 100
