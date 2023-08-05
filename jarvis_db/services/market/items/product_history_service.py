@@ -1,6 +1,6 @@
 from jorm.market.items import ProductHistory as ProductHistoryDomain, ProductHistoryUnit
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core import Mapper
 from jarvis_db.schemas import Leftover, ProductHistory
@@ -36,9 +36,7 @@ class ProductHistoryService:
             self.__session.execute(
                 select(ProductHistory)
                 .options(
-                    selectinload(ProductHistory.leftovers).joinedload(
-                        Leftover.warehouse
-                    )
+                    joinedload(ProductHistory.leftovers).joinedload(Leftover.warehouse)
                 )
                 .where(ProductHistory.product_id == product_id)
             )

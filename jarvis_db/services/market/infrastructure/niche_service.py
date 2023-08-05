@@ -3,7 +3,7 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
@@ -34,15 +34,19 @@ class NicheService:
         self.__session.flush()
 
     def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
-        niche = self.__session.execute(
-            select(Niche)
-            .options(
-                selectinload(Niche.products)
-                .selectinload(ProductCard.histories)
-                .selectinload(ProductHistory.leftovers)
+        niche = (
+            self.__session.execute(
+                select(Niche)
+                .options(
+                    joinedload(Niche.products)
+                    .selectinload(ProductCard.histories)
+                    .selectinload(ProductHistory.leftovers)
+                )
+                .where(Niche.id == niche_id)
             )
-            .where(Niche.id == niche_id)
-        ).scalar_one_or_none()
+            .unique()
+            .scalar_one_or_none()
+        )
         return self.__table_mapper.map(niche) if niche is not None else None
 
     def find_by_name(
