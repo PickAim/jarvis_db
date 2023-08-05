@@ -23,6 +23,7 @@ class AccountService:
                 password=account_entity.hashed_password,
             )
         )
+        self.__session.flush()
 
     def find_by_email(self, email: str) -> tuple[AccountEntity, int] | None:
         account = self.__session.execute(

@@ -32,7 +32,6 @@ from jarvis_db.mappers.market.service.economy_request_mappers import (
 from jarvis_db.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
-from jarvis_db.repositores.market.person.token_repository import TokenRepository
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
@@ -57,7 +56,7 @@ def create_user_service(session: Session) -> UserService:
 
 
 def create_token_service(session: Session) -> TokenService:
-    return TokenService(TokenRepository(session), TokenTableMapper())
+    return TokenService(session, TokenTableMapper())
 
 
 def create_marketplace_service(
