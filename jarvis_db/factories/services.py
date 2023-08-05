@@ -133,11 +133,15 @@ def create_economy_service(session: Session) -> EconomyService:
     )
 
 
-def create_frequency_service(session: Session) -> FrequencyService:
+def create_frequency_service(
+    session: Session, niche_service: NicheService | None = None
+) -> FrequencyService:
+    niche_service = (
+        create_niche_service(session) if niche_service is None else niche_service
+    )
     return FrequencyService(
-        FrequencyRequestRepository(session),
-        NicheRepository(session),
-        FrequencyResultRepository(session),
+        session,
+        niche_service,
         FrequencyRequestTableToJormMapper(),
     )
 
