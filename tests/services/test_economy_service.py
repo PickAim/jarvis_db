@@ -7,10 +7,10 @@ from sqlalchemy import select
 
 from jarvis_db import schemas
 from jarvis_db.factories.services import create_economy_service
-from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
+from jarvis_db.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
+from jarvis_db.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
 from jarvis_db.schemas import (

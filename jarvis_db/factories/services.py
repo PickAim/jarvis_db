@@ -9,27 +9,27 @@ from jarvis_db.factories.mappers import (
     create_niche_table_mapper,
     create_product_table_mapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
+from jarvis_db.mappers.market.items.leftover_mappers import (
     LeftoverTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
+from jarvis_db.mappers.market.items.product_history_mappers import (
     ProductHistoryUnitTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.person import (
+from jarvis_db.mappers.market.person import (
     AccountTableToJormMapper,
     UserTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.person.token_mappers import TokenTableMapper
-from jarvis_db.repositores.mappers.market.service import (
+from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
+from jarvis_db.mappers.market.service import (
     FrequencyRequestTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.service.economy_request_mappers import (
+from jarvis_db.mappers.market.service.economy_request_mappers import (
     EconomyRequestTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.service.economy_result_mappers import (
+from jarvis_db.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
 from jarvis_db.repositores.market.person.token_repository import TokenRepository

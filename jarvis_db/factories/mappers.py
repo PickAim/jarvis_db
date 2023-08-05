@@ -3,25 +3,25 @@ from jorm.market.items import ProductHistoryUnit
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
+from jarvis_db.mappers.market.infrastructure.category_mappers import (
     CategoryTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers import (
+from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
     MarketplaceTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
+from jarvis_db.mappers.market.infrastructure.niche_mappers import (
     NicheTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
+from jarvis_db.mappers.market.items.leftover_mappers import (
     LeftoverTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
+from jarvis_db.mappers.market.items.product_history_mappers import (
     ProductHistoryUnitTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
+from jarvis_db.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
 )
 

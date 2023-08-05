@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from jarvis_db import schemas
 from jarvis_db.factories.services import create_frequency_service
-from jarvis_db.repositores.mappers.market.service.frequency_request_mappers import (
+from jarvis_db.mappers.market.service.frequency_request_mappers import (
     FrequencyRequestTableToJormMapper,
 )
 from jarvis_db.schemas import Account, Category, Marketplace, Niche, User

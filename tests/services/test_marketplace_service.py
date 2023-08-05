@@ -5,10 +5,10 @@ from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_marketplace_service
-from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers import (
+from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
     MarketplaceTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
 from jarvis_db.schemas import Marketplace
