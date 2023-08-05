@@ -3,21 +3,21 @@ from jorm.market.items import StorageDict
 from jarvis_db.repositores.market.infrastructure.warehouse_repository import (
     WarehouseRepository,
 )
-from jarvis_db.repositores.market.items.leftover_repository import LeftoverRepository
 from jarvis_db.schemas import Leftover
 from jarvis_db.services.market.items.product_history_unit_service import (
     ProductHistoryUnitService,
 )
+from sqlalchemy.orm import Session
 
 
 class LeftoverService:
     def __init__(
         self,
-        leftover_repository: LeftoverRepository,
+        session: Session,
         warehouse_repository: WarehouseRepository,
         product_history_service: ProductHistoryUnitService,
     ):
-        self.__leftover_repository = leftover_repository
+        self.__session = session
         self.__warehouse_repository = warehouse_repository
         self.__product_history_service = product_history_service
 
@@ -49,4 +49,4 @@ class LeftoverService:
                     for leftover in warehouse_leftovers
                 )
             )
-        self.__leftover_repository.add_all(leftovers)
+        self.__session.add_all(leftovers)

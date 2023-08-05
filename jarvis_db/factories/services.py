@@ -145,13 +145,8 @@ def create_frequency_service(session: Session) -> FrequencyService:
 
 
 def create_product_history_service(session: Session) -> ProductHistoryService:
-    unit_service = ProductHistoryUnitService(ProductHistoryRepository(session))
     return ProductHistoryService(
         session,
-        unit_service,
-        LeftoverService(
-            LeftoverRepository(session), WarehouseRepository(session), unit_service
-        ),
         ProductHistoryUnitTableToJormMapper(LeftoverTableToJormMapper()),
     )
 

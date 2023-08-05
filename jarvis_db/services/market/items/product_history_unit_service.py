@@ -1,28 +1,44 @@
 from jorm.market.items import ProductHistoryUnit as ProductHistoryUnitEntity
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from jarvis_db.repositores.market.items.product_history_repository import (
-    ProductHistoryRepository,
+from jarvis_db.schemas import (
+    Category,
+    Leftover,
+    Niche,
+    ProductCard,
+    ProductHistory,
 )
-from jarvis_db.schemas import ProductHistory
 
 
 class ProductHistoryUnitService:
-    def __init__(
-        self,
-        product_history_repository: ProductHistoryRepository,
-    ):
-        self.__product_history_repository = product_history_repository
+    def __init__(self, session: Session):
+        self.__session = session
 
     def create(
         self, history_unit: ProductHistoryUnitEntity, product_id: int
     ) -> ProductHistory:
-        return self.__product_history_repository.save(
-            ProductHistory(
-                cost=history_unit.cost,
-                date=history_unit.unit_date,
-                product_id=product_id,
-            )
+        history = ProductHistory(
+            cost=history_unit.cost,
+            date=history_unit.unit_date,
+            product_id=product_id,
         )
+        self.__session.add(history)
+        self.__session.flush()
+        return history
 
     def find_by_id(self, product_history_id: int) -> ProductHistory:
-        return self.__product_history_repository.find_by_id(product_history_id)
+        return (
+            self.__session.execute(
+                select(ProductHistory)
+                .join(ProductHistory.product)
+                .join(ProductCard.niche)
+                .join(Niche.category)
+                .join(Category.marketplace)
+                .outerjoin(ProductHistory.leftovers)
+                .outerjoin(Leftover.warehouse)
+                .where(ProductHistory.id == product_history_id)
+            )
+            .unique()
+            .scalar_one()
+        )
