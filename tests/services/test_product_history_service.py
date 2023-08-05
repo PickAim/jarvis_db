@@ -6,6 +6,7 @@ from jorm.support.types import SpecifiedLeftover
 from sqlalchemy import select
 
 from jarvis_db import schemas
+from jarvis_db.factories.mappers import create_product_history_mapper
 from jarvis_db.factories.services import create_product_history_service
 from jarvis_db.schemas import (
     Address,
@@ -21,7 +22,7 @@ from tests.db_context import DbContext
 
 class ProductHistoryServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             marketplace = Marketplace(name="marketplace#1")
             category = Category(name="category#1", marketplace=marketplace)
@@ -71,7 +72,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
             service = create_product_history_service(session)
             units_to_add = 10
             leftovers_per_unit = 5
-            product_history = ProductHistory(
+            expected = ProductHistory(
                 [
                     ProductHistoryUnit(
                         cost=10,
@@ -88,8 +89,9 @@ class ProductHistoryServiceTest(unittest.TestCase):
                     for _ in range(units_to_add)
                 ]
             )
-            service.create(product_history, self.__product_id)
+            service.create(expected, self.__product_id)
         with self.__db_context.session() as session:
+            mapper = create_product_history_mapper()
             histories = (
                 session.execute(
                     select(schemas.ProductHistory)
@@ -100,11 +102,11 @@ class ProductHistoryServiceTest(unittest.TestCase):
                 .scalars()
                 .all()
             )
-            self.assertEqual(units_to_add, len(histories))
-            for history in histories:
-                self.assertEqual(leftovers_per_unit, len(history.leftovers))
+            actual = ProductHistory((mapper.map(unit) for unit in histories))
+            self.assertEqual(expected, actual)
 
     def test_find_history(self):
+        mapper = create_product_history_mapper()
         with self.__db_context.session() as session, session.begin():
             units_to_add = 10
             leftovers_per_unit = 5
@@ -123,15 +125,12 @@ class ProductHistoryServiceTest(unittest.TestCase):
                 for _ in range(units_to_add)
             ]
             session.add_all(history_units)
+            session.flush()
+            expected = ProductHistory((mapper.map(unit) for unit in history_units))
         with self.__db_context.session() as session:
             service = create_product_history_service(session)
-            histories = service.find_product_history(self.__product_id).get_history()
-            self.assertEqual(units_to_add, len(histories))
-            for unit in histories:
-                self.assertEqual(
-                    leftovers_per_unit,
-                    sum((len(leftovers) for leftovers in unit.leftover.values())),
-                )
+            actual = service.find_product_history(self.__product_id)
+            self.assertEqual(expected, actual)
 
 
 if __name__ == "__main__":

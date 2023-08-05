@@ -27,7 +27,7 @@ class UserInfoCollectorImpl(UserInfoCollector):
                 f"No account with {account.email} or "
                 f"phone {account.phone_number} is found"
             )
-        account, account_id = account_tuple
+        _, account_id = account_tuple
         user_tuple = self.__user_service.find_by_account_id(account_id)
         if user_tuple is None:
             raise Exception(f"No user for account with id {account_id} was found")

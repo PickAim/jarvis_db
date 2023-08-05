@@ -1,6 +1,6 @@
 from jorm.market.person import User as UserEntity
 from sqlalchemy import delete, insert, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Account, MarketplaceApiKey, User
@@ -19,33 +19,52 @@ class UserService:
             account_id=account_id,
             status=user_entity.privilege,
             marketplace_api_keys=[
-                MarketplaceApiKey(marketplace_id=marketpalce_id, api_key=key)
-                for marketpalce_id, key in user_entity.marketplace_keys.items()
+                MarketplaceApiKey(marketplace_id=marketplace_id, api_key=key)
+                for marketplace_id, key in user_entity.marketplace_keys.items()
             ],
         )
         self.__session.add(user)
         self.__session.flush()
 
     def find_by_id(self, user_id: int) -> UserEntity | None:
-        user = self.__session.execute(
-            select(User)
-            .join(User.account)
-            .outerjoin(User.marketplace_api_keys)
-            .where(User.id == user_id)
-        ).scalar_one_or_none()
+        user = (
+            self.__session.execute(
+                select(User)
+                .options(
+                    joinedload(User.account), joinedload(User.marketplace_api_keys)
+                )
+                .where(User.id == user_id)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return self.__table_mapper.map(user) if user is not None else None
 
     def find_by_account_id(self, account_id: int) -> tuple[UserEntity, int] | None:
-        user = self.__session.execute(
-            select(User)
-            .join(User.account)
-            .outerjoin(User.marketplace_api_keys)
-            .where(User.account_id == account_id)
-        ).scalar_one_or_none()
+        user = (
+            self.__session.execute(
+                select(User)
+                .options(
+                    joinedload(User.account), joinedload(User.marketplace_api_keys)
+                )
+                .where(User.account_id == account_id)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return (self.__table_mapper.map(user), user.id) if user is not None else None
 
     def find_all(self) -> dict[int, UserEntity]:
-        users = self.__session.execute(select(User).join(User.account)).scalars().all()
+        users = (
+            self.__session.execute(
+                select(User).options(
+                    joinedload(User.account), selectinload(User.marketplace_api_keys)
+                )
+            )
+            .scalars()
+            .unique()
+            .all()
+        )
         return {user.id: self.__table_mapper.map(user) for user in users}
 
     def append_api_key(self, user_id: int, api_key: str, marketplace_id: int):

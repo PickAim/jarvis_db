@@ -1,22 +1,21 @@
 import unittest
 
 from jorm.market.person import User as UserEntity
+from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_user_service
-from jarvis_db.repositores.mappers.market.person.user_mappers import (
+from jarvis_db.mappers.market.person.user_mappers import (
     UserTableToJormMapper,
 )
 from jarvis_db.schemas import Account, Marketplace, MarketplaceApiKey, ProductCard, User
 from tests.db_context import DbContext
-from jorm.market.person import UserPrivilege
-
 from tests.fixtures import AlchemySeeder
 
 
 class UserServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             account = Account(email="user@mail.org", phone="789456123", password="123")
             session.add(account)
@@ -130,6 +129,25 @@ class UserServiceTest(unittest.TestCase):
             assert user_tuple is not None
             actual, _ = user_tuple
             self.assertEqual(expected, actual)
+
+    def test_find_all(self):
+        mapper = UserTableToJormMapper()
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_users(20)
+            expected = {
+                user.id: mapper.map(user)
+                for user in session.execute(
+                    select(User).join(User.account).outerjoin(User.marketplace_api_keys)
+                )
+                .scalars()
+                .unique()
+                .all()
+            }
+        with self.__db_context.session() as session:
+            service = create_user_service(session)
+            actual = service.find_all()
+            self.assertDictEqual(expected, actual)
 
     def test_append_api_key(self):
         user_id = 100

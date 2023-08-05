@@ -1,37 +1,28 @@
 from jorm.market.service import RequestInfo
 from jorm.market.service import UnitEconomyRequest as UnitEconomyRequestEntity
 from jorm.market.service import UnitEconomyResult as UnitEconomyResultEntity
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.market.service.economy_request_repository import (
-    EconomyRequestRepository,
-)
-from jarvis_db.repositores.market.service.economy_result_repository import (
-    EconomyResultRepository,
-)
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
+from jarvis_db.schemas import UnitEconomyRequest, UnitEconomyResult
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.schemas import UnitEconomyRequest, UnitEconomyResult
 
 
 class EconomyService:
     def __init__(
         self,
-        request_repository: EconomyRequestRepository,
-        result_repository: EconomyResultRepository,
+        session: Session,
         result_table_mapper: Mapper[
             UnitEconomyResult,
             tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo],
         ],
-        category_service: CategoryService,
         niche_service: NicheService,
         warehouse_service: WarehouseService,
     ):
-        self.__request_repository = request_repository
-        self.__result_repository = result_repository
+        self.__session = session
         self.__result_table_mapper = result_table_mapper
-        self.__category_service = category_service
         self.__niche_service = niche_service
         self.__warehouse_service = warehouse_service
 
@@ -56,19 +47,17 @@ class EconomyService:
             )
         _, niche_id = niche_result
         _, warehouse_id = warehouse_result
-        request = self.__request_repository.save(
-            UnitEconomyRequest(
-                user_id=user_id,
-                name=request_info.name,
-                niche_id=niche_id,
-                date=request_info.date,
-                buy_cost=request_entity.buy,
-                transit_cost=request_entity.transit_price,
-                market_place_transit_price=request_entity.market_place_transit_price,
-                pack_cost=request_entity.pack,
-                transit_count=request_entity.transit_count,
-                warehouse_id=warehouse_id,
-            )
+        request = UnitEconomyRequest(
+            user_id=user_id,
+            name=request_info.name,
+            niche_id=niche_id,
+            date=request_info.date,
+            buy_cost=request_entity.buy,
+            transit_cost=request_entity.transit_price,
+            market_place_transit_price=request_entity.market_place_transit_price,
+            pack_cost=request_entity.pack,
+            transit_count=request_entity.transit_count,
+            warehouse_id=warehouse_id,
         )
         result = UnitEconomyResult(
             request_id=request.id,
@@ -82,8 +71,10 @@ class EconomyService:
             roi=int(result_entity.roi * 100),
             transit_margin_percent=int(result_entity.transit_margin * 100),
             storage_price=result_entity.storage_price,
+            request=request,
         )
-        self.__result_repository.add(result)
+        self.__session.add(result)
+        self.__session.flush()
         return request.id
 
     def find_user_requests(
@@ -91,15 +82,27 @@ class EconomyService:
     ) -> dict[
         int, tuple[UnitEconomyRequestEntity, UnitEconomyResultEntity, RequestInfo]
     ]:
-        results = self.__result_repository.find_user_results(user_id)
+        results = (
+            self.__session.execute(
+                select(UnitEconomyResult)
+                .options(joinedload(UnitEconomyResult.request))
+                .where(UnitEconomyRequest.user_id == user_id)
+            )
+            .scalars()
+            .unique()
+            .all()
+        )
         return {
             request.id: self.__result_table_mapper.map(request) for request in results
         }
 
     def remove(self, request_id: int) -> bool:
-        request = self.__request_repository.find_by_id(request_id)
+        request = self.__session.execute(
+            select(UnitEconomyRequest).where(UnitEconomyRequest.id == request_id)
+        ).scalar_one_or_none()
         if request is not None:
-            self.__request_repository.delete(request)
+            self.__session.delete(request)
+            self.__session.flush()
             return True
         else:
             return False

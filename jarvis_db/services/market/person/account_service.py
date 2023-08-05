@@ -1,21 +1,22 @@
 from jorm.market.person import Account as AccountEntity
+from sqlalchemy import or_, select
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.market.person.account_repository import AccountRepository
 from jarvis_db.schemas import Account
 
 
 class AccountService:
     def __init__(
         self,
-        account_repository: AccountRepository,
+        session: Session,
         table_mapper: Mapper[Account, AccountEntity],
     ):
-        self.__account_repository = account_repository
+        self.__session = session
         self.__table_mapper = table_mapper
 
     def create(self, account_entity: AccountEntity):
-        self.__account_repository.add(
+        self.__session.add(
             Account(
                 email=account_entity.email,
                 phone=account_entity.phone_number,
@@ -24,7 +25,9 @@ class AccountService:
         )
 
     def find_by_email(self, email: str) -> tuple[AccountEntity, int] | None:
-        account = self.__account_repository.find_by_email(email)
+        account = self.__session.execute(
+            select(Account).where(Account.email == email)
+        ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(account), account.id)
             if account is not None
@@ -32,7 +35,9 @@ class AccountService:
         )
 
     def find_by_phone(self, phone: str) -> tuple[AccountEntity, int] | None:
-        account = self.__account_repository.find_by_phone(phone)
+        account = self.__session.execute(
+            select(Account).where(Account.phone == phone)
+        ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(account), account.id)
             if account is not None
@@ -42,7 +47,9 @@ class AccountService:
     def find_by_email_or_phone(
         self, email: str, phone: str
     ) -> tuple[AccountEntity, int] | None:
-        account = self.__account_repository.find_by_email_or_phone(email, phone)
+        account = self.__session.execute(
+            select(Account).where(or_(Account.email == email, Account.phone == phone))
+        ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(account), account.id)
             if account is not None
@@ -50,5 +57,5 @@ class AccountService:
         )
 
     def find_all(self) -> dict[int, AccountEntity]:
-        accounts = self.__account_repository.find_all()
+        accounts = self.__session.execute(select(Account)).scalars().all()
         return {account.id: self.__table_mapper.map(account) for account in accounts}

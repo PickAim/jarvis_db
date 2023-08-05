@@ -5,10 +5,10 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.schemas import ProductCard
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
-from jarvis_db.schemas import ProductCard
 
 
 class ProductCardService:

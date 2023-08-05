@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
@@ -66,14 +66,16 @@ class CategoryService:
         categories = (
             self.__session.execute(
                 select(Category)
-                .outerjoin(Category.niches)
-                .outerjoin(Niche.products)
-                .outerjoin(ProductCard.histories)
-                .outerjoin(ProductHistory.leftovers)
+                .options(
+                    joinedload(Category.niches)
+                    .joinedload(Niche.products)
+                    .joinedload(ProductCard.histories)
+                    .joinedload(ProductHistory.leftovers)
+                )
                 .where(Category.marketplace_id == marketplace_id)
-                .distinct()
             )
             .scalars()
+            .unique()
             .all()
         )
         return {

@@ -1,26 +1,27 @@
-from jorm.market.infrastructure import Marketplace, Niche, Product, Warehouse, Category
+from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
+from jorm.market.items import ProductHistoryUnit
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.repositores.mappers.market.infrastructure.category_mappers import (
+from jarvis_db.mappers.market.infrastructure.category_mappers import (
     CategoryTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.marketplace_mappers import (
+from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
     MarketplaceTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.niche_mappers import (
+from jarvis_db.mappers.market.infrastructure.niche_mappers import (
     NicheTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.leftover_mappers import (
+from jarvis_db.mappers.market.items.leftover_mappers import (
     LeftoverTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.product_history_mappers import (
-    ProductHistoryTableToJormMapper,
+from jarvis_db.mappers.market.items.product_history_mappers import (
+    ProductHistoryUnitTableToJormMapper,
 )
-from jarvis_db.repositores.mappers.market.items.product_mappers import (
+from jarvis_db.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
 )
 
@@ -50,7 +51,16 @@ def create_niche_table_mapper(
     return NicheTableToJormMapper(product_mapper)
 
 
-def create_product_table_mapper() -> Mapper[schemas.ProductCard, Product]:
-    return ProductTableToJormMapper(
-        ProductHistoryTableToJormMapper(LeftoverTableToJormMapper())
+def create_product_table_mapper(
+    history_mapper: Mapper[schemas.ProductHistory, ProductHistoryUnit] | None = None
+) -> Mapper[schemas.ProductCard, Product]:
+    history_mapper = (
+        create_product_history_mapper() if history_mapper is None else history_mapper
     )
+    return ProductTableToJormMapper(history_mapper)
+
+
+def create_product_history_mapper() -> (
+    Mapper[schemas.ProductHistory, ProductHistoryUnit]
+):
+    return ProductHistoryUnitTableToJormMapper(LeftoverTableToJormMapper())
