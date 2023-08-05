@@ -57,7 +57,7 @@ def create_user_service(session: Session) -> UserService:
 
 
 def create_token_service(session: Session) -> TokenService:
-    return TokenService(TokenRepository(session), TokenTableMapper())
+    return TokenService(session, TokenTableMapper())
 
 
 def create_marketplace_service(
