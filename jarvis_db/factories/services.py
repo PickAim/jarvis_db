@@ -126,10 +126,8 @@ def create_warehouse_service(
 def create_economy_service(session: Session) -> EconomyService:
     niche_mapper = create_niche_table_mapper()
     return EconomyService(
-        EconomyRequestRepository(session),
-        EconomyResultRepository(session),
+        session,
         EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper()),
-        create_category_service(session, niche_mapper),
         create_niche_service(session, niche_mapper),
         create_warehouse_service(session),
     )
