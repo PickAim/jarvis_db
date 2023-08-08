@@ -413,7 +413,7 @@ class ProductCard(Base):
         passive_deletes=True,
     )
 
-    __table_args__ = (UniqueConstraint(name, global_id, niche_id),)
+    __table_args__ = (UniqueConstraint(global_id, niche_id),)
 
     def __repr__(self) -> str:
         return (

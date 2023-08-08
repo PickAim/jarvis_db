@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from jarvis_db.factories.mappers import create_product_table_mapper
 from jarvis_db.factories.services import create_product_card_service
-from jarvis_db.schemas import Niche, ProductCard
+from jarvis_db.schemas import Marketplace, Niche, ProductCard
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -15,6 +15,7 @@ class ProductCardServiceTest(unittest.TestCase):
         self.__db_context = DbContext()
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(1)
             seeder.seed_niches(1)
             niche = session.execute(select(Niche)).scalar_one()
             self.__niche_id = niche.id
@@ -76,6 +77,52 @@ class ProductCardServiceTest(unittest.TestCase):
                 expected_products, actual_products, strict=True
             ):
                 self.assertEqual(expected, actual)
+
+    def test_find_by_id(self):
+        product_id = 100
+        mapper = create_product_table_mapper()
+        with self.__db_context.session() as session, session.begin():
+            product = ProductCard(
+                id=product_id,
+                name="product_name",
+                global_id=200,
+                cost=1000,
+                rating=5.0,
+                niche_id=self.__niche_id,
+                brand="brand_name",
+                seller="seller_name",
+            )
+            session.add(product)
+            session.flush()
+            expected = mapper.map(product)
+        with self.__db_context.session() as session:
+            service = create_product_card_service(session)
+            actual = service.find_by_id(product_id)
+            assert actual is not None
+            self.assertEqual(expected, actual)
+
+    def test_find_by_global_id(self):
+        mapper = create_product_table_mapper()
+        global_id = 200
+        with self.__db_context.session() as session, session.begin():
+            marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
+            product = ProductCard(
+                name="product_name",
+                global_id=global_id,
+                cost=1000,
+                rating=5.0,
+                niche_id=self.__niche_id,
+                brand="brand_name",
+                seller="seller_name",
+            )
+            session.add(product)
+            session.flush()
+            expected = mapper.map(product)
+        with self.__db_context.session() as session:
+            service = create_product_card_service(session)
+            actual = service.find_by_gloabal_id(global_id, marketplace_id)
+            assert actual is not None
+            self.assertEqual(expected, actual)
 
     def test_find_all_in_niche(self):
         mapper = create_product_table_mapper()
