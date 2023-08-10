@@ -1,4 +1,4 @@
-from jorm.market.infrastructure import Marketplace, Niche, Warehouse
+from jorm.market.infrastructure import Marketplace, Niche, Product, Warehouse
 from sqlalchemy.orm import Session
 
 from jarvis_db import schemas
@@ -42,7 +42,8 @@ from jarvis_db.services.market.items.product_card_service import ProductCardServ
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
-from jarvis_db.services.market.person import AccountService, UserService, TokenService
+from jarvis_db.services.market.person import AccountService, TokenService, UserService
+from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.frequency_service import FrequencyService
 
@@ -53,6 +54,18 @@ def create_account_service(session: Session) -> AccountService:
 
 def create_user_service(session: Session) -> UserService:
     return UserService(session, UserTableToJormMapper())
+
+
+def create_user_items_service(
+    session: Session,
+    product_mapper: Mapper[schemas.ProductCard, Product] | None = None,
+    warehouse_mapper: Mapper[schemas.Warehouse, Warehouse] | None = None,
+) -> UserItemsService:
+    return UserItemsService(
+        session,
+        create_product_table_mapper() if product_mapper is None else product_mapper,
+        WarehouseTableToJormMapper() if warehouse_mapper is None else warehouse_mapper,
+    )
 
 
 def create_token_service(session: Session) -> TokenService:

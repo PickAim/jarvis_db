@@ -49,6 +49,16 @@ users_to_products = Table(
 )
 
 
+class UserToWarehouse(Base):
+    __tablename__ = "users_to_warehouses"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user: Mapped["User"] = relationship()
+    warehouse_id: Mapped[int] = mapped_column(
+        ForeignKey("warehouses.id"), primary_key=True, unique=True
+    )
+    warehouse: Mapped["Warehouse"] = relationship()
+
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -81,6 +91,9 @@ class User(Base):
         passive_deletes=True,
     )
     products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
+    warehouses: Mapped[list["Warehouse"]] = relationship(
+        secondary=UserToWarehouse.__table__
+    )
 
     def __repr__(self) -> str:
         return (
