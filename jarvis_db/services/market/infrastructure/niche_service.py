@@ -2,8 +2,8 @@ from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
-from sqlalchemy import select, update
-from sqlalchemy.orm import Session, selectinload, joinedload
+from sqlalchemy import select, update, Select
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
@@ -36,13 +36,7 @@ class NicheService:
     def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
         niche = (
             self.__session.execute(
-                select(Niche)
-                .options(
-                    joinedload(Niche.products)
-                    .selectinload(ProductCard.histories)
-                    .selectinload(ProductHistory.leftovers)
-                )
-                .where(Niche.id == niche_id)
+                NicheService.__select_niche_atomic().where(Niche.id == niche_id)
             )
             .unique()
             .scalar_one_or_none()
@@ -53,7 +47,7 @@ class NicheService:
         self, name: str, category_id: int
     ) -> tuple[NicheEntity, int] | None:
         niche = self.__session.execute(
-            select(Niche)
+            NicheService.__select_niche_atomic()
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
         ).scalar_one_or_none()
@@ -72,16 +66,12 @@ class NicheService:
     def fetch_all_in_category_atomic(self, category_id: int) -> dict[int, NicheEntity]:
         niches = (
             self.__session.execute(
-                select(Niche)
-                .options(
-                    selectinload(Niche.products)
-                    .selectinload(ProductCard.histories)
-                    .selectinload(ProductHistory.leftovers)
+                NicheService.__select_niche_atomic().where(
+                    Niche.category_id == category_id
                 )
-                .where(Niche.category_id == category_id)
             )
-            .scalars()
             .unique()
+            .scalars()
             .all()
         )
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
@@ -139,6 +129,14 @@ class NicheService:
             )
         )
         self.__session.flush()
+
+    @staticmethod
+    def __select_niche_atomic() -> Select[tuple[Niche]]:
+        return select(Niche).options(
+            joinedload(Niche.products)
+            .joinedload(ProductCard.histories)
+            .joinedload(ProductHistory.leftovers)
+        )
 
     @staticmethod
     def __create_niche_record(niche: NicheEntity, category_id: int) -> Niche:
