@@ -2,11 +2,12 @@ from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
+from numpy import inner
 from sqlalchemy import select, update, Select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, contains_eager, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
+from jarvis_db.schemas import Category, Leftover, Niche, ProductCard, ProductHistory
 
 
 class NicheService:
@@ -47,10 +48,24 @@ class NicheService:
         self, name: str, category_id: int
     ) -> tuple[NicheEntity, int] | None:
         niche = self.__session.execute(
-            NicheService.__select_niche_atomic()
+            select(Niche)
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
         ).scalar_one_or_none()
+        return (self.__table_mapper.map(niche), niche.id) if niche is not None else None
+
+    def find_by_name_atomic(
+        self, name: str, category_id: int
+    ) -> tuple[NicheEntity, int] | None:
+        niche = (
+            self.__session.execute(
+                NicheService.__select_niche_atomic()
+                .where(Niche.category_id == category_id)
+                .where(Niche.name.ilike(name))
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return (self.__table_mapper.map(niche), niche.id) if niche is not None else None
 
     def find_all_in_category(self, category_id: int) -> dict[int, NicheEntity]:
@@ -132,10 +147,22 @@ class NicheService:
 
     @staticmethod
     def __select_niche_atomic() -> Select[tuple[Niche]]:
-        return select(Niche).options(
-            joinedload(Niche.products)
-            .joinedload(ProductCard.histories)
-            .joinedload(ProductHistory.leftovers)
+        return (
+            select(Niche)
+            .join(Niche.category)
+            .outerjoin(Niche.products)
+            .outerjoin(ProductCard.histories)
+            .outerjoin(ProductHistory.leftovers)
+            .outerjoin(Leftover.warehouse)
+            .options(
+                contains_eager(Niche.category),
+                contains_eager(Niche.products)
+                .contains_eager(ProductCard.histories)
+                .contains_eager(ProductHistory.leftovers)
+                .contains_eager(Leftover.warehouse),
+            )
+            .order_by(ProductCard.name)
+            .order_by(Leftover.type, Leftover.quantity)
         )
 
     @staticmethod

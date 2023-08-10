@@ -52,11 +52,9 @@ users_to_products = Table(
 class UserToWarehouse(Base):
     __tablename__ = "users_to_warehouses"
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
-    user: Mapped["User"] = relationship()
     warehouse_id: Mapped[int] = mapped_column(
         ForeignKey("warehouses.id"), primary_key=True, unique=True
     )
-    warehouse: Mapped["Warehouse"] = relationship()
 
 
 class User(Base):
