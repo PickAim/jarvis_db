@@ -224,7 +224,7 @@ class Marketplace(Base):
     )
     warehouses: Mapped[list["Warehouse"]] = relationship(
         "Warehouse",
-        back_populates="owner",
+        back_populates="marketplace",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -328,10 +328,10 @@ class Niche(Base):
 class Warehouse(Base):
     __tablename__ = "warehouses"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_id: Mapped[int] = mapped_column(
+    marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
-    owner: Mapped[Marketplace] = relationship(
+    marketplace: Mapped[Marketplace] = relationship(
         "Marketplace", back_populates="warehouses"
     )
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -368,7 +368,7 @@ class Warehouse(Base):
     additional_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     monopalette_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    __table_args__ = (UniqueConstraint(owner_id, global_id),)
+    __table_args__ = (UniqueConstraint(marketplace_id, global_id),)
 
     def __repr__(self) -> str:
         return (

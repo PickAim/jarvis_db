@@ -54,7 +54,9 @@ class WarehouseServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             warehouses = (
                 session.execute(
-                    select(Warehouse).where(Warehouse.owner_id == self.__marketplace_id)
+                    select(Warehouse).where(
+                        Warehouse.marketplace_id == self.__marketplace_id
+                    )
                 )
                 .scalars()
                 .all()
@@ -68,7 +70,7 @@ class WarehouseServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(
                 Warehouse(
-                    owner_id=self.__marketplace_id,
+                    marketplace_id=self.__marketplace_id,
                     global_id=200,
                     type=1,
                     name=warehouse_name,
@@ -97,7 +99,7 @@ class WarehouseServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(
                 Warehouse(
-                    owner_id=self.__marketplace_id,
+                    marketplace_id=self.__marketplace_id,
                     global_id=global_id,
                     type=1,
                     name="warehouse_name",
@@ -128,7 +130,7 @@ class WarehouseServiceTest(unittest.TestCase):
             )
             db_warehouses = [
                 Warehouse(
-                    owner_id=marketplace_ids[i % len(marketplace_ids)],
+                    marketplace_id=marketplace_ids[i % len(marketplace_ids)],
                     global_id=200 + 10 * i,
                     type=i % 3,
                     name=f"warehouse_{i}",
@@ -149,7 +151,7 @@ class WarehouseServiceTest(unittest.TestCase):
             expected_warehouses = [
                 mapper.map(warehouse)
                 for warehouse in db_warehouses
-                if warehouse.owner_id == self.__marketplace_id
+                if warehouse.marketplace_id == self.__marketplace_id
             ]
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
@@ -166,7 +168,7 @@ class WarehouseServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             session.add(
                 Warehouse(
-                    owner_id=self.__marketplace_id,
+                    marketplace_id=self.__marketplace_id,
                     global_id=200,
                     type=1,
                     name=warehouse_name,
@@ -199,7 +201,7 @@ class WarehouseServiceTest(unittest.TestCase):
             session.add_all(
                 (
                     Warehouse(
-                        owner_id=self.__marketplace_id,
+                        marketplace_id=self.__marketplace_id,
                         global_id=i,
                         type=1,
                         name=warehouse_name,
@@ -233,7 +235,7 @@ class WarehouseServiceTest(unittest.TestCase):
             session.add_all(
                 (
                     Warehouse(
-                        owner_id=self.__marketplace_id,
+                        marketplace_id=self.__marketplace_id,
                         global_id=global_id,
                         type=1,
                         name=f"warehouse_{global_id}",
