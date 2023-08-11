@@ -83,35 +83,6 @@ class UserService:
         )
         self.__session.flush()
 
-    # def append_product(self, user_id: int, product_id: int):
-    #     self.__session.execute(
-    #         insert(users_to_products).values(user_id=user_id, product_id=product_id)
-    #     )
-    #     self.__session.flush()
-
-    # def remove_product(self, user_id: int, product_id: int):
-    #     self.__session.execute(
-    #         delete(users_to_products)
-    #         .where(users_to_products.columns.user_id == user_id)
-    #         .where(users_to_products.columns.product_id == product_id)
-    #     )
-    #     self.__session.flush()
-
-    # def append_warehouse(self, user_id: int, warehouse_id: int):
-    #     self.__session.add(UserToWarehouse(user_id=user_id, warehouse_id=warehouse_id))
-    #     self.__session.flush()
-
-    # def remove_warehouse(self, user_id: int, warehouse_id: int):
-    #     self.__session.execute(
-    #         delete(UserToWarehouse)
-    #         .where(UserToWarehouse.user_id == user_id)
-    #         .where(UserToWarehouse.warehouse_id == warehouse_id)
-    #     )
-    #     self.__session.flush()
-
-    # def fetch_user_warehouses(self, user_id: int) -> dict[int, WarehouseEntity]:
-    #     return {}
-
     def delete(self, user_id: int):
         self.__session.execute(
             delete(Account).where(
