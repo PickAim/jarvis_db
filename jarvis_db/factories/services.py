@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.factories.loaders import create_niche_loader
 from jarvis_db.factories.mappers import (
     create_category_table_mapper,
     create_marketplace_table_mapper,
     create_niche_table_mapper,
     create_product_table_mapper,
 )
+from jarvis_db.factories.query_builders import create_niche_join_builder
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
@@ -31,6 +33,9 @@ from jarvis_db.mappers.market.service.economy_request_mappers import (
 )
 from jarvis_db.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
+)
+from jarvis_db.queries.implementations.joinload_product_query_builder import (
+    JoinedLoadProductCardLoadBuilder,
 )
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
@@ -100,7 +105,12 @@ def create_niche_service(
     session: Session, niche_mapper: Mapper[schemas.Niche, Niche] | None = None
 ) -> NicheService:
     niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
-    return NicheService(session, niche_mapper)
+    return NicheService(
+        session,
+        niche_mapper,
+        create_niche_join_builder(),
+        create_niche_loader(),
+    )
 
 
 def create_warehouse_service(
