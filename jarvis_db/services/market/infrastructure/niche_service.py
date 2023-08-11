@@ -150,8 +150,6 @@ class NicheService:
                 joinedload(Niche.category),
                 self.__niche_loader.load_products(),
             )
-            .order_by(ProductCard.name)
-            .order_by(Leftover.type, Leftover.quantity)
             .distinct(Niche.id)
         )
 
