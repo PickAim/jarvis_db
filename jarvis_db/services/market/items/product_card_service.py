@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import ProductCard
+from jarvis_db.schemas import Category, Niche, ProductCard
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
@@ -37,6 +37,22 @@ class ProductCardService:
             )
         )
         self.__session.flush()
+
+    def find_by_id(self, product_id: int) -> Product | None:
+        product = self.__session.execute(
+            select(ProductCard).where(ProductCard.id == product_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(product) if product is not None else None
+
+    def find_by_gloabal_id(self, global_id: int, marketplace_id: int) -> Product | None:
+        product = self.__session.execute(
+            select(ProductCard)
+            .join(ProductCard.niche)
+            .join(Niche.category)
+            .where(ProductCard.global_id == global_id)
+            .where(Category.marketplace_id == marketplace_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(product) if product is not None else None
 
     def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         niche_products = (

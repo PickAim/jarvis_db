@@ -50,7 +50,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
                 country="AS", region="QS", street="DD", number="HH", corpus="YU"
             )
             warehouse = Warehouse(
-                owner=marketplace,
+                marketplace=marketplace,
                 global_id=200,
                 type=0,
                 name="qwerty",

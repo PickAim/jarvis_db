@@ -1,14 +1,16 @@
-from jorm.market.infrastructure import Marketplace, Niche, Warehouse
+from jorm.market.infrastructure import Marketplace, Niche, Product, Warehouse
 from sqlalchemy.orm import Session
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.factories.loaders import create_niche_loader
 from jarvis_db.factories.mappers import (
     create_category_table_mapper,
     create_marketplace_table_mapper,
     create_niche_table_mapper,
     create_product_table_mapper,
 )
+from jarvis_db.factories.query_builders import create_niche_join_builder
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
@@ -32,6 +34,9 @@ from jarvis_db.mappers.market.service.economy_request_mappers import (
 from jarvis_db.mappers.market.service.economy_result_mappers import (
     EconomyResultTableToJormMapper,
 )
+from jarvis_db.queries.implementations.joinload_product_query_builder import (
+    JoinedLoadProductCardLoadBuilder,
+)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
@@ -42,7 +47,8 @@ from jarvis_db.services.market.items.product_card_service import ProductCardServ
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
-from jarvis_db.services.market.person import AccountService, UserService, TokenService
+from jarvis_db.services.market.person import AccountService, TokenService, UserService
+from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.frequency_service import FrequencyService
 
@@ -53,6 +59,18 @@ def create_account_service(session: Session) -> AccountService:
 
 def create_user_service(session: Session) -> UserService:
     return UserService(session, UserTableToJormMapper())
+
+
+def create_user_items_service(
+    session: Session,
+    product_mapper: Mapper[schemas.ProductCard, Product] | None = None,
+    warehouse_mapper: Mapper[schemas.Warehouse, Warehouse] | None = None,
+) -> UserItemsService:
+    return UserItemsService(
+        session,
+        create_product_table_mapper() if product_mapper is None else product_mapper,
+        WarehouseTableToJormMapper() if warehouse_mapper is None else warehouse_mapper,
+    )
 
 
 def create_token_service(session: Session) -> TokenService:
@@ -87,7 +105,12 @@ def create_niche_service(
     session: Session, niche_mapper: Mapper[schemas.Niche, Niche] | None = None
 ) -> NicheService:
     niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
-    return NicheService(session, niche_mapper)
+    return NicheService(
+        session,
+        niche_mapper,
+        create_niche_join_builder(),
+        create_niche_loader(),
+    )
 
 
 def create_warehouse_service(

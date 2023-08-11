@@ -41,7 +41,7 @@ class WarehouseService:
         warehouse = self.__session.execute(
             select(Warehouse)
             .join(Warehouse.address)
-            .where(Warehouse.owner_id == marketplace_id)
+            .where(Warehouse.marketplace_id == marketplace_id)
             .where(Warehouse.name.ilike(name))
         ).scalar_one_or_none()
         return (
@@ -55,7 +55,7 @@ class WarehouseService:
     ) -> tuple[int, WarehouseEntity] | None:
         warehouse = self.__session.execute(
             select(Warehouse)
-            .where(Warehouse.owner_id == marketplace_id)
+            .where(Warehouse.marketplace_id == marketplace_id)
             .where(Warehouse.global_id == global_id)
         ).scalar_one_or_none()
         return (
@@ -69,7 +69,7 @@ class WarehouseService:
             self.__session.execute(
                 select(Warehouse)
                 .join(Warehouse.address)
-                .where(Warehouse.owner_id == marketplace_id)
+                .where(Warehouse.marketplace_id == marketplace_id)
             )
             .scalars()
             .all()
@@ -82,7 +82,7 @@ class WarehouseService:
         return (
             self.__session.execute(
                 select(Warehouse)
-                .where(Warehouse.owner_id == marketplace_id)
+                .where(Warehouse.marketplace_id == marketplace_id)
                 .where(Warehouse.name.ilike(name))
             ).scalar_one_or_none()
             is not None
@@ -121,7 +121,7 @@ class WarehouseService:
         }
         handler_type_code = handler_type_to_int[warehouse.handler_type]
         return Warehouse(
-            owner_id=marketplace_id,
+            marketplace_id=marketplace_id,
             global_id=warehouse.global_id,
             name=warehouse.name,
             basic_logistic_to_customer_commission=warehouse.basic_logistic_to_customer_commission,

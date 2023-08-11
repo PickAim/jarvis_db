@@ -36,17 +36,26 @@ class Account(Base):
         )
 
 
-users_to_products = Table(
-    "users_to_products",
-    Base.metadata,
-    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
-    Column(
-        "product_id",
+class UserToProduct(Base):
+    __tablename__ = "users_to_products"
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    product_id: Mapped[int] = mapped_column(
         ForeignKey("product_cards.id", ondelete="CASCADE"),
         primary_key=True,
         unique=True,
-    ),
-)
+    )
+
+
+class UserToWarehouse(Base):
+    __tablename__ = "users_to_warehouses"
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    warehouse_id: Mapped[int] = mapped_column(
+        ForeignKey("warehouses.id", ondelete="CASCADE"), primary_key=True, unique=True
+    )
 
 
 class User(Base):
@@ -80,7 +89,12 @@ class User(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
+    products: Mapped[list["ProductCard"]] = relationship(
+        secondary=UserToProduct.__table__
+    )
+    warehouses: Mapped[list["Warehouse"]] = relationship(
+        secondary=UserToWarehouse.__table__
+    )
 
     def __repr__(self) -> str:
         return (
@@ -224,7 +238,7 @@ class Marketplace(Base):
     )
     warehouses: Mapped[list["Warehouse"]] = relationship(
         "Warehouse",
-        back_populates="owner",
+        back_populates="marketplace",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -328,10 +342,10 @@ class Niche(Base):
 class Warehouse(Base):
     __tablename__ = "warehouses"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_id: Mapped[int] = mapped_column(
+    marketplace_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Marketplace.id, ondelete="CASCADE"), nullable=False
     )
-    owner: Mapped[Marketplace] = relationship(
+    marketplace: Mapped[Marketplace] = relationship(
         "Marketplace", back_populates="warehouses"
     )
     global_id: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -368,7 +382,7 @@ class Warehouse(Base):
     additional_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
     monopalette_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    __table_args__ = (UniqueConstraint(owner_id, global_id),)
+    __table_args__ = (UniqueConstraint(marketplace_id, global_id),)
 
     def __repr__(self) -> str:
         return (
@@ -413,7 +427,7 @@ class ProductCard(Base):
         passive_deletes=True,
     )
 
-    __table_args__ = (UniqueConstraint(name, global_id, niche_id),)
+    __table_args__ = (UniqueConstraint(global_id, niche_id),)
 
     def __repr__(self) -> str:
         return (

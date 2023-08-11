@@ -36,7 +36,7 @@ class ProductHistoryService:
                             quantity=leftover.leftover,
                             warehouse_id=(
                                 select(Warehouse.id)
-                                .join(Warehouse.owner)
+                                .join(Warehouse.marketplace)
                                 .join(Marketplace.categories)
                                 .join(Category.niches)
                                 .join(Niche.products)

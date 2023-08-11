@@ -1,20 +1,22 @@
 import unittest
+from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import select
+from sqlalchemy.orm import contains_eager
 
 from jarvis_db import schemas
 from jarvis_db.factories.mappers import create_niche_table_mapper
 from jarvis_db.factories.services import create_niche_service
-from jarvis_db.schemas import Niche, ProductCard, ProductHistory
+from jarvis_db.schemas import Leftover, Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
 
 class NicheServiceTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_categories(1)
@@ -133,21 +135,35 @@ class NicheServiceTest(unittest.TestCase):
             )
             session.flush()
             seeder = AlchemySeeder(session)
-            seeder.seed_leftovers(500)
+            seeder.seed_products(5)
+            seeder.seed_product_histories(10)
+            seeder.seed_leftovers(50)
             mapper = create_niche_table_mapper()
             expected_niche = mapper.map(
                 session.execute(
                     select(Niche)
+                    .join(Niche.category)
                     .outerjoin(Niche.products)
                     .outerjoin(ProductCard.histories)
                     .outerjoin(ProductHistory.leftovers)
+                    .join(Leftover.warehouse)
                     .where(Niche.id == niche_id)
-                    .distinct()
-                ).scalar_one()
+                    .order_by(Leftover.type, Leftover.quantity)
+                    .options(
+                        contains_eager(Niche.category),
+                        contains_eager(Niche.products)
+                        .contains_eager(ProductCard.histories)
+                        .contains_eager(ProductHistory.leftovers)
+                        .contains_eager(Leftover.warehouse),
+                    )
+                )
+                .unique()
+                .scalar_one()
             )
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             actual_niche = service.fetch_by_id_atomic(niche_id)
+            assert actual_niche is not None
             self.assertEqual(expected_niche, actual_niche)
 
     def test_find_all_in_category(self):
@@ -169,31 +185,49 @@ class NicheServiceTest(unittest.TestCase):
                 self.assertEqual(expected, actual)
 
     def test_fetch_all_in_category_atomic(self):
+        def sort_niches(niche_iterable: Iterable[NicheEntity]):
+            for niche in niche_iterable:
+                niche.products.sort(key=lambda x: x.name)
+                for product in niche.products:
+                    for history in product.history:
+                        for leftovers in history.leftover.values():
+                            leftovers.sort(key=lambda unit: unit.specify)
+                            leftovers.sort(key=lambda unit: unit.leftover)
+
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_categories(2)
-            seeder.seed_niches(30)
-            seeder.seed_products(300)
+            seeder.seed_niches(4)
+            seeder.seed_products(12)
+            seeder.seed_product_histories(80)
+            seeder.seed_leftovers(160)
             niches = (
                 session.execute(
-                    select(schemas.Niche).outerjoin(schemas.Niche.products).distinct()
+                    select(schemas.Niche)
+                    .outerjoin(schemas.Niche.products)
+                    .outerjoin(schemas.ProductCard.histories)
+                    .outerjoin(schemas.ProductHistory.leftovers)
+                    .outerjoin(schemas.Leftover.warehouse)
+                    .where(Niche.category_id == self.__category_id)
+                    .distinct()
                 )
+                .unique()
                 .scalars()
                 .all()
             )
             mapper = create_niche_table_mapper()
-            expected_niches = [
-                mapper.map(niche)
+            expected_niches = {
+                niche.id: mapper.map(niche)
                 for niche in niches
                 if niche.category_id == self.__category_id
-            ]
+            }
+            sort_niches(expected_niches.values())
         with self.__db_context.session() as session:
             service = create_niche_service(session)
-            actual_niches = service.fetch_all_in_category_atomic(
-                self.__category_id
-            ).values()
-            for expected, actual in zip(expected_niches, actual_niches, strict=True):
-                self.assertEqual(expected, actual)
+            actual_niches = service.fetch_all_in_category_atomic(self.__category_id)
+            sort_niches(actual_niches.values())
+            self.assertEqual(len(expected_niches), len(actual_niches))
+            self.assertDictEqual(expected_niches, actual_niches)
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session, session.begin():

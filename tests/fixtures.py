@@ -250,7 +250,7 @@ def create_warehouses(
 ) -> list[Warehouse]:
     return [
         Warehouse(
-            owner=marketplaces[i % len(marketplaces)],
+            marketplace=marketplaces[i % len(marketplaces)],
             global_id=200 + i,
             type=1,
             name=f"warehouse_name_{i}",

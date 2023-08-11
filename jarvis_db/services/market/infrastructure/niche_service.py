@@ -2,11 +2,12 @@ from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
-from sqlalchemy import select, update
-from sqlalchemy.orm import Session, selectinload, joinedload
+from sqlalchemy import Select, select, update
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
+from jarvis_db.queries.niche_query_builder import NicheJoinBuilder, NicheLoadBuilder
+from jarvis_db.schemas import Category, Leftover, Niche, ProductCard
 
 
 class NicheService:
@@ -14,9 +15,13 @@ class NicheService:
         self,
         session: Session,
         table_mapper: Mapper[Niche, NicheEntity],
+        niche_join_builder: NicheJoinBuilder,
+        niche_loader: NicheLoadBuilder,
     ):
         self.__session = session
         self.__table_mapper = table_mapper
+        self.__niche_join_builder = niche_join_builder
+        self.__niche_loader = niche_loader
 
     def create(self, niche_entity: NicheEntity, category_id: int):
         self.__session.add(
@@ -34,19 +39,9 @@ class NicheService:
         self.__session.flush()
 
     def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
-        niche = (
-            self.__session.execute(
-                select(Niche)
-                .options(
-                    joinedload(Niche.products)
-                    .selectinload(ProductCard.histories)
-                    .selectinload(ProductHistory.leftovers)
-                )
-                .where(Niche.id == niche_id)
-            )
-            .unique()
-            .scalar_one_or_none()
-        )
+        stmt = self.__select_niche_atomic().where(Niche.id == niche_id)
+        print(stmt)
+        niche = self.__session.execute(stmt).unique().scalar_one_or_none()
         return self.__table_mapper.map(niche) if niche is not None else None
 
     def find_by_name(
@@ -57,6 +52,20 @@ class NicheService:
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
         ).scalar_one_or_none()
+        return (self.__table_mapper.map(niche), niche.id) if niche is not None else None
+
+    def find_by_name_atomic(
+        self, name: str, category_id: int
+    ) -> tuple[NicheEntity, int] | None:
+        niche = (
+            self.__session.execute(
+                self.__select_niche_atomic()
+                .where(Niche.category_id == category_id)
+                .where(Niche.name.ilike(name))
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return (self.__table_mapper.map(niche), niche.id) if niche is not None else None
 
     def find_all_in_category(self, category_id: int) -> dict[int, NicheEntity]:
@@ -72,16 +81,10 @@ class NicheService:
     def fetch_all_in_category_atomic(self, category_id: int) -> dict[int, NicheEntity]:
         niches = (
             self.__session.execute(
-                select(Niche)
-                .options(
-                    selectinload(Niche.products)
-                    .selectinload(ProductCard.histories)
-                    .selectinload(ProductHistory.leftovers)
-                )
-                .where(Niche.category_id == category_id)
+                self.__select_niche_atomic().where(Niche.category_id == category_id)
             )
-            .scalars()
             .unique()
+            .scalars()
             .all()
         )
         return {niche.id: self.__table_mapper.map(niche) for niche in niches}
@@ -139,6 +142,16 @@ class NicheService:
             )
         )
         self.__session.flush()
+
+    def __select_niche_atomic(self) -> Select[tuple[Niche]]:
+        return (
+            self.__niche_join_builder.join_products(select(Niche))
+            .options(
+                joinedload(Niche.category),
+                self.__niche_loader.load_products(),
+            )
+            .distinct(Niche.id)
+        )
 
     @staticmethod
     def __create_niche_record(niche: NicheEntity, category_id: int) -> Niche:
