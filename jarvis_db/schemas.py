@@ -36,24 +36,25 @@ class Account(Base):
         )
 
 
-users_to_products = Table(
-    "users_to_products",
-    Base.metadata,
-    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
-    Column(
-        "product_id",
+class UserToProduct(Base):
+    __tablename__ = "users_to_products"
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    product_id: Mapped[int] = mapped_column(
         ForeignKey("product_cards.id", ondelete="CASCADE"),
         primary_key=True,
         unique=True,
-    ),
-)
+    )
 
 
 class UserToWarehouse(Base):
     __tablename__ = "users_to_warehouses"
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
     warehouse_id: Mapped[int] = mapped_column(
-        ForeignKey("warehouses.id"), primary_key=True, unique=True
+        ForeignKey("warehouses.id", ondelete="CASCADE"), primary_key=True, unique=True
     )
 
 
@@ -88,7 +89,9 @@ class User(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    products: Mapped[list["ProductCard"]] = relationship(secondary=users_to_products)
+    products: Mapped[list["ProductCard"]] = relationship(
+        secondary=UserToProduct.__table__
+    )
     warehouses: Mapped[list["Warehouse"]] = relationship(
         secondary=UserToWarehouse.__table__
     )

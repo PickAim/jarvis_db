@@ -1,10 +1,9 @@
-from jorm.market.person import User as UserEntity, Warehouse as WarehouseEntity
-from sqlalchemy import delete, insert, select
+from jorm.market.person import User as UserEntity
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session, selectinload, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Account, MarketplaceApiKey, User, UserToWarehouse
-from jarvis_db.schemas import users_to_products
+from jarvis_db.schemas import Account, MarketplaceApiKey, User
 
 
 class UserService:

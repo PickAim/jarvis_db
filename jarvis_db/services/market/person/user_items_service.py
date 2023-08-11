@@ -9,7 +9,7 @@ from jarvis_db.schemas import (
     User,
     UserToWarehouse,
     Warehouse,
-    users_to_products,
+    UserToProduct,
 )
 
 
@@ -25,16 +25,14 @@ class UserItemsService:
         self.__warehouse_mapper = warehouse_mapper
 
     def append_product(self, user_id: int, product_id: int):
-        self.__session.execute(
-            insert(users_to_products).values(user_id=user_id, product_id=product_id)
-        )
+        self.__session.add(UserToProduct(user_id=user_id, product_id=product_id))
         self.__session.flush()
 
     def remove_product(self, user_id: int, product_id: int):
         self.__session.execute(
-            delete(users_to_products)
-            .where(users_to_products.columns.user_id == user_id)
-            .where(users_to_products.columns.product_id == product_id)
+            delete(UserToProduct)
+            .where(UserToProduct.user_id == user_id)
+            .where(UserToProduct.product_id == product_id)
         )
         self.__session.flush()
 
