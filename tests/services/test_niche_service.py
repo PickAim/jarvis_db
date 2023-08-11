@@ -185,8 +185,6 @@ class NicheServiceTest(unittest.TestCase):
                 self.assertEqual(expected, actual)
 
     def test_fetch_all_in_category_atomic(self):
-        self.maxDiff = None
-
         def sort_niches(niche_iterable: Iterable[NicheEntity]):
             for niche in niche_iterable:
                 niche.products.sort(key=lambda x: x.name)
