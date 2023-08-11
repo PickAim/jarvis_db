@@ -54,14 +54,8 @@ class JormCollectorImpl(JORMCollector):
         return self.__niche_service.fetch_all_in_category_atomic(category_id)
 
     def get_niche(
-        self, niche_name: str, category_name: str, marketplace_id: int
+        self, niche_name: str, category_id: int, marketplace_id: int
     ) -> Niche | None:
-        category_result = self.__category_service.find_by_name(
-            category_name, marketplace_id
-        )
-        if category_result is None:
-            return None
-        _, category_id = category_result
         niche_tuple = self.__niche_service.find_by_name_atomic(niche_name, category_id)
         if niche_tuple is None:
             return None
