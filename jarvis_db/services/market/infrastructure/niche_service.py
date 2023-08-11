@@ -152,6 +152,7 @@ class NicheService:
             )
             .order_by(ProductCard.name)
             .order_by(Leftover.type, Leftover.quantity)
+            .distinct(Niche.id)
         )
 
     @staticmethod
