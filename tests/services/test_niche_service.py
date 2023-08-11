@@ -1,4 +1,5 @@
 import unittest
+from typing import Iterable
 
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
@@ -184,18 +185,33 @@ class NicheServiceTest(unittest.TestCase):
                 self.assertEqual(expected, actual)
 
     def test_fetch_all_in_category_atomic(self):
+        self.maxDiff = None
+
+        def sort_niches(niche_iterable: Iterable[NicheEntity]):
+            for niche in niche_iterable:
+                niche.products.sort(key=lambda x: x.name)
+                for product in niche.products:
+                    for history in product.history:
+                        for leftovers in history.leftover.values():
+                            leftovers.sort(key=lambda unit: unit.specify)
+                            leftovers.sort(key=lambda unit: unit.leftover)
+
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_categories(2)
             seeder.seed_niches(4)
             seeder.seed_products(12)
+            seeder.seed_product_histories(80)
+            seeder.seed_leftovers(160)
             niches = (
                 session.execute(
                     select(schemas.Niche)
                     .outerjoin(schemas.Niche.products)
+                    .outerjoin(schemas.ProductCard.histories)
+                    .outerjoin(schemas.ProductHistory.leftovers)
+                    .outerjoin(schemas.Leftover.warehouse)
                     .where(Niche.category_id == self.__category_id)
-                    .options(contains_eager(Niche.products))
-                    .order_by(ProductCard.name)
+                    .distinct()
                 )
                 .unique()
                 .scalars()
@@ -207,9 +223,12 @@ class NicheServiceTest(unittest.TestCase):
                 for niche in niches
                 if niche.category_id == self.__category_id
             }
+            sort_niches(expected_niches.values())
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             actual_niches = service.fetch_all_in_category_atomic(self.__category_id)
+            sort_niches(actual_niches.values())
+            self.assertEqual(len(expected_niches), len(actual_niches))
             self.assertDictEqual(expected_niches, actual_niches)
 
     def test_find_all_in_marketplace(self):
