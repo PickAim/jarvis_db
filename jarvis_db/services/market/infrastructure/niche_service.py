@@ -3,11 +3,11 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import Select, select, update
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.queries.niche_query_builder import NicheJoinBuilder, NicheLoadBuilder
-from jarvis_db.schemas import Category, Leftover, Niche, ProductCard
+from jarvis_db.queries.query_builder import QueryBuilder
+from jarvis_db.schemas import Category, Niche
 
 
 class NicheService:
@@ -15,13 +15,11 @@ class NicheService:
         self,
         session: Session,
         table_mapper: Mapper[Niche, NicheEntity],
-        niche_join_builder: NicheJoinBuilder,
-        niche_loader: NicheLoadBuilder,
+        niche_query_builder: QueryBuilder[Niche],
     ):
         self.__session = session
         self.__table_mapper = table_mapper
-        self.__niche_join_builder = niche_join_builder
-        self.__niche_loader = niche_loader
+        self.__niche_query_builder = niche_query_builder
 
     def create(self, niche_entity: NicheEntity, category_id: int):
         self.__session.add(
@@ -145,12 +143,11 @@ class NicheService:
 
     def __select_niche_atomic(self) -> Select[tuple[Niche]]:
         return (
-            self.__niche_join_builder.join_products(select(Niche))
+            self.__niche_query_builder.join(select(Niche))
             .options(
-                joinedload(Niche.category),
-                self.__niche_loader.load_products(),
+                *self.__niche_query_builder.provide_load_options(),
             )
-            .distinct(Niche.id)
+            .distinct()
         )
 
     @staticmethod
