@@ -1,7 +1,7 @@
-from sqlalchemy import delete, insert, select
-from sqlalchemy.orm import Session, contains_eager, load_only
-from jorm.market.person import Warehouse as WarehouseDomain
 from jorm.market.infrastructure import Product
+from jorm.market.person import Warehouse as WarehouseDomain
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session, contains_eager, load_only
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (

@@ -1,7 +1,8 @@
 from sqlalchemy import delete, select, update
+from sqlalchemy.orm import Session
+
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import TokenSet
-from sqlalchemy.orm import Session
 
 
 class TokenService:

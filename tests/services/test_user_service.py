@@ -8,7 +8,7 @@ from jarvis_db.factories.services import create_user_service
 from jarvis_db.mappers.market.person.user_mappers import (
     UserTableToJormMapper,
 )
-from jarvis_db.schemas import Account, Marketplace, MarketplaceApiKey, ProductCard, User
+from jarvis_db.schemas import Account, Marketplace, MarketplaceApiKey, User
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
