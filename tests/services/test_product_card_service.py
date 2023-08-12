@@ -35,12 +35,10 @@ class ProductCardServiceTest(unittest.TestCase):
         )
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
-            service.create_product(expected, self.__niche_id)
+            product_id = service.create_product(expected, self.__niche_id)
         with self.__db_context.session() as session:
             found = session.execute(
-                select(ProductCard)
-                .where(ProductCard.niche_id == self.__niche_id)
-                .where(ProductCard.name == expected.name)
+                select(ProductCard).where(ProductCard.id == product_id)
             ).scalar_one()
             mapper = create_product_table_mapper()
             actual = mapper.map(found)

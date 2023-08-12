@@ -22,12 +22,13 @@ class ProductCardService:
         self.__table_mapper = table_mapper
         self.__history_service = history_service
 
-    def create_product(self, product: Product, niche_id: int):
+    def create_product(self, product: Product, niche_id: int) -> int:
         db_product = ProductCardService.__create_product_record(product, niche_id)
         self.__session.add(db_product)
         self.__session.flush()
         self.__history_service.create(product.history, db_product.id)
         self.__session.flush()
+        return db_product.id
 
     def create_products(self, products: Iterable[Product], niche_id: int):
         self.__session.add_all(
