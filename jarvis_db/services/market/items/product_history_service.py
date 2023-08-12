@@ -61,6 +61,7 @@ class ProductHistoryService:
                     joinedload(ProductHistory.leftovers).joinedload(Leftover.warehouse)
                 )
                 .where(ProductHistory.product_id == product_id)
+                .distinct()
             )
             .scalars()
             .unique()

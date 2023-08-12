@@ -81,6 +81,7 @@ class UserItemsService:
                 .where(UserToWarehouse.user_id == user_id)
                 .where(Warehouse.marketplace_id == marketplace_id)
                 .options(load_only(User.id), contains_eager(User.warehouses))
+                .distinct()
             )
             .unique()
             .scalar_one()
