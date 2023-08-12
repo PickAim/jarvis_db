@@ -107,6 +107,17 @@ class UserItemServiceTest(unittest.TestCase):
             actual = service.fetch_user_products(self.__user_id, marketplace_id)
             self.assertDictEqual(expected, actual)
 
+    def test_fetch_user_products_returns_empty_list(self):
+        with self.__db_context.session() as session:
+            service = create_user_items_service(session)
+            seeder = AlchemySeeder(session)
+            seeder.seed_niches(3)
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            actual = service.fetch_user_products(self.__user_id, marketplace_id)
+            self.assertEqual(0, len(actual))
+
     def test_fetch_user_warehouses(self):
         mapper = WarehouseTableToJormMapper()
         with self.__db_context.session() as session, session.begin():
@@ -130,6 +141,17 @@ class UserItemServiceTest(unittest.TestCase):
             service = create_user_items_service(session)
             actual = service.fetch_user_warehouses(self.__user_id, marketplace_id)
             self.assertDictEqual(expected, actual)
+
+    def test_fetch_user_warehouses_returns_empty_list(self):
+        with self.__db_context.session() as session:
+            service = create_user_items_service(session)
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(3)
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            actual = service.fetch_user_warehouses(self.__user_id, marketplace_id)
+            self.assertEqual(0, len(actual))
 
 
 if __name__ == "__main__":
