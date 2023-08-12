@@ -44,7 +44,9 @@ class ProductCardService:
         ).scalar_one_or_none()
         return self.__table_mapper.map(product) if product is not None else None
 
-    def find_by_gloabal_id(self, global_id: int, marketplace_id: int) -> Product | None:
+    def find_by_gloabal_id(
+        self, global_id: int, marketplace_id: int
+    ) -> tuple[Product, int] | None:
         product = self.__session.execute(
             select(ProductCard)
             .join(ProductCard.niche)
@@ -52,7 +54,11 @@ class ProductCardService:
             .where(ProductCard.global_id == global_id)
             .where(Category.marketplace_id == marketplace_id)
         ).scalar_one_or_none()
-        return self.__table_mapper.map(product) if product is not None else None
+        return (
+            (self.__table_mapper.map(product), product.id)
+            if product is not None
+            else None
+        )
 
     def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         niche_products = (

@@ -104,9 +104,11 @@ class ProductCardServiceTest(unittest.TestCase):
     def test_find_by_global_id(self):
         mapper = create_product_table_mapper()
         global_id = 200
+        product_id = 100
         with self.__db_context.session() as session, session.begin():
             marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
             product = ProductCard(
+                id=product_id,
                 name="product_name",
                 global_id=global_id,
                 cost=1000,
@@ -122,7 +124,7 @@ class ProductCardServiceTest(unittest.TestCase):
             service = create_product_card_service(session)
             actual = service.find_by_gloabal_id(global_id, marketplace_id)
             assert actual is not None
-            self.assertEqual(expected, actual)
+            self.assertTupleEqual((expected, product_id), actual)
 
     def test_find_all_in_niche(self):
         mapper = create_product_table_mapper()
