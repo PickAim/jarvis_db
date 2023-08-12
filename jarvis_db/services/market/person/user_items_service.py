@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session, contains_eager, load_only
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
+    Category,
+    Niche,
     ProductCard,
     User,
     UserToWarehouse,
@@ -36,13 +38,19 @@ class UserItemsService:
         )
         self.__session.flush()
 
-    def fetch_user_products(self, user_id: int) -> dict[int, Product]:
+    def fetch_user_products(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, Product]:
         user = (
             self.__session.execute(
                 select(User)
                 .outerjoin(User.products)
+                .join(ProductCard.niche)
+                .join(Niche.category)
+                .where(Category.marketplace_id == marketplace_id)
                 .where(User.id == user_id)
                 .options(load_only(User.id), contains_eager(User.products))
+                .distinct()
             )
             .unique()
             .scalar_one()
@@ -63,12 +71,15 @@ class UserItemsService:
         )
         self.__session.flush()
 
-    def fetch_user_warehouses(self, user_id: int) -> dict[int, WarehouseDomain]:
+    def fetch_user_warehouses(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, WarehouseDomain]:
         user = (
             self.__session.execute(
                 select(User)
                 .outerjoin(User.warehouses)
                 .where(UserToWarehouse.user_id == user_id)
+                .where(Warehouse.marketplace_id == marketplace_id)
                 .options(load_only(User.id), contains_eager(User.warehouses))
             )
             .unique()
