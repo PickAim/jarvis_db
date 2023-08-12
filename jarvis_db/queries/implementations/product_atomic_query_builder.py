@@ -7,7 +7,7 @@ from jarvis_db.queries.query_builder import QueryBuilder
 from jarvis_db.schemas import Leftover, ProductCard, ProductHistory
 
 
-class AtomicJoinProductCardQueryBuilder(QueryBuilder[ProductCard]):
+class ProductCardAtomicJoinQueryBuilder(QueryBuilder[ProductCard]):
     def provide_load_options(self) -> Iterable[_AbstractLoad]:
         return [
             joinedload(ProductCard.histories)

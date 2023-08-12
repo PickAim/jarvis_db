@@ -9,7 +9,10 @@ from jarvis_db.factories.mappers import (
     create_niche_table_mapper,
     create_product_table_mapper,
 )
-from jarvis_db.factories.queries import create_niche_query_builder
+from jarvis_db.factories.queries import (
+    create_category_query_builder,
+    create_niche_query_builder,
+)
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
@@ -93,6 +96,7 @@ def create_category_service(
         niche_mapper = create_niche_table_mapper()
     return CategoryService(
         session,
+        create_category_query_builder(),
         create_category_table_mapper(niche_mapper),
     )
 
@@ -103,8 +107,8 @@ def create_niche_service(
     niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
     return NicheService(
         session,
-        niche_mapper,
         create_niche_query_builder(),
+        niche_mapper,
     )
 
 

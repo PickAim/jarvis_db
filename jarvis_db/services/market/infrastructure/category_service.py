@@ -2,19 +2,22 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Category, Niche, ProductCard, ProductHistory
+from jarvis_db.queries.query_builder import QueryBuilder
+from jarvis_db.schemas import Category
 
 
 class CategoryService:
     def __init__(
         self,
         session: Session,
+        category_query_builder: QueryBuilder[Category],
         table_mapper: Mapper[Category, CategoryEntity],
     ):
         self.__session = session
+        self.__category_query_builder = category_query_builder
         self.__table_mapper = table_mapper
 
     def create(self, category_entity: CategoryEntity, marketplace_id: int):
@@ -65,14 +68,10 @@ class CategoryService:
     ) -> dict[int, CategoryEntity]:
         categories = (
             self.__session.execute(
-                select(Category)
-                .options(
-                    joinedload(Category.niches)
-                    .joinedload(Niche.products)
-                    .joinedload(ProductCard.histories)
-                    .joinedload(ProductHistory.leftovers)
-                )
+                self.__category_query_builder.join(select(Category))
+                .options(*self.__category_query_builder.provide_load_options())
                 .where(Category.marketplace_id == marketplace_id)
+                .distinct()
             )
             .scalars()
             .unique()

@@ -14,12 +14,12 @@ class NicheService:
     def __init__(
         self,
         session: Session,
-        table_mapper: Mapper[Niche, NicheEntity],
         niche_query_builder: QueryBuilder[Niche],
+        table_mapper: Mapper[Niche, NicheEntity],
     ):
         self.__session = session
-        self.__table_mapper = table_mapper
         self.__niche_query_builder = niche_query_builder
+        self.__table_mapper = table_mapper
 
     def create(self, niche_entity: NicheEntity, category_id: int):
         self.__session.add(
