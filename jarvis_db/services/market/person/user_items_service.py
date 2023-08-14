@@ -1,14 +1,13 @@
 from jorm.market.infrastructure import Product
 from jorm.market.person import Warehouse as WarehouseDomain
 from sqlalchemy import delete, select
-from sqlalchemy.orm import Session, contains_eager, load_only, joinedload
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
     Category,
     Niche,
     ProductCard,
-    User,
     UserToWarehouse,
     Warehouse,
     UserToProduct,

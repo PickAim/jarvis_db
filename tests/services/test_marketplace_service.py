@@ -3,6 +3,7 @@ from typing import cast
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 from sqlalchemy import select
+from jarvis_db.factories.mappers import create_marketplace_table_mapper
 
 from jarvis_db.factories.services import create_marketplace_service
 from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
@@ -41,6 +42,19 @@ class MarketplaceServiceTest(unittest.TestCase):
                 tuple[Marketplace, int], service.find_by_name(marketplace_name)
             )
             self.assertEqual(marketplace_name, found.name)
+
+    def test_find_by_id(self):
+        mapper = create_marketplace_table_mapper()
+        marketplace_id = 100
+        with self.__db_context.session() as session, session.begin():
+            marketplace = Marketplace(id=marketplace_id, name="qwerty")
+            session.add(marketplace)
+            session.flush()
+            expected = mapper.map(marketplace)
+        with self.__db_context.session() as session:
+            service = create_marketplace_service(session)
+            actual = service.find_by_id(marketplace_id)
+            self.assertEqual(expected, actual)
 
     def test_find_all(self):
         with self.__db_context.session() as session, session.begin():
