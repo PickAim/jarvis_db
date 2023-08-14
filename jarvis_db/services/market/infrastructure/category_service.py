@@ -37,6 +37,12 @@ class CategoryService:
         )
         self.__session.flush()
 
+    def find_by_id(self, category_id: int) -> CategoryEntity | None:
+        category = self.__session.execute(
+            select(Category).where(Category.id == category_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(category) if category is not None else None
+
     def find_by_name(
         self, name: str, marketplace_id: int
     ) -> tuple[CategoryEntity, int] | None:
