@@ -33,6 +33,7 @@ class ProductCardServiceTest(unittest.TestCase):
             self.__niche_name,
             self.__category_name,
         )
+        mapper = create_product_table_mapper()
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
             product_id = service.create_product(expected, self.__niche_id)

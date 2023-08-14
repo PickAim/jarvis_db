@@ -31,12 +31,14 @@ class ProductCardService:
         return db_product.id
 
     def create_products(self, products: Iterable[Product], niche_id: int):
-        self.__session.add_all(
-            (
-                ProductCardService.__create_product_record(product, niche_id)
-                for product in products
-            )
-        )
+        db_products = [
+            ProductCardService.__create_product_record(product, niche_id)
+            for product in products
+        ]
+        self.__session.add_all(db_products)
+        self.__session.flush()
+        for db_product, product in zip(db_products, products, strict=True):
+            self.__history_service.create(product.history, db_product.id)
         self.__session.flush()
 
     def find_by_id(self, product_id: int) -> Product | None:
