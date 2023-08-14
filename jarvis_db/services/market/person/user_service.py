@@ -47,6 +47,7 @@ class UserService:
                     joinedload(User.account), joinedload(User.marketplace_api_keys)
                 )
                 .where(User.account_id == account_id)
+                .distinct()
             )
             .unique()
             .scalar_one_or_none()
@@ -56,9 +57,11 @@ class UserService:
     def find_all(self) -> dict[int, UserEntity]:
         users = (
             self.__session.execute(
-                select(User).options(
+                select(User)
+                .options(
                     joinedload(User.account), selectinload(User.marketplace_api_keys)
                 )
+                .distinct()
             )
             .scalars()
             .unique()

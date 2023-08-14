@@ -7,11 +7,6 @@ from jarvis_db.db_config import Base
 
 class DbContext:
     def __init__(self, connection_sting: str = "sqlite://", echo: bool = False) -> None:
-        if echo:
-            import logging
-
-            logging.basicConfig()
-            logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
         if connection_sting.startswith("sqlite://"):
 
             @event.listens_for(Engine, "connect")
@@ -20,8 +15,15 @@ class DbContext:
                 cursor.execute("PRAGMA foreign_keys=ON")
                 cursor.close()
 
-        engine = create_engine(connection_sting)
+        engine = create_engine(connection_sting, echo=echo)
         session = sessionmaker(bind=engine, autoflush=False)
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
         self.session = session
+
+
+def enable_sqlalchemy_logging():
+    import logging
+
+    logging.basicConfig()
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)

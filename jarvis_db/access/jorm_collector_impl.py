@@ -14,6 +14,7 @@ from jarvis_db.services.market.infrastructure.marketplace_service import (
 )
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
+from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.frequency_service import FrequencyService
 
@@ -27,6 +28,7 @@ class JormCollectorImpl(JORMCollector):
         warehouse_service: WarehouseService,
         unit_economy_service: EconomyService,
         frequency_service: FrequencyService,
+        user_items_service: UserItemsService,
     ):
         self.__marketplace_service = marketplace_service
         self.__niche_service = niche_service
@@ -34,6 +36,7 @@ class JormCollectorImpl(JORMCollector):
         self.__warehouse_service = warehouse_service
         self.__unit_economy_service = unit_economy_service
         self.__frequency_service = frequency_service
+        self.__user_items_service = user_items_service
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
         return self.__marketplace_service.find_all()
@@ -82,12 +85,12 @@ class JormCollectorImpl(JORMCollector):
     def get_products_by_user(
         self, user_id: int, marketplace_id: int
     ) -> dict[int, Product]:
-        return {}
+        return self.__user_items_service.fetch_user_products(user_id, marketplace_id)
 
     def get_users_warehouses(
         self, user_id: int, marketplace_id: int
     ) -> dict[int, Warehouse]:
-        return {}
+        return self.__user_items_service.fetch_user_warehouses(user_id, marketplace_id)
 
     def get_all_unit_economy_results(
         self, user_id: int

@@ -119,6 +119,27 @@ class NicheServiceTest(unittest.TestCase):
             niche_entity, _ = result
             self.assertEqual(niche_name, niche_entity.name)
 
+    def test_find_by_id(self):
+        mapper = create_niche_table_mapper()
+        niche_id = 100
+        with self.__db_context.session() as session, session.begin():
+            niche = Niche(
+                id=niche_id,
+                category_id=self.__category_id,
+                name="niche_name",
+                marketplace_commission=0.01,
+                partial_client_commission=0.02,
+                client_commission=0.03,
+                return_percent=0.04,
+            )
+            session.add(niche)
+            session.flush()
+            expected = mapper.map(niche)
+        with self.__db_context.session() as session:
+            service = create_niche_service(session)
+            actual = service.find_by_id(niche_id)
+            self.assertEqual(expected, actual)
+
     def test_fetch_by_id_atomic(self):
         niche_id = 100
         with self.__db_context.session() as session, session.begin():

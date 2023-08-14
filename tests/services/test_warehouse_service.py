@@ -65,6 +65,34 @@ class WarehouseServiceTest(unittest.TestCase):
                 self.assertEqual(expected.name, actual.name)
                 self.assertEqual(expected.global_id, actual.global_id)
 
+    def test_find_by_id(self):
+        mapper = WarehouseTableToJormMapper()
+        warehouse_id = 100
+        with self.__db_context.session() as session, session.begin():
+            warehouse = Warehouse(
+                id=warehouse_id,
+                marketplace_id=self.__marketplace_id,
+                global_id=200,
+                type=1,
+                name="warehouse_name",
+                address=Address(
+                    country="AS", region="QS", street="DD", number="HH", corpus="YU"
+                ),
+                basic_logistic_to_customer_commission=0,
+                additional_logistic_to_customer_commission=0,
+                logistic_from_customer_commission=0,
+                basic_storage_commission=0,
+                additional_storage_commission=0,
+                monopalette_storage_commission=0,
+            )
+            session.add(warehouse)
+            session.flush()
+            expected = mapper.map(warehouse)
+        with self.__db_context.session() as session:
+            service = create_warehouse_service(session)
+            actual = service.find_by_id(warehouse_id)
+            self.assertEqual(expected, actual)
+
     def test_find_by_name(self):
         warehouse_name = "warehouse_1"
         with self.__db_context.session() as session, session.begin():

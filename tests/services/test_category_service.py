@@ -31,6 +31,23 @@ class CategoryServiceTest(unittest.TestCase):
             ).scalar_one()
             self.assertEqual(expected_category.name, actual_category.name)
 
+    def test_find_by_id(self):
+        category_id = 100
+        mapper = create_category_table_mapper()
+        with self.__db_context.session() as session, session.begin():
+            category = Category(
+                id=category_id,
+                name="category_name",
+                marketplace_id=self.__marketplace_id,
+            )
+            session.add(category)
+            session.flush()
+            expected = mapper.map(category)
+        with self.__db_context.session() as session:
+            service = create_category_service(session)
+            actual = service.find_by_id(category_id)
+            self.assertEqual(expected, actual)
+
     def test_find_by_name(self):
         category_name = "qwerty"
         with self.__db_context.session() as session, session.begin():

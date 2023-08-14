@@ -1,13 +1,13 @@
 import unittest
 
 from sqlalchemy import select
+
 from jarvis_db.factories.mappers import create_product_table_mapper
 from jarvis_db.factories.services import create_user_items_service
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.schemas import ProductCard, User, Warehouse
-
+from jarvis_db.schemas import Marketplace, ProductCard, User, Warehouse
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 
@@ -94,11 +94,29 @@ class UserItemServiceTest(unittest.TestCase):
             ).scalar_one()
             user.products.extend(products)
             session.flush()
-            expected = {product.id: mapper.map(product) for product in products}
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            expected = {
+                product.id: mapper.map(product)
+                for product in products
+                if product.niche.category.marketplace_id == marketplace_id
+            }
         with self.__db_context.session() as session:
             service = create_user_items_service(session)
-            actual = service.fetch_user_products(self.__user_id)
+            actual = service.fetch_user_products(self.__user_id, marketplace_id)
             self.assertDictEqual(expected, actual)
+
+    def test_fetch_user_products_returns_empty_list(self):
+        with self.__db_context.session() as session:
+            service = create_user_items_service(session)
+            seeder = AlchemySeeder(session)
+            seeder.seed_niches(3)
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            actual = service.fetch_user_products(self.__user_id, marketplace_id)
+            self.assertEqual(0, len(actual))
 
     def test_fetch_user_warehouses(self):
         mapper = WarehouseTableToJormMapper()
@@ -111,11 +129,29 @@ class UserItemServiceTest(unittest.TestCase):
             ).scalar_one()
             user.warehouses.extend(warehouses)
             session.flush()
-            expected = {warehouse.id: mapper.map(warehouse) for warehouse in warehouses}
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            expected = {
+                warehouse.id: mapper.map(warehouse)
+                for warehouse in warehouses
+                if warehouse.marketplace_id == marketplace_id
+            }
         with self.__db_context.session() as session:
             service = create_user_items_service(session)
-            actual = service.fetch_user_warehouses(self.__user_id)
+            actual = service.fetch_user_warehouses(self.__user_id, marketplace_id)
             self.assertDictEqual(expected, actual)
+
+    def test_fetch_user_warehouses_returns_empty_list(self):
+        with self.__db_context.session() as session:
+            service = create_user_items_service(session)
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(3)
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            actual = service.fetch_user_warehouses(self.__user_id, marketplace_id)
+            self.assertEqual(0, len(actual))
 
 
 if __name__ == "__main__":

@@ -32,6 +32,12 @@ class MarketplaceService:
         )
         self.__session.flush()
 
+    def find_by_id(self, marketplece_id: int) -> MarketplaceEntity | None:
+        marketplace = self.__session.execute(
+            select(Marketplace).where(Marketplace.id == marketplece_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(marketplace) if marketplace is not None else None
+
     def find_all(self) -> dict[int, MarketplaceEntity]:
         marketplaces = self.__session.execute(select(Marketplace)).scalars().all()
         return {
@@ -42,7 +48,9 @@ class MarketplaceService:
     def fetch_all_atomic(self) -> dict[int, MarketplaceEntity]:
         marketplaces = (
             self.__session.execute(
-                select(Marketplace).options(joinedload(Marketplace.warehouses))
+                select(Marketplace)
+                .options(joinedload(Marketplace.warehouses))
+                .distinct()
             )
             .scalars()
             .unique()

@@ -4,6 +4,7 @@ from jorm.market.person import Account as AccountEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_account_service
+from jarvis_db.mappers.market.person.account_mappers import AccountTableToJormMapper
 from jarvis_db.schemas import Account
 from tests.db_context import DbContext
 
@@ -24,6 +25,21 @@ class AccountServiceTest(unittest.TestCase):
             self.assertEqual(account.email, account_entity.email)
             self.assertEqual(account.password, account_entity.hashed_password)
             self.assertEqual(account.phone, account_entity.phone_number)
+
+    def test_find_by_id(self):
+        mapper = AccountTableToJormMapper()
+        account_id = 100
+        with self.__db_context.session() as session, session.begin():
+            account = Account(
+                id=account_id, email="mail@org.com", phone="123456789", password="123"
+            )
+            session.add(account)
+            session.flush()
+            expected = mapper.map(account)
+        with self.__db_context.session() as session:
+            service = create_account_service(session)
+            actual = service.find_by_id(account_id)
+            self.assertEqual(expected, actual)
 
     def test_find_by_email(self):
         email = "user@mail.org"

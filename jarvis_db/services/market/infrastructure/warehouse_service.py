@@ -35,6 +35,12 @@ class WarehouseService:
         )
         self.__session.flush()
 
+    def find_by_id(self, warehouse_id: int) -> WarehouseEntity | None:
+        warehouse = self.__session.execute(
+            select(Warehouse).where(Warehouse.id == warehouse_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(warehouse) if warehouse is not None else None
+
     def find_warehouse_by_name(
         self, name: str, marketplace_id: int
     ) -> tuple[WarehouseEntity, int] | None:

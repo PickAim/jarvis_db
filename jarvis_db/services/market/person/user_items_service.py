@@ -1,12 +1,13 @@
-from sqlalchemy import delete, insert, select
-from sqlalchemy.orm import Session, contains_eager, load_only
-from jorm.market.person import Warehouse as WarehouseDomain
 from jorm.market.infrastructure import Product
+from jorm.market.person import Warehouse as WarehouseDomain
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
+    Category,
+    Niche,
     ProductCard,
-    User,
     UserToWarehouse,
     Warehouse,
     UserToProduct,
@@ -36,20 +37,23 @@ class UserItemsService:
         )
         self.__session.flush()
 
-    def fetch_user_products(self, user_id: int) -> dict[int, Product]:
-        user = (
+    def fetch_user_products(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, Product]:
+        products = (
             self.__session.execute(
-                select(User)
-                .outerjoin(User.products)
-                .where(User.id == user_id)
-                .options(load_only(User.id), contains_eager(User.products))
+                select(ProductCard)
+                .join(UserToProduct, ProductCard.id == UserToProduct.product_id)
+                .join(ProductCard.niche)
+                .join(Niche.category)
+                .where(Category.marketplace_id == marketplace_id)
+                .where(UserToProduct.user_id == user_id)
+                .distinct()
             )
-            .unique()
-            .scalar_one()
+            .scalars()
+            .all()
         )
-        return {
-            product.id: self.__product_mapper.map(product) for product in user.products
-        }
+        return {product.id: self.__product_mapper.map(product) for product in products}
 
     def append_warehouse(self, user_id: int, warehouse_id: int):
         self.__session.add(UserToWarehouse(user_id=user_id, warehouse_id=warehouse_id))
@@ -63,18 +67,21 @@ class UserItemsService:
         )
         self.__session.flush()
 
-    def fetch_user_warehouses(self, user_id: int) -> dict[int, WarehouseDomain]:
-        user = (
+    def fetch_user_warehouses(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, WarehouseDomain]:
+        warehouses = (
             self.__session.execute(
-                select(User)
-                .outerjoin(User.warehouses)
+                select(Warehouse)
+                .join(UserToWarehouse, Warehouse.id == UserToWarehouse.warehouse_id)
                 .where(UserToWarehouse.user_id == user_id)
-                .options(load_only(User.id), contains_eager(User.warehouses))
+                .where(Warehouse.marketplace_id == marketplace_id)
+                .distinct()
             )
-            .unique()
-            .scalar_one()
+            .scalars()
+            .all()
         )
         return {
             warehouse.id: self.__warehouse_mapper.map(warehouse)
-            for warehouse in user.warehouses
+            for warehouse in warehouses
         }

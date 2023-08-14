@@ -25,6 +25,12 @@ class AccountService:
         )
         self.__session.flush()
 
+    def find_by_id(self, account_id: int) -> AccountEntity | None:
+        account = self.__session.execute(
+            select(Account).where(Account.id == account_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(account) if account is not None else None
+
     def find_by_email(self, email: str) -> tuple[AccountEntity, int] | None:
         account = self.__session.execute(
             select(Account).where(Account.email == email)
