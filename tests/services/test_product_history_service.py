@@ -67,7 +67,7 @@ class ProductHistoryServiceTest(unittest.TestCase):
             self.__warehouse_id = warehouse.id
             self.__warehouse_gid = warehouse.global_id
 
-    def test_add(self):
+    def test_create(self):
         with self.__db_context.session() as session, session.begin():
             service = create_product_history_service(session)
             units_to_add = 10

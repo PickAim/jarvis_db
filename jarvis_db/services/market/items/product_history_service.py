@@ -52,7 +52,6 @@ class ProductHistoryService:
                 for history in product_history.get_history()
             )
         )
-        self.__session.flush()
 
     def find_product_history(self, product_id: int) -> ProductHistoryDomain:
         units = (
