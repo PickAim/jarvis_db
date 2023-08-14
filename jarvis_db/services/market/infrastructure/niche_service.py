@@ -36,10 +36,20 @@ class NicheService:
         )
         self.__session.flush()
 
+    def find_by_id(self, niche_id: int) -> NicheEntity | None:
+        niche = self.__session.execute(
+            select(Niche).where(Niche.id == niche_id)
+        ).scalar_one_or_none()
+        return self.__table_mapper.map(niche) if niche is not None else None
+
     def fetch_by_id_atomic(self, niche_id: int) -> NicheEntity | None:
-        stmt = self.__select_niche_atomic().where(Niche.id == niche_id)
-        print(stmt)
-        niche = self.__session.execute(stmt).unique().scalar_one_or_none()
+        niche = (
+            self.__session.execute(
+                self.__select_niche_atomic().where(Niche.id == niche_id)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return self.__table_mapper.map(niche) if niche is not None else None
 
     def find_by_name(
