@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.queries.query_builder import QueryBuilder
@@ -50,6 +50,7 @@ class CategoryService:
             select(Category)
             .where(Category.marketplace_id == marketplace_id)
             .where(Category.name.ilike(name))
+            .options(noload(Category.niches))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(category), category.id)

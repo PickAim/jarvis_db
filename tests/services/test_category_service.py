@@ -1,5 +1,4 @@
 import unittest
-from typing import cast
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select
@@ -13,7 +12,7 @@ from tests.fixtures import AlchemySeeder
 
 class CategoryServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             marketplace = Marketplace(name="qwerty")
             session.add(marketplace)
@@ -49,18 +48,27 @@ class CategoryServiceTest(unittest.TestCase):
             self.assertEqual(expected, actual)
 
     def test_find_by_name(self):
+        category_id = 100
         category_name = "qwerty"
         with self.__db_context.session() as session, session.begin():
             session.add(
-                Category(name=category_name, marketplace_id=self.__marketplace_id)
+                Category(
+                    id=category_id,
+                    name=category_name,
+                    marketplace_id=self.__marketplace_id,
+                )
             )
+            session.flush()
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(2000)
         with self.__db_context.session() as session:
             service = create_category_service(session)
-            category, _ = cast(
-                tuple[Category, int],
-                service.find_by_name(category_name, self.__marketplace_id),
-            )
+            category_tuple = service.find_by_name(category_name, self.__marketplace_id)
+            assert category_tuple is not None
+            category, actual_category_id = category_tuple
+            self.assertEqual(category_id, actual_category_id)
             self.assertEqual(category_name, category.name)
+            self.assertEqual(0, len(category.niches))
 
     def test_find_all_in_marketplace(self):
         with self.__db_context.session() as session:
