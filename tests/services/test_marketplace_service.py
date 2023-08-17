@@ -36,12 +36,16 @@ class MarketplaceServiceTest(unittest.TestCase):
         marketplace_name = "qwerty"
         with self.__db_context.session() as session, session.begin():
             session.add(Marketplace(name=marketplace_name))
+            seeder = AlchemySeeder(session)
+            seeder.seed_warehouses(200)
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_marketplace_service(session)
             found, _ = cast(
                 tuple[Marketplace, int], service.find_by_name(marketplace_name)
             )
             self.assertEqual(marketplace_name, found.name)
+            self.assertEqual(0, len(found.warehouses))
 
     def test_find_by_id(self):
         mapper = create_marketplace_table_mapper()
@@ -51,6 +55,9 @@ class MarketplaceServiceTest(unittest.TestCase):
             session.add(marketplace)
             session.flush()
             expected = mapper.map(marketplace)
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(2000)
+            seeder.seed_warehouses(200)
         with self.__db_context.session() as session:
             service = create_marketplace_service(session)
             actual = service.find_by_id(marketplace_id)
@@ -62,16 +69,15 @@ class MarketplaceServiceTest(unittest.TestCase):
             seeder.seed_marketplaces(3)
             marketplaces = session.execute(select(Marketplace)).scalars().all()
             mapper = MarketplaceTableToJormMapper(WarehouseTableToJormMapper())
-            expected_marketplaces = [
-                mapper.map(marketplace) for marketplace in marketplaces
-            ]
+            expected_marketplaces = {
+                marketplace.id: mapper.map(marketplace) for marketplace in marketplaces
+            }
+            seeder.seed_warehouses(200)
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_marketplace_service(session)
             actual_marketplaces = service.find_all()
-            for expected, actual in zip(
-                expected_marketplaces, actual_marketplaces.values(), strict=True
-            ):
-                self.assertEqual(expected, actual)
+            self.assertDictEqual(expected_marketplaces, actual_marketplaces)
 
     def test_fetch_all_atomic(self):
         with self.__db_context.session() as session, session.begin():

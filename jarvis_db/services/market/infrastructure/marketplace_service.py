@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Marketplace as MarketplaceEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Marketplace
@@ -34,12 +34,22 @@ class MarketplaceService:
 
     def find_by_id(self, marketplece_id: int) -> MarketplaceEntity | None:
         marketplace = self.__session.execute(
-            select(Marketplace).where(Marketplace.id == marketplece_id)
+            select(Marketplace)
+            .where(Marketplace.id == marketplece_id)
+            .options(noload(Marketplace.categories), noload(Marketplace.warehouses))
         ).scalar_one_or_none()
         return self.__table_mapper.map(marketplace) if marketplace is not None else None
 
     def find_all(self) -> dict[int, MarketplaceEntity]:
-        marketplaces = self.__session.execute(select(Marketplace)).scalars().all()
+        marketplaces = (
+            self.__session.execute(
+                select(Marketplace).options(
+                    noload(Marketplace.categories), noload(Marketplace.warehouses)
+                )
+            )
+            .scalars()
+            .all()
+        )
         return {
             marketplace.id: self.__table_mapper.map(marketplace)
             for marketplace in marketplaces
@@ -63,7 +73,9 @@ class MarketplaceService:
 
     def find_by_name(self, name: str) -> tuple[MarketplaceEntity, int] | None:
         marketplace = self.__session.execute(
-            select(Marketplace).where(Marketplace.name.ilike(name))
+            select(Marketplace)
+            .where(Marketplace.name.ilike(name))
+            .options(noload(Marketplace.categories), noload(Marketplace.warehouses))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(marketplace), marketplace.id)
