@@ -61,7 +61,9 @@ class CategoryService:
     def find_all_in_marketplace(self, marketplace_id: int) -> dict[int, CategoryEntity]:
         categories = (
             self.__session.execute(
-                select(Category).where(Category.marketplace_id == marketplace_id)
+                select(Category)
+                .where(Category.marketplace_id == marketplace_id)
+                .options(noload(Category.niches))
             )
             .scalars()
             .all()
