@@ -3,7 +3,7 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Niche as NicheEntity
 from sqlalchemy import Select, select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.queries.query_builder import QueryBuilder
@@ -38,7 +38,7 @@ class NicheService:
 
     def find_by_id(self, niche_id: int) -> NicheEntity | None:
         niche = self.__session.execute(
-            select(Niche).where(Niche.id == niche_id)
+            select(Niche).where(Niche.id == niche_id).options(noload(Niche.products))
         ).scalar_one_or_none()
         return self.__table_mapper.map(niche) if niche is not None else None
 
@@ -59,6 +59,7 @@ class NicheService:
             select(Niche)
             .where(Niche.category_id == category_id)
             .where(Niche.name.ilike(name))
+            .options(noload(Niche.products))
         ).scalar_one_or_none()
         return (self.__table_mapper.map(niche), niche.id) if niche is not None else None
 
@@ -79,7 +80,9 @@ class NicheService:
     def find_all_in_category(self, category_id: int) -> dict[int, NicheEntity]:
         niches = (
             self.__session.execute(
-                select(Niche).where(Niche.category_id == category_id)
+                select(Niche)
+                .where(Niche.category_id == category_id)
+                .options(noload(Niche.products))
             )
             .scalars()
             .all()
@@ -104,6 +107,7 @@ class NicheService:
                 .outerjoin(Niche.category)
                 .where(Category.marketplace_id == marketplace_id)
                 .distinct()
+                .options(noload(Niche.products))
             )
             .scalars()
             .all()
