@@ -39,7 +39,9 @@ class CategoryService:
 
     def find_by_id(self, category_id: int) -> CategoryEntity | None:
         category = self.__session.execute(
-            select(Category).where(Category.id == category_id)
+            select(Category)
+            .where(Category.id == category_id)
+            .options(noload(Category.niches))
         ).scalar_one_or_none()
         return self.__table_mapper.map(category) if category is not None else None
 

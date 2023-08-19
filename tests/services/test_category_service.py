@@ -43,6 +43,9 @@ class CategoryServiceTest(unittest.TestCase):
             session.add(category)
             session.flush()
             expected = mapper.map(category)
+            self.assertEqual(0, len(expected.niches))
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(500)
         with self.__db_context.session() as session:
             service = create_category_service(session)
             actual = service.find_by_id(category_id)
