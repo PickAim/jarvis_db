@@ -2,10 +2,10 @@ from typing import Iterable
 
 from jorm.market.items import Product
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session, noload
+from sqlalchemy.orm import Session, noload, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Category, Niche, ProductCard
+from jarvis_db.schemas import Category, Leftover, Niche, ProductCard, ProductHistory
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
@@ -47,6 +47,25 @@ class ProductCardService:
             .where(ProductCard.id == product_id)
             .options(noload(ProductCard.histories))
         ).scalar_one_or_none()
+        return self.__table_mapper.map(product) if product is not None else None
+
+    def find_by_id_atomic(self, product_id: int) -> Product | None:
+        product = (
+            self.__session.execute(
+                select(ProductCard)
+                .where(ProductCard.id == product_id)
+                .options(
+                    joinedload(ProductCard.niche, innerjoin=True).joinedload(
+                        Niche.category, innerjoin=True
+                    ),
+                    joinedload(ProductCard.histories)
+                    .joinedload(ProductHistory.leftovers)
+                    .joinedload(Leftover.warehouse),
+                )
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return self.__table_mapper.map(product) if product is not None else None
 
     def find_by_global_id(

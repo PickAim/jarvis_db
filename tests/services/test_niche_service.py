@@ -12,6 +12,7 @@ from jarvis_db.factories.services import create_niche_service
 from jarvis_db.schemas import Leftover, Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
+from tests.helpers import sort_product
 
 
 class NicheServiceTest(unittest.TestCase):
@@ -216,10 +217,7 @@ class NicheServiceTest(unittest.TestCase):
             for niche in niche_iterable:
                 niche.products.sort(key=lambda x: x.name)
                 for product in niche.products:
-                    for history in product.history:
-                        for leftovers in history.leftover.values():
-                            leftovers.sort(key=lambda unit: unit.specify)
-                            leftovers.sort(key=lambda unit: unit.leftover)
+                    sort_product(product)
 
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
