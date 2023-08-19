@@ -94,6 +94,9 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add(product)
             session.flush()
             expected = mapper.map(product)
+            self.assertEqual(0, len(expected.history.get_history()))
+            seeder = AlchemySeeder(session)
+            seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
             actual = service.find_by_id(product_id)
@@ -119,9 +122,12 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add(product)
             session.flush()
             expected = mapper.map(product)
+            self.assertEqual(0, len(expected.history.get_history()))
+            seeder = AlchemySeeder(session)
+            seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual = service.find_by_gloabal_id(global_id, marketplace_id)
+            actual = service.find_by_global_id(global_id, marketplace_id)
             assert actual is not None
             self.assertTupleEqual((expected, product_id), actual)
 
@@ -132,18 +138,23 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_niches(2)
             seeder.seed_products(100)
             products = session.execute(select(ProductCard)).scalars().all()
-            expected_products = [
-                mapper.map(product)
+            expected_products = {
+                product.id: mapper.map(product)
                 for product in products
                 if product.niche_id == self.__niche_id
-            ]
+            }
+            self.assertTrue(
+                all(
+                    (
+                        len(product.history.get_history()) == 0
+                        for product in expected_products.values()
+                    )
+                )
+            )
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual_products = list(service.find_all_in_niche(self.__niche_id).values())
-            for expected, actual in zip(
-                expected_products, actual_products, strict=True
-            ):
-                self.assertEqual(expected, actual)
+            actual_products = service.find_all_in_niche(self.__niche_id)
+            self.assertDictEqual(expected_products, actual_products)
 
     def test_filter_existing_ids(self):
         existing_ids = [i for i in range(100, 111)]

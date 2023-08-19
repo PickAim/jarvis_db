@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.items import Product
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Category, Niche, ProductCard
@@ -43,11 +43,13 @@ class ProductCardService:
 
     def find_by_id(self, product_id: int) -> Product | None:
         product = self.__session.execute(
-            select(ProductCard).where(ProductCard.id == product_id)
+            select(ProductCard)
+            .where(ProductCard.id == product_id)
+            .options(noload(ProductCard.histories))
         ).scalar_one_or_none()
         return self.__table_mapper.map(product) if product is not None else None
 
-    def find_by_gloabal_id(
+    def find_by_global_id(
         self, global_id: int, marketplace_id: int
     ) -> tuple[Product, int] | None:
         product = self.__session.execute(
@@ -56,6 +58,7 @@ class ProductCardService:
             .join(Niche.category)
             .where(ProductCard.global_id == global_id)
             .where(Category.marketplace_id == marketplace_id)
+            .options(noload(ProductCard.histories))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(product), product.id)
@@ -66,7 +69,9 @@ class ProductCardService:
     def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         niche_products = (
             self.__session.execute(
-                select(ProductCard).where(ProductCard.niche_id == niche_id)
+                select(ProductCard)
+                .where(ProductCard.niche_id == niche_id)
+                .options(noload(ProductCard.histories))
             )
             .scalars()
             .all()
