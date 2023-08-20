@@ -138,7 +138,6 @@ class ProductCardServiceTest(unittest.TestCase):
         global_id = 200
         product_id = 100
         with self.__db_context.session() as session, session.begin():
-            marketplace_id = session.execute(select(Marketplace.id)).scalar_one()
             product = ProductCard(
                 id=product_id,
                 name="product_name",

@@ -1,7 +1,7 @@
 from jorm.market.infrastructure import Product
 from jorm.market.person import Warehouse as WarehouseDomain
 from sqlalchemy import delete, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
@@ -49,6 +49,10 @@ class UserItemsService:
                 .where(Category.marketplace_id == marketplace_id)
                 .where(UserToProduct.user_id == user_id)
                 .distinct()
+                .options(
+                    noload(ProductCard.histories),
+                    joinedload(ProductCard.niche).joinedload(Niche.category),
+                )
             )
             .scalars()
             .all()
