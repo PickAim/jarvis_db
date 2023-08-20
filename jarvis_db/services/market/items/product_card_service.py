@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session, noload, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import Category, Leftover, Niche, ProductCard, ProductHistory
+from jarvis_db.schemas import Leftover, Niche, ProductCard, ProductHistory
 from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
