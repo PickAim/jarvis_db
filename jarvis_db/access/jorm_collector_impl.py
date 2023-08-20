@@ -1,5 +1,6 @@
 from jorm.jarvis.db_access import JORMCollector
 from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
+from jorm.market.items import Product
 from jorm.market.service import (
     FrequencyRequest,
     FrequencyResult,
@@ -86,6 +87,13 @@ class JormCollectorImpl(JORMCollector):
         self, user_id: int, marketplace_id: int
     ) -> dict[int, Product]:
         return self.__user_items_service.fetch_user_products(user_id, marketplace_id)
+
+    def get_products_by_user_atomic(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, Product]:
+        return self.__user_items_service.fetch_user_products_atomic(
+            user_id, marketplace_id
+        )
 
     def get_users_warehouses(
         self, user_id: int, marketplace_id: int
