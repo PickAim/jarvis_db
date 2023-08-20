@@ -102,6 +102,13 @@ class UserItemServiceTest(unittest.TestCase):
                 for product in products
                 if product.niche.category.marketplace_id == marketplace_id
             }
+            self.assertTrue(
+                all(
+                    len(product.history.get_history()) == 0
+                    for product in expected.values()
+                )
+            )
+            seeder.seed_leftovers(500)
         with self.__db_context.session() as session:
             service = create_user_items_service(session)
             actual = service.fetch_user_products(self.__user_id, marketplace_id)
