@@ -10,6 +10,7 @@ from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
 from jarvis_db.schemas import Marketplace, ProductCard, User, Warehouse
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
+from tests.helpers import sort_product
 
 
 class UserItemServiceTest(unittest.TestCase):
@@ -124,6 +125,43 @@ class UserItemServiceTest(unittest.TestCase):
             ).scalar_one()
             actual = service.fetch_user_products(self.__user_id, marketplace_id)
             self.assertEqual(0, len(actual))
+
+    def test_fetch_user_products_atomic(self):
+        mapper = create_product_table_mapper()
+        with self.__db_context.session() as session, session.begin():
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(10)
+            seeder.seed_leftovers(500)
+            products = session.execute(select(ProductCard)).scalars().all()
+            user = session.execute(
+                select(User).where(User.id == self.__user_id)
+            ).scalar_one()
+            user.products.extend(products)
+            session.flush()
+            marketplace_id = session.execute(
+                select(Marketplace.id).limit(1)
+            ).scalar_one()
+            expected = {
+                product.id: mapper.map(product)
+                for product in products
+                if product.niche.category.marketplace_id == marketplace_id
+            }
+            self.assertTrue(
+                all(
+                    len(product.history.get_history()) > 0
+                    and len(product.history.get_all_leftovers()) > 0
+                    for product in expected.values()
+                )
+            )
+        with self.__db_context.session() as session:
+            service = create_user_items_service(session)
+            actual = service.fetch_user_products_atomic(self.__user_id, marketplace_id)
+            for expected_product, actual_product in zip(
+                expected.values(), actual.values(), strict=True
+            ):
+                sort_product(expected_product)
+                sort_product(actual_product)
+            self.assertDictEqual(expected, actual)
 
     def test_fetch_user_warehouses(self):
         mapper = WarehouseTableToJormMapper()

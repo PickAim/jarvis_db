@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session, noload, joinedload
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
     Category,
+    Leftover,
     Niche,
     ProductCard,
+    ProductHistory,
     UserToWarehouse,
     Warehouse,
     UserToProduct,
@@ -54,6 +56,31 @@ class UserItemsService:
                     joinedload(ProductCard.niche).joinedload(Niche.category),
                 )
             )
+            .scalars()
+            .all()
+        )
+        return {product.id: self.__product_mapper.map(product) for product in products}
+
+    def fetch_user_products_atomic(
+        self, user_id: int, marketplace_id: int
+    ) -> dict[int, Product]:
+        products = (
+            self.__session.execute(
+                select(ProductCard)
+                .join(UserToProduct, ProductCard.id == UserToProduct.product_id)
+                .join(ProductCard.niche)
+                .join(Niche.category)
+                .where(Category.marketplace_id == marketplace_id)
+                .where(UserToProduct.user_id == user_id)
+                .distinct()
+                .options(
+                    joinedload(ProductCard.niche).joinedload(Niche.category),
+                    joinedload(ProductCard.histories)
+                    .joinedload(ProductHistory.leftovers)
+                    .joinedload(Leftover.warehouse),
+                )
+            )
+            .unique()
             .scalars()
             .all()
         )
