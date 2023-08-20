@@ -1,6 +1,5 @@
 from jorm.jarvis.db_access import JORMCollector
 from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
-from jorm.market.items import Product
 from jorm.market.service import (
     FrequencyRequest,
     FrequencyResult,
