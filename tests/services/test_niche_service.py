@@ -12,6 +12,7 @@ from jarvis_db.factories.services import create_niche_service
 from jarvis_db.schemas import Leftover, Niche, ProductCard, ProductHistory
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
+from tests.helpers import sort_product
 
 
 class NicheServiceTest(unittest.TestCase):
@@ -112,12 +113,16 @@ class NicheServiceTest(unittest.TestCase):
                     return_percent=0.04,
                 )
             )
+            session.flush()
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             result = service.find_by_name(niche_name, self.__category_id)
             assert result is not None
             niche_entity, _ = result
             self.assertEqual(niche_name, niche_entity.name)
+            self.assertEqual(0, len(niche_entity.products))
 
     def test_find_by_id(self):
         mapper = create_niche_table_mapper()
@@ -135,6 +140,8 @@ class NicheServiceTest(unittest.TestCase):
             session.add(niche)
             session.flush()
             expected = mapper.map(niche)
+            seeder = AlchemySeeder(session)
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_niche_service(session)
             actual = service.find_by_id(niche_id)
@@ -194,26 +201,23 @@ class NicheServiceTest(unittest.TestCase):
             seeder.seed_niches(30)
             niches = session.execute(select(schemas.Niche)).scalars().all()
             mapper = create_niche_table_mapper()
-            expected_niches = [
-                mapper.map(niche)
+            expected_niches = {
+                niche.id: mapper.map(niche)
                 for niche in niches
                 if niche.category_id == self.__category_id
-            ]
+            }
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_niche_service(session)
-            actual_niches = service.find_all_in_category(self.__category_id).values()
-            for expected, actual in zip(expected_niches, actual_niches, strict=True):
-                self.assertEqual(expected, actual)
+            actual_niches = service.find_all_in_category(self.__category_id)
+            self.assertDictEqual(expected_niches, actual_niches)
 
     def test_fetch_all_in_category_atomic(self):
         def sort_niches(niche_iterable: Iterable[NicheEntity]):
             for niche in niche_iterable:
                 niche.products.sort(key=lambda x: x.name)
                 for product in niche.products:
-                    for history in product.history:
-                        for leftovers in history.leftover.values():
-                            leftovers.sort(key=lambda unit: unit.specify)
-                            leftovers.sort(key=lambda unit: unit.leftover)
+                    sort_product(product)
 
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
@@ -256,21 +260,18 @@ class NicheServiceTest(unittest.TestCase):
             seeder.seed_niches(30)
             niches = session.execute(select(schemas.Niche)).scalars().all()
             mapper = create_niche_table_mapper()
-            expected_niches = [
-                mapper.map(niche)
+            expected_niches = {
+                niche.id: mapper.map(niche)
                 for niche in niches
                 if niche.category.marketplace_id == self.__marketplace_id
-            ]
+            }
             session.add_all(niches)
+            session.flush()
+            seeder.seed_products(200)
         with self.__db_context.session() as session:
             service = create_niche_service(session)
-            niche_entities = service.find_all_in_marketplace(
-                self.__marketplace_id
-            ).values()
-            for niche_entity, niche in zip(
-                niche_entities, expected_niches, strict=True
-            ):
-                self.assertEqual(niche, niche_entity)
+            actual_niches = service.find_all_in_marketplace(self.__marketplace_id)
+            self.assertDictEqual(expected_niches, actual_niches)
 
     def test_exists_with_name_returns_true(self):
         niche_name = "qwerty"

@@ -8,11 +8,12 @@ from jarvis_db.factories.services import create_product_card_service
 from jarvis_db.schemas import Marketplace, Niche, ProductCard
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
+from tests.helpers import sort_product
 
 
 class ProductCardServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(1)
@@ -94,10 +95,42 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add(product)
             session.flush()
             expected = mapper.map(product)
+            self.assertEqual(0, len(expected.history.get_history()))
+            seeder = AlchemySeeder(session)
+            seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
             actual = service.find_by_id(product_id)
             assert actual is not None
+            self.assertEqual(expected, actual)
+
+    def test_find_by_it_atomic(self):
+        product_id = 100
+        mapper = create_product_table_mapper()
+        with self.__db_context.session() as session, session.begin():
+            product = ProductCard(
+                id=product_id,
+                name="product_name",
+                global_id=200,
+                cost=1000,
+                rating=5.0,
+                niche_id=self.__niche_id,
+                brand="brand_name",
+                seller="seller_name",
+            )
+            session.add(product)
+            session.flush()
+            seeder = AlchemySeeder(session)
+            seeder.seed_leftovers(500)
+            expected = mapper.map(product)
+            self.assertTrue(len(expected.history.get_history()) > 0)
+            self.assertTrue(len(expected.history.get_all_leftovers()) > 0)
+            sort_product(expected)
+        with self.__db_context.session() as session:
+            service = create_product_card_service(session)
+            actual = service.find_by_id_atomic(product_id)
+            assert actual is not None
+            sort_product(actual)
             self.assertEqual(expected, actual)
 
     def test_find_by_global_id(self):
@@ -119,9 +152,12 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add(product)
             session.flush()
             expected = mapper.map(product)
+            self.assertEqual(0, len(expected.history.get_history()))
+            seeder = AlchemySeeder(session)
+            seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual = service.find_by_gloabal_id(global_id, marketplace_id)
+            actual = service.find_by_global_id(global_id, self.__niche_id)
             assert actual is not None
             self.assertTupleEqual((expected, product_id), actual)
 
@@ -132,18 +168,23 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_niches(2)
             seeder.seed_products(100)
             products = session.execute(select(ProductCard)).scalars().all()
-            expected_products = [
-                mapper.map(product)
+            expected_products = {
+                product.id: mapper.map(product)
                 for product in products
                 if product.niche_id == self.__niche_id
-            ]
+            }
+            self.assertTrue(
+                all(
+                    (
+                        len(product.history.get_history()) == 0
+                        for product in expected_products.values()
+                    )
+                )
+            )
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual_products = list(service.find_all_in_niche(self.__niche_id).values())
-            for expected, actual in zip(
-                expected_products, actual_products, strict=True
-            ):
-                self.assertEqual(expected, actual)
+            actual_products = service.find_all_in_niche(self.__niche_id)
+            self.assertDictEqual(expected_products, actual_products)
 
     def test_filter_existing_ids(self):
         existing_ids = [i for i in range(100, 111)]

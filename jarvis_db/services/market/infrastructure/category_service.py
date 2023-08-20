@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.infrastructure import Category as CategoryEntity
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.queries.query_builder import QueryBuilder
@@ -39,7 +39,9 @@ class CategoryService:
 
     def find_by_id(self, category_id: int) -> CategoryEntity | None:
         category = self.__session.execute(
-            select(Category).where(Category.id == category_id)
+            select(Category)
+            .where(Category.id == category_id)
+            .options(noload(Category.niches))
         ).scalar_one_or_none()
         return self.__table_mapper.map(category) if category is not None else None
 
@@ -50,6 +52,7 @@ class CategoryService:
             select(Category)
             .where(Category.marketplace_id == marketplace_id)
             .where(Category.name.ilike(name))
+            .options(noload(Category.niches))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(category), category.id)
@@ -60,7 +63,9 @@ class CategoryService:
     def find_all_in_marketplace(self, marketplace_id: int) -> dict[int, CategoryEntity]:
         categories = (
             self.__session.execute(
-                select(Category).where(Category.marketplace_id == marketplace_id)
+                select(Category)
+                .where(Category.marketplace_id == marketplace_id)
+                .options(noload(Category.niches))
             )
             .scalars()
             .all()
