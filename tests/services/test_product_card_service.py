@@ -157,7 +157,7 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual = service.find_by_global_id(global_id, marketplace_id)
+            actual = service.find_by_global_id(global_id, self.__niche_id)
             assert actual is not None
             self.assertTupleEqual((expected, product_id), actual)
 

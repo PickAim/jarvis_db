@@ -69,14 +69,13 @@ class ProductCardService:
         return self.__table_mapper.map(product) if product is not None else None
 
     def find_by_global_id(
-        self, global_id: int, marketplace_id: int
+        self, global_id: int, niche_id: int
     ) -> tuple[Product, int] | None:
         product = self.__session.execute(
             select(ProductCard)
             .join(ProductCard.niche)
-            .join(Niche.category)
             .where(ProductCard.global_id == global_id)
-            .where(Category.marketplace_id == marketplace_id)
+            .where(Niche.id == niche_id)
             .options(noload(ProductCard.histories))
         ).scalar_one_or_none()
         return (
