@@ -102,7 +102,7 @@ class EconomyService:
             request.id: self.__result_table_mapper.map(request) for request in results
         }
 
-    def remove(self, request_id: int) -> bool:
+    def delete(self, request_id: int) -> bool:
         request = self.__session.execute(
             select(UnitEconomyRequest).where(UnitEconomyRequest.id == request_id)
         ).scalar_one_or_none()

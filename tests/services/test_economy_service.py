@@ -154,7 +154,7 @@ class EconomyServiceTest(unittest.TestCase):
             session.add(result)
         with self.__db_context.session() as session, session.begin():
             service = create_economy_service(session)
-            is_removed = service.remove(request_id)
+            is_removed = service.delete(request_id)
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
             request = session.execute(

@@ -15,15 +15,15 @@ class AccountService:
         self.__session = session
         self.__table_mapper = table_mapper
 
-    def create(self, account_entity: AccountEntity):
-        self.__session.add(
-            Account(
-                email=account_entity.email,
-                phone=account_entity.phone_number,
-                password=account_entity.hashed_password,
-            )
+    def create(self, account_entity: AccountEntity) -> int:
+        account = Account(
+            email=account_entity.email,
+            phone=account_entity.phone_number,
+            password=account_entity.hashed_password,
         )
+        self.__session.add(account)
         self.__session.flush()
+        return account.id
 
     def find_by_id(self, account_id: int) -> AccountEntity | None:
         account = self.__session.execute(
