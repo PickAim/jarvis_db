@@ -17,10 +17,10 @@ class AccountServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             service = create_account_service(session)
             account_entity = AccountEntity("user@mail.org", "123", "789456123")
-            service.create(account_entity)
+            account_id = service.create(account_entity)
         with self.__db_context.session() as session:
             account = session.execute(
-                select(Account).where(Account.email == account_entity.email)
+                select(Account).where(Account.id == account_id)
             ).scalar_one()
             self.assertEqual(account.email, account_entity.email)
             self.assertEqual(account.password, account_entity.hashed_password)

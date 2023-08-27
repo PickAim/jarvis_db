@@ -71,7 +71,7 @@ class FrequencyService:
             for result_unit in results
         }
 
-    def remove(self, request_id: int) -> bool:
+    def delete(self, request_id: int) -> bool:
         request = self.__session.execute(
             select(FrequencyRequest).where(FrequencyRequest.id == request_id)
         ).scalar_one_or_none()

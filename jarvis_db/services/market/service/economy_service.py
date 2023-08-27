@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import UnitEconomyRequest, UnitEconomyResult
+from jarvis_db.schemas import Niche, UnitEconomyRequest, UnitEconomyResult
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 
@@ -85,8 +85,14 @@ class EconomyService:
         results = (
             self.__session.execute(
                 select(UnitEconomyResult)
-                .options(joinedload(UnitEconomyResult.request))
+                .join(UnitEconomyResult.request)
                 .where(UnitEconomyRequest.user_id == user_id)
+                .options(
+                    joinedload(UnitEconomyResult.request).options(
+                        joinedload(UnitEconomyRequest.niche).joinedload(Niche.category),
+                        joinedload(UnitEconomyRequest.warehouse),
+                    )
+                )
             )
             .scalars()
             .unique()
@@ -96,7 +102,7 @@ class EconomyService:
             request.id: self.__result_table_mapper.map(request) for request in results
         }
 
-    def remove(self, request_id: int) -> bool:
+    def delete(self, request_id: int) -> bool:
         request = self.__session.execute(
             select(UnitEconomyRequest).where(UnitEconomyRequest.id == request_id)
         ).scalar_one_or_none()

@@ -19,7 +19,7 @@ from tests.fixtures import AlchemySeeder
 
 class MarketplaceServiceTest(unittest.TestCase):
     def setUp(self):
-        self.__db_context = DbContext()
+        self.__db_context = DbContext(echo=True)
 
     def test_create(self):
         marketplace_name = "qwerty"
@@ -92,16 +92,13 @@ class MarketplaceServiceTest(unittest.TestCase):
                 .all()
             )
             mapper = MarketplaceTableToJormMapper(WarehouseTableToJormMapper())
-            expected_marketplaces = [
-                mapper.map(marketplace) for marketplace in marketplaces
-            ]
+            expected_marketplaces = {
+                marketplace.id: mapper.map(marketplace) for marketplace in marketplaces
+            }
         with self.__db_context.session() as session:
             service = create_marketplace_service(session)
-            actual_marketplaces = service.fetch_all_atomic().values()
-            for expected, actual in zip(
-                expected_marketplaces, actual_marketplaces, strict=True
-            ):
-                self.assertEqual(expected, actual)
+            actual_marketplaces = service.fetch_all_atomic()
+            self.assertDictEqual(expected_marketplaces, actual_marketplaces)
 
     def test_exists_with_name_returns_true(self):
         marketplace_name = "qwerty"

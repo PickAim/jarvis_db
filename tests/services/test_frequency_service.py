@@ -98,7 +98,7 @@ class FrequencyServiceTest(unittest.TestCase):
             session.add_all(results)
         with self.__db_context.session() as session, session.begin():
             service = create_frequency_service(session)
-            is_removed = service.remove(request_id)
+            is_removed = service.delete(request_id)
             self.assertTrue(is_removed)
         with self.__db_context.session() as session:
             db_request = session.execute(
