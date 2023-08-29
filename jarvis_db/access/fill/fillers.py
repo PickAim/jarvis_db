@@ -11,7 +11,7 @@ from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.items.product_card_service import ProductCardService
 
 
-class StandardDBFiller(ABC):
+class StandardDbFiller(ABC):
     @abstractmethod
     def fill_categories(
         self,

@@ -1,4 +1,5 @@
 from typing import Callable
+
 from jorm.jarvis.db_update import JORMChanger
 from jorm.market.infrastructure import Category, Niche, Warehouse
 from jorm.market.items import Product, ProductHistory
@@ -13,9 +14,9 @@ from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
 )
-from jarvis_db.access.fill.fillers import StandardDBFiller
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
 
+from jarvis_db.access.fill.fillers import StandardDbFiller
+from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.items.product_card_service import ProductCardService
 from jarvis_db.services.market.items.product_history_service import (
@@ -40,7 +41,7 @@ class JormChangerImpl(JORMChanger):
             [int], DataProviderWithoutKey | None
         ],
         user_market_data_provider: Callable[[int, int], UserMarketDataProvider],
-        standard_filler_provider: Callable[[int], StandardDBFiller],
+        standard_filler_provider: Callable[[int], StandardDbFiller],
     ):
         self.__category_service = category_service
         self.__niche_service = niche_service
