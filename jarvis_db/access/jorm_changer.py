@@ -40,8 +40,8 @@ class JormChangerImpl(JORMChanger):
         data_provider_without_key_factory: Callable[
             [int], DataProviderWithoutKey | None
         ],
-        user_market_data_provider: Callable[[int, int], UserMarketDataProvider],
-        standard_filler_provider: Callable[[int], StandardDbFiller],
+        user_market_data_provider_factory: Callable[[int, int], UserMarketDataProvider],
+        standard_filler_factory: Callable[[int], StandardDbFiller],
     ):
         self.__category_service = category_service
         self.__niche_service = niche_service
@@ -51,8 +51,8 @@ class JormChangerImpl(JORMChanger):
         self.__frequency_service = frequency_service
         self.__user_items_service = user_items_service
         self.__data_provider_without_key_factory = data_provider_without_key_factory
-        self.__user_market_data_provider = user_market_data_provider
-        self.__standard_filler_provider = standard_filler_provider
+        self.__user_market_data_provider_factory = user_market_data_provider_factory
+        self.__standard_filler_factory = standard_filler_factory
 
     def save_unit_economy_request(
         self,
@@ -194,7 +194,7 @@ class JormChangerImpl(JORMChanger):
         data_provider_without_key = self.__data_provider_without_key_factory(
             marketplace_id
         )
-        db_filler = self.__standard_filler_provider(marketplace_id)
+        db_filler = self.__standard_filler_factory(marketplace_id)
         if data_provider_without_key is None or db_filler is None:
             return None
         return db_filler.fill_niche_by_name(
@@ -208,7 +208,7 @@ class JormChangerImpl(JORMChanger):
     def load_user_products(
         self, user_id: int, marketplace_id: int
     ) -> list[Product] | None:
-        user_market_data_provider = self.__user_market_data_provider(
+        user_market_data_provider = self.__user_market_data_provider_factory(
             user_id, marketplace_id
         )
         data_provider_without_key = self.__data_provider_without_key_factory(
@@ -310,10 +310,10 @@ class JormChangerImpl(JORMChanger):
         return result
 
     def load_user_warehouse(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
-        user_market_data_provider = self.__user_market_data_provider(
+        user_market_data_provider = self.__user_market_data_provider_factory(
             user_id, marketplace_id
         )
-        db_filler = self.__standard_filler_provider(marketplace_id)
+        db_filler = self.__standard_filler_factory(marketplace_id)
         if user_market_data_provider is None or db_filler is None:
             return []
         return db_filler.fill_warehouse(user_market_data_provider)
