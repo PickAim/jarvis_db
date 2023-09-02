@@ -102,19 +102,6 @@ class JormChangerImpl(JORMChanger):
             (niche, niche_id), category, data_provider_without_key
         )
 
-    @staticmethod
-    def __extract_only_new_histories(
-        old_history: ProductHistory, new_history: ProductHistory
-    ) -> ProductHistory:
-        old_units = old_history.get_history()
-        new_units = new_history.get_history()
-        existing_dates = {unit.unit_date for unit in old_units}
-        result_units = []
-        for unit in new_units:
-            if unit.unit_date not in existing_dates:
-                result_units.append(unit)
-        return ProductHistory(result_units)
-
     def delete_unit_economy_request(self, request_id: int, user_id: int) -> None:
         self.__economy_service.delete(request_id)
 
@@ -169,6 +156,31 @@ class JormChangerImpl(JORMChanger):
         if user_market_data_provider is None or db_filler is None:
             return []
         return db_filler.fill_warehouse(user_market_data_provider)
+
+    @staticmethod
+    def __get_products_category_and_niche(
+        products_ids: list[int], data_provider_without_key: DataProviderWithoutKey
+    ) -> dict[int, tuple[str, str]]:
+        result: dict[int, tuple[str, str]] = {}
+        for product_id in products_ids:
+            category_and_niche = data_provider_without_key.get_category_and_niche(
+                product_id
+            )
+            if category_and_niche is None:
+                continue
+            result[product_id] = category_and_niche
+        return result
+
+    @staticmethod
+    def __extract_only_new_histories(
+        old_history: ProductHistory, new_history: ProductHistory
+    ) -> ProductHistory:
+        old_units = old_history.get_history()
+        new_units = new_history.get_history()
+        existing_dates = {unit.unit_date for unit in old_units}
+        return ProductHistory(
+            (unit for unit in new_units if unit.unit_date not in existing_dates)
+        )
 
     def __update_niche(
         self,
@@ -303,17 +315,3 @@ class JormChangerImpl(JORMChanger):
                 product.category_name = category_and_niche[0]
                 product.niche_name = category_and_niche[1]
         return base_products
-
-    @staticmethod
-    def __get_products_category_and_niche(
-        products_ids: list[int], data_provider_without_key: DataProviderWithoutKey
-    ) -> dict[int, tuple[str, str]]:
-        result: dict[int, tuple[str, str]] = {}
-        for product_id in products_ids:
-            category_and_niche = data_provider_without_key.get_category_and_niche(
-                product_id
-            )
-            if category_and_niche is None:
-                continue
-            result[product_id] = category_and_niche
-        return result
