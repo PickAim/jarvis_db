@@ -203,9 +203,11 @@ class JormChangerImpl(JORMChanger):
             product_tuple = self.__product_card_service.find_by_global_id(
                 product.global_id, niche_id
             )
-            # TODO Is it Ok?
             if product_tuple is None:
-                continue
+                raise Exception(
+                    "unexpected None result"
+                    f"for product with global id {product.global_id}"
+                )
             _, product_id = product_tuple
             self.__product_card_service.update(product_id, product)
             self.__product_history_service.create(product.history, product_id)
