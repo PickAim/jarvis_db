@@ -102,6 +102,74 @@ class JormChangerImpl(JORMChanger):
             (niche, niche_id), category, data_provider_without_key
         )
 
+    @staticmethod
+    def __extract_only_new_histories(
+        old_history: ProductHistory, new_history: ProductHistory
+    ) -> ProductHistory:
+        old_units = old_history.get_history()
+        new_units = new_history.get_history()
+        existing_dates = {unit.unit_date for unit in old_units}
+        result_units = []
+        for unit in new_units:
+            if unit.unit_date not in existing_dates:
+                result_units.append(unit)
+        return ProductHistory(result_units)
+
+    def delete_unit_economy_request(self, request_id: int, user_id: int) -> None:
+        self.__economy_service.delete(request_id)
+
+    def delete_frequency_request(self, request_id: int, user_id: int) -> None:
+        self.__frequency_service.delete(request_id)
+
+    def load_new_niche(self, niche_name: str, marketplace_id: int) -> Niche | None:
+        data_provider_without_key = self.__data_provider_without_key_factory(
+            marketplace_id
+        )
+        db_filler = self.__standard_filler_factory(marketplace_id)
+        if data_provider_without_key is None or db_filler is None:
+            return None
+        return db_filler.fill_niche_by_name(
+            self.__category_service,
+            self.__niche_service,
+            self.__product_card_service,
+            data_provider_without_key,
+            niche_name,
+        )
+
+    def load_user_products(
+        self, user_id: int, marketplace_id: int
+    ) -> list[Product] | None:
+        user_market_data_provider = self.__user_market_data_provider_factory(
+            user_id, marketplace_id
+        )
+        data_provider_without_key = self.__data_provider_without_key_factory(
+            marketplace_id
+        )
+        if user_market_data_provider is None or data_provider_without_key is None:
+            return None
+        user_products = self.__get_user_products(
+            user_market_data_provider, data_provider_without_key
+        )
+        user_products_in_db = self.__user_items_service.fetch_user_products(
+            user_id, marketplace_id
+        )
+        existing_products = [
+            user_products_in_db[product_id] for product_id in user_products_in_db
+        ]
+        user_products = self.__create_and_update_user_products(
+            user_id, existing_products, user_products, marketplace_id
+        )
+        return user_products
+
+    def load_user_warehouse(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
+        user_market_data_provider = self.__user_market_data_provider_factory(
+            user_id, marketplace_id
+        )
+        db_filler = self.__standard_filler_factory(marketplace_id)
+        if user_market_data_provider is None or db_filler is None:
+            return []
+        return db_filler.fill_warehouse(user_market_data_provider)
+
     def __update_niche(
         self,
         niche_info: tuple[Niche, int],
@@ -170,65 +238,6 @@ class JormChangerImpl(JORMChanger):
         into.seller = new_product.seller
         into.rating = new_product.rating
         return into
-
-    @staticmethod
-    def __extract_only_new_histories(
-        old_history: ProductHistory, new_history: ProductHistory
-    ) -> ProductHistory:
-        old_units = old_history.get_history()
-        new_units = new_history.get_history()
-        existing_dates = {unit.unit_date for unit in old_units}
-        result_units = []
-        for unit in new_units:
-            if unit.unit_date not in existing_dates:
-                result_units.append(unit)
-        return ProductHistory(result_units)
-
-    def delete_unit_economy_request(self, request_id: int, user_id: int) -> None:
-        self.__economy_service.delete(request_id)
-
-    def delete_frequency_request(self, request_id: int, user_id: int) -> None:
-        self.__frequency_service.delete(request_id)
-
-    def load_new_niche(self, niche_name: str, marketplace_id: int) -> Niche | None:
-        data_provider_without_key = self.__data_provider_without_key_factory(
-            marketplace_id
-        )
-        db_filler = self.__standard_filler_factory(marketplace_id)
-        if data_provider_without_key is None or db_filler is None:
-            return None
-        return db_filler.fill_niche_by_name(
-            self.__category_service,
-            self.__niche_service,
-            self.__product_card_service,
-            data_provider_without_key,
-            niche_name,
-        )
-
-    def load_user_products(
-        self, user_id: int, marketplace_id: int
-    ) -> list[Product] | None:
-        user_market_data_provider = self.__user_market_data_provider_factory(
-            user_id, marketplace_id
-        )
-        data_provider_without_key = self.__data_provider_without_key_factory(
-            marketplace_id
-        )
-        if user_market_data_provider is None or data_provider_without_key is None:
-            return None
-        user_products = self.__get_user_products(
-            user_market_data_provider, data_provider_without_key
-        )
-        user_products_in_db = self.__user_items_service.fetch_user_products(
-            user_id, marketplace_id
-        )
-        existing_products = [
-            user_products_in_db[product_id] for product_id in user_products_in_db
-        ]
-        user_products = self.__create_and_update_user_products(
-            user_id, existing_products, user_products, marketplace_id
-        )
-        return user_products
 
     def __create_and_update_user_products(
         self,
@@ -308,12 +317,3 @@ class JormChangerImpl(JORMChanger):
                 continue
             result[product_id] = category_and_niche
         return result
-
-    def load_user_warehouse(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
-        user_market_data_provider = self.__user_market_data_provider_factory(
-            user_id, marketplace_id
-        )
-        db_filler = self.__standard_filler_factory(marketplace_id)
-        if user_market_data_provider is None or db_filler is None:
-            return []
-        return db_filler.fill_warehouse(user_market_data_provider)
