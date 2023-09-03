@@ -2,7 +2,7 @@ from typing import Iterable
 
 from jorm.market.items import Product
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session, noload, joinedload
+from sqlalchemy.orm import Session, noload, joinedload, contains_eager
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Leftover, Niche, ProductCard, ProductHistory
@@ -54,13 +54,14 @@ class ProductCardService:
             self.__session.execute(
                 select(ProductCard)
                 .where(ProductCard.id == product_id)
+                .distinct(ProductCard.id)
                 .options(
                     joinedload(ProductCard.niche, innerjoin=True).joinedload(
                         Niche.category, innerjoin=True
                     ),
                     joinedload(ProductCard.histories)
                     .joinedload(ProductHistory.leftovers)
-                    .joinedload(Leftover.warehouse),
+                    .joinedload(Leftover.warehouse, innerjoin=True),
                 )
             )
             .unique()

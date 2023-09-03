@@ -121,10 +121,25 @@ class ProductCardServiceTest(unittest.TestCase):
             session.add(product)
             session.flush()
             seeder = AlchemySeeder(session)
-            seeder.seed_leftovers(500)
+            seeder.seed_warehouses(20)
+            actual_histories_count = 50
+            seeder.seed_product_histories(actual_histories_count)
+            actual_leftovers_count = 5000
+            seeder.seed_leftovers(actual_leftovers_count)
             expected = mapper.map(product)
-            self.assertTrue(len(expected.history.get_history()) > 0)
-            self.assertTrue(len(expected.history.get_all_leftovers()) > 0)
+            self.assertEqual(
+                actual_histories_count, len(expected.history.get_history())
+            )
+            self.assertEqual(
+                actual_leftovers_count,
+                sum(
+                    [
+                        len(leftovers)
+                        for unit in expected.history.get_history()
+                        for leftovers in unit.leftover.values()
+                    ]
+                ),
+            )
             sort_product(expected)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
