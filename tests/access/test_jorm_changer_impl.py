@@ -1,8 +1,15 @@
-from datetime import datetime
 import unittest
+from datetime import datetime
 from unittest.mock import Mock
 
-from jorm.market.infrastructure import Address, HandlerType, Warehouse
+from jorm.market.infrastructure import (
+    Address,
+    Category,
+    HandlerType,
+    Niche,
+    Warehouse,
+    Product,
+)
 from jorm.market.service import (
     FrequencyRequest,
     FrequencyResult,
@@ -98,6 +105,77 @@ class JormChangerTest(unittest.TestCase):
         save_request_mock.assert_called_once_with(
             request_info, request_entity, result_entity, save_request_mock.return_value
         )
+
+    def test_update_niche(self):
+        # region arrange
+        niche_id = 2000
+        category_id = 900
+        marketplace_id = 3
+
+        changer = self.create_changer()
+        data_provider_without_key_mock = Mock()
+        self.__data_provider_without_key_factory_mock.return_value = (
+            data_provider_without_key_mock
+        )
+        get_products_globals_ids_mock = Mock()
+        get_products_globals_ids_mock.return_value = set()
+        data_provider_without_key_mock.get_products_globals_ids = (
+            get_products_globals_ids_mock
+        )
+        get_products_mock = Mock()
+        get_products_mock.return_value = []
+        data_provider_without_key_mock.get_products = get_products_mock
+        niche_find_by_id_mock = Mock()
+        niche = Niche(
+            "test_niche_name",
+            {
+                HandlerType.CLIENT: 0.1,
+                HandlerType.MARKETPLACE: 0.2,
+                HandlerType.PARTIAL_CLIENT: 0.3,
+            },
+            0.4,
+        )
+        niche_find_by_id_mock.return_value = niche
+        self.__niche_service_mock.find_by_id = niche_find_by_id_mock
+        category_find_by_id_mock = Mock()
+        category = Category("test_category_name", {niche.name: niche})
+        category_find_by_id_mock.return_value = category
+        self.__category_service_mock.find_by_id = category_find_by_id_mock
+        niche_find_by_name_atomic_mock = Mock()
+        niche_find_by_name_atomic_mock.return_value = (
+            Niche(
+                niche.name,
+                niche.commissions,
+                niche.returned_percent,
+                [
+                    Product(
+                        f"test_product_name_{i}",
+                        100 + 50 * i,
+                        200 + i,
+                        0.1 * i % 5,
+                        f"test_brand_{i}",
+                        f"test_seller_{i}",
+                        niche.name,
+                        category.name,
+                    )
+                    for i in range(10)
+                ],
+            ),
+            niche_id,
+        )
+        self.__niche_service_mock.find_by_name_atomic = niche_find_by_name_atomic_mock
+        # endregion
+        # region act
+        _ = changer.update_niche(niche_id, category_id, marketplace_id)
+        # endregion
+        # region assert
+        self.__data_provider_without_key_factory_mock.assert_called_once_with(
+            marketplace_id
+        )
+        niche_find_by_id_mock.assert_called_once_with(niche_id)
+        category_find_by_id_mock.assert_called_once_with(category_id)
+        niche_find_by_name_atomic_mock.assert_called_once_with(niche.name, category_id)
+        # endregion
 
     def test_load_user_warehouse(self):
         changer = self.create_changer()
