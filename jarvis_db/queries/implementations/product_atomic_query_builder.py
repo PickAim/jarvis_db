@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from sqlalchemy import Select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm.strategy_options import _AbstractLoad
 
 from jarvis_db.queries.query_builder import _S, QueryBuilder
@@ -18,7 +18,7 @@ class ProductCardAtomicJoinQueryBuilder(QueryBuilder[ProductCard]):
 
     def provide_load_options(self) -> Iterable[_AbstractLoad]:
         return [
-            joinedload(ProductCard.histories)
-            .joinedload(ProductHistory.leftovers)
-            .joinedload(Leftover.warehouse)
+            contains_eager(ProductCard.histories)
+            .contains_eager(ProductHistory.leftovers)
+            .contains_eager(Leftover.warehouse)
         ]

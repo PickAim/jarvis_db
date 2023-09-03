@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from sqlalchemy import Select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm.strategy_options import _AbstractLoad
 
 from jarvis_db.queries.query_builder import _S, QueryBuilder
@@ -13,11 +13,11 @@ class CategoryAtomicJoinQueryBuilder(QueryBuilder[Category]):
         self.__niche_query_builder = niche_query_builder
 
     def join(self, query: Select[tuple[_S]]) -> Select[tuple[_S]]:
-        return query.join(Category.niches)
+        return self.__niche_query_builder.join(query.outerjoin(Category.niches))
 
     def provide_load_options(self) -> Iterable[_AbstractLoad]:
         return [
-            joinedload(Category.niches).options(
+            contains_eager(Category.niches).options(
                 *self.__niche_query_builder.provide_load_options()
             )
         ]
