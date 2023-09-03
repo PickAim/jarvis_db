@@ -288,7 +288,7 @@ class WarehouseServiceTest(unittest.TestCase):
         ids_to_filter = [*existing_ids, *new_ids]
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            filtered_ids = service.fileter_existing_global_ids(ids_to_filter)
+            filtered_ids = service.filter_existing_global_ids(ids_to_filter)
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
 

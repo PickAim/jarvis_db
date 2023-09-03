@@ -165,7 +165,7 @@ class StandardDbFillerImpl(StandardDbFiller):
                 for warehouse_id in history_unit.leftover:
                     warehouse_ids.add(warehouse_id)
         filtered_warehouse_global_ids = (
-            self.__warehouse_service.fileter_existing_global_ids(warehouse_ids)
+            self.__warehouse_service.filter_existing_global_ids(warehouse_ids)
         )
         warehouse_to_add_as_unfilled: list[Warehouse] = []
         for global_id in filtered_warehouse_global_ids:
