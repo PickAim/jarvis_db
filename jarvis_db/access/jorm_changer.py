@@ -115,7 +115,10 @@ class JormChangerImpl(JORMChanger):
     def load_user_products(
         self, user_id: int, marketplace_id: int
     ) -> list[Product] | None:
-        if self.__user_market_data_provider is None or self.__data_provider_without_key is None:
+        if (
+            self.__user_market_data_provider is None
+            or self.__data_provider_without_key is None
+        ):
             return None
         user_products = self.__get_user_products(
             self.__user_market_data_provider, self.__data_provider_without_key

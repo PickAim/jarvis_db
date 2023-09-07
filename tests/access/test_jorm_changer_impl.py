@@ -30,9 +30,9 @@ class JormChangerTest(unittest.TestCase):
         self.__economy_service_mock = Mock()
         self.__frequency_service_mock = Mock()
         self.__user_items_service_mock = Mock()
-        self.__data_provider_without_key_factory_mock = Mock()
-        self.__user_market_data_provider_factory_mock = Mock()
-        self.__standard_filler_provider_mock = Mock()
+        self.__data_provider_without_key_mock = Mock()
+        self.__user_market_data_provider_mock = Mock()
+        self.__standard_filler_mock = Mock()
 
     def create_changer(self) -> JormChangerImpl:
         return JormChangerImpl(
@@ -43,9 +43,9 @@ class JormChangerTest(unittest.TestCase):
             self.__economy_service_mock,
             self.__frequency_service_mock,
             self.__user_items_service_mock,
-            self.__data_provider_without_key_factory_mock,
-            self.__user_market_data_provider_factory_mock,
-            self.__standard_filler_provider_mock,
+            self.__data_provider_without_key_mock,
+            self.__user_market_data_provider_mock,
+            self.__standard_filler_mock,
         )
 
     def test_save_unit_economy_request(self):
@@ -113,18 +113,14 @@ class JormChangerTest(unittest.TestCase):
         marketplace_id = 3
 
         changer = self.create_changer()
-        data_provider_without_key_mock = Mock()
-        self.__data_provider_without_key_factory_mock.return_value = (
-            data_provider_without_key_mock
-        )
         get_products_globals_ids_mock = Mock()
         get_products_globals_ids_mock.return_value = set()
-        data_provider_without_key_mock.get_products_globals_ids = (
+        self.__data_provider_without_key_mock.get_products_globals_ids = (
             get_products_globals_ids_mock
         )
         get_products_mock = Mock()
         get_products_mock.return_value = []
-        data_provider_without_key_mock.get_products = get_products_mock
+        self.__data_provider_without_key_mock.get_products = get_products_mock
         niche_find_by_id_mock = Mock()
         niche = Niche(
             "test_niche_name",
@@ -169,9 +165,6 @@ class JormChangerTest(unittest.TestCase):
         _ = changer.update_niche(niche_id, category_id, marketplace_id)
         # endregion
         # region assert
-        self.__data_provider_without_key_factory_mock.assert_called_once_with(
-            marketplace_id
-        )
         niche_find_by_id_mock.assert_called_once_with(niche_id)
         category_find_by_id_mock.assert_called_once_with(category_id)
         niche_find_by_name_atomic_mock.assert_called_once_with(niche.name, category_id)
@@ -179,24 +172,16 @@ class JormChangerTest(unittest.TestCase):
 
     def test_load_user_warehouse(self):
         changer = self.create_changer()
-        user_market_data_provider_mock = Mock()
-        self.__user_market_data_provider_factory_mock.return_value = (
-            user_market_data_provider_mock
-        )
-        db_filler_mock = Mock()
         fill_warehouses_mock = Mock()
         fill_warehouses_mock.return_value = [
             Warehouse(f"warehouse_name_{i}", i + 200, HandlerType.CLIENT, Address())
             for i in range(20)
         ]
-        db_filler_mock.fill_warehouse = fill_warehouses_mock
-        self.__standard_filler_provider_mock.return_value = db_filler_mock
+        self.__standard_filler_mock.fill_warehouse = fill_warehouses_mock
         user_id = 100
         marketplace_id = 2
         result = changer.load_user_warehouse(user_id, marketplace_id)
-        self.__user_market_data_provider_factory_mock.assert_called_once_with(
-            user_id, marketplace_id
+        fill_warehouses_mock.assert_called_once_with(
+            self.__user_market_data_provider_mock
         )
-        self.__standard_filler_provider_mock.assert_called_once_with(marketplace_id)
-        fill_warehouses_mock.assert_called_once_with(user_market_data_provider_mock)
         self.assertListEqual(fill_warehouses_mock.return_value, result)
