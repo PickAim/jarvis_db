@@ -1,13 +1,7 @@
 from jorm.jarvis.db_update import JORMChanger
 from jorm.market.infrastructure import Category, Niche, Warehouse
 from jorm.market.items import Product, ProductHistory
-from jorm.market.service import (
-    FrequencyRequest,
-    FrequencyResult,
-    RequestInfo,
-    UnitEconomyRequest,
-    UnitEconomyResult,
-)
+from jorm.market.service import SimpleEconomySaveObject, TransitEconomySaveObject
 from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
@@ -22,7 +16,6 @@ from jarvis_db.services.market.items.product_history_service import (
 )
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.frequency_service import FrequencyService
 
 
 class JormChangerImpl(JORMChanger):
@@ -33,7 +26,6 @@ class JormChangerImpl(JORMChanger):
         product_card_service: ProductCardService,
         product_history_service: ProductHistoryService,
         economy_service: EconomyService,
-        frequency_service: FrequencyService,
         user_items_service: UserItemsService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
@@ -44,31 +36,26 @@ class JormChangerImpl(JORMChanger):
         self.__product_card_service = product_card_service
         self.__product_history_service = product_history_service
         self.__economy_service = economy_service
-        self.__frequency_service = frequency_service
         self.__user_items_service = user_items_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
         self.__standard_filler = standard_filler
 
-    def save_unit_economy_request(
-        self,
-        request: UnitEconomyRequest,
-        result: UnitEconomyResult,
-        request_info: RequestInfo,
-        user_id: int,
+    def save_simple_economy_request(
+        self, save_object: SimpleEconomySaveObject, user_id: int
     ) -> int:
-        return self.__economy_service.save_request(
-            request_info, request, result, user_id
-        )
+        return self.__economy_service.save_request(save_object, user_id)
 
-    def save_frequency_request(
-        self,
-        request: FrequencyRequest,
-        result: FrequencyResult,
-        request_info: RequestInfo,
-        user_id: int,
+    def save_transit_economy_request(
+        self, save_object: TransitEconomySaveObject, user_id: int
     ) -> int:
-        return self.__frequency_service.save(request_info, request, result, user_id)
+        return super().save_transit_economy_request(save_object, user_id)
+
+    def delete_simple_economy_request(self, request_id: int, user_id: int) -> None:
+        return super().delete_simple_economy_request(request_id, user_id)
+
+    def delete_transit_economy_request(self, request_id: int, user_id: int) -> None:
+        return super().delete_transit_economy_request(request_id, user_id)
 
     # def update_all_niches(self, category_id: int, marketplace_id: int) -> None:
     #     # TODO it will be necessary to implement this method to update niche
@@ -94,12 +81,6 @@ class JormChangerImpl(JORMChanger):
         return self.__update_niche(
             (niche, niche_id), category, self.__data_provider_without_key
         )
-
-    def delete_unit_economy_request(self, request_id: int, user_id: int) -> None:
-        self.__economy_service.delete(request_id)
-
-    def delete_frequency_request(self, request_id: int, user_id: int) -> None:
-        self.__frequency_service.delete(request_id)
 
     def load_new_niche(self, niche_name: str, marketplace_id: int) -> Niche | None:
         if self.__data_provider_without_key is None or self.__standard_filler is None:
