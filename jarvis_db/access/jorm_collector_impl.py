@@ -59,6 +59,9 @@ class JormCollectorImpl(JORMCollector):
         niche, _ = niche_tuple
         return niche
 
+    def get_niche_by_id(self, niche_id: int) -> Niche | None:
+        return self.__niche_service.fetch_by_id_atomic(niche_id)
+
     def get_warehouse(
         self, warehouse_name: str, marketplace_id: int
     ) -> Warehouse | None:
