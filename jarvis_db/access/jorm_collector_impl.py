@@ -1,11 +1,8 @@
 from jorm.jarvis.db_access import JORMCollector
 from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
 from jorm.market.service import (
-    FrequencyRequest,
-    FrequencyResult,
-    RequestInfo,
-    UnitEconomyRequest,
-    UnitEconomyResult,
+    SimpleEconomySaveObject,
+    TransitEconomySaveObject,
 )
 
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
@@ -16,7 +13,6 @@ from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.frequency_service import FrequencyService
 
 
 class JormCollectorImpl(JORMCollector):
@@ -26,16 +22,14 @@ class JormCollectorImpl(JORMCollector):
         niche_service: NicheService,
         category_service: CategoryService,
         warehouse_service: WarehouseService,
-        unit_economy_service: EconomyService,
-        frequency_service: FrequencyService,
+        economy_service: EconomyService,
         user_items_service: UserItemsService,
     ):
         self.__marketplace_service = marketplace_service
         self.__niche_service = niche_service
         self.__category_service = category_service
         self.__warehouse_service = warehouse_service
-        self.__unit_economy_service = unit_economy_service
-        self.__frequency_service = frequency_service
+        self.__economy_service = economy_service
         self.__user_items_service = user_items_service
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
@@ -99,12 +93,13 @@ class JormCollectorImpl(JORMCollector):
     ) -> dict[int, Warehouse]:
         return self.__user_items_service.fetch_user_warehouses(user_id, marketplace_id)
 
-    def get_all_unit_economy_results(
+    def get_all_simple_economy_results(
         self, user_id: int
-    ) -> list[tuple[UnitEconomyRequest, UnitEconomyResult, RequestInfo]]:
-        return list(self.__unit_economy_service.find_user_requests(user_id).values())
+    ) -> list[SimpleEconomySaveObject]:
+        return self.__economy_service.find_user_requests(user_id)
 
-    def get_all_frequency_results(
+    def get_all_transit_economy_results(
         self, user_id: int
-    ) -> list[tuple[FrequencyRequest, FrequencyResult, RequestInfo]]:
-        return list(self.__frequency_service.find_user_requests(user_id).values())
+    ) -> list[TransitEconomySaveObject]:
+        # TODO Not implemented
+        return super().get_all_transit_economy_results(user_id)
