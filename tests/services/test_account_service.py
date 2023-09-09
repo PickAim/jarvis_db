@@ -69,7 +69,7 @@ class AccountServiceTest(unittest.TestCase):
             session.add(Account(email=email, phone="789456123", password="123"))
         with self.__db_context.session() as session:
             service = create_account_service(session)
-            account_result = service.find_by_email_or_phone(email, "")
+            account_result = service.find_by_email_or_phone(email=email)
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(account.email, email)
@@ -80,10 +80,39 @@ class AccountServiceTest(unittest.TestCase):
             session.add(Account(email="user@mail.org", phone=phone, password="123"))
         with self.__db_context.session() as session:
             service = create_account_service(session)
-            account_result = service.find_by_email_or_phone("", phone)
+            account_result = service.find_by_email_or_phone(phone=phone)
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(phone, account.phone_number)
+
+    def test_find_by_email_or_phone_should_work_correct_with_unfilled_phone(self):
+        email = "user@mail.org"
+        with self.__db_context.session() as session, session.begin():
+            service = create_account_service(session)
+            service.create(AccountEntity("anoter.user@mail.org", "456"))
+            service.create(AccountEntity(email, "123"))
+        with self.__db_context.session() as session:
+            service = create_account_service(session)
+            account_result = service.find_by_email_or_phone(email=email)
+            assert account_result is not None
+            account, _ = account_result
+            self.assertEqual(email, account.email)
+            self.assertEqual("", account.phone_number)
+
+    def test_find_by_email_or_phone_should_work_correct_with_unfilled_email(self):
+        phone = "987654321"
+        with self.__db_context.session() as session, session.begin():
+            service = create_account_service(session)
+            service.create(AccountEntity("", "456", "123456789"))
+            session.flush()
+            service.create(AccountEntity("", "123", phone))
+        with self.__db_context.session() as session:
+            service = create_account_service(session)
+            account_result = service.find_by_email_or_phone(phone=phone)
+            assert account_result is not None
+            account, _ = account_result
+            self.assertEqual(phone, account.phone_number)
+            self.assertEqual("", account.email)
 
 
 if __name__ == "__main__":

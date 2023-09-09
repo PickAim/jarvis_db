@@ -14,5 +14,7 @@ class AccountJormToTableMapper(Mapper[Account, schemas.Account]):
 class AccountTableToJormMapper(Mapper[schemas.Account, Account]):
     def map(self, value: schemas.Account) -> Account:
         return Account(
-            phone_number=value.phone, email=value.email, hashed_password=value.password
+            phone_number=value.phone if value.phone else "",
+            email=value.email if value.email else "",
+            hashed_password=value.password,
         )

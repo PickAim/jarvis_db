@@ -17,8 +17,8 @@ class AccountService:
 
     def create(self, account_entity: AccountEntity) -> int:
         account = Account(
-            email=account_entity.email,
-            phone=account_entity.phone_number,
+            email=account_entity.email if account_entity.email else None,
+            phone=account_entity.phone_number if account_entity.phone_number else None,
             password=account_entity.hashed_password,
         )
         self.__session.add(account)
@@ -52,7 +52,7 @@ class AccountService:
         )
 
     def find_by_email_or_phone(
-        self, email: str, phone: str
+        self, email: str = "", phone: str = ""
     ) -> tuple[AccountEntity, int] | None:
         account = self.__session.execute(
             select(Account).where(or_(Account.email == email, Account.phone == phone))
