@@ -54,13 +54,14 @@ class ProductCardService:
             self.__session.execute(
                 select(ProductCard)
                 .where(ProductCard.id == product_id)
+                .distinct(ProductCard.id)
                 .options(
                     joinedload(ProductCard.niche, innerjoin=True).joinedload(
                         Niche.category, innerjoin=True
                     ),
                     joinedload(ProductCard.histories)
                     .joinedload(ProductHistory.leftovers)
-                    .joinedload(Leftover.warehouse),
+                    .joinedload(Leftover.warehouse, innerjoin=True),
                 )
             )
             .unique()

@@ -1,5 +1,6 @@
 from jorm.market.infrastructure import Category, Marketplace, Niche, Product, Warehouse
 from jorm.market.items import ProductHistoryUnit
+from jorm.market.service import SimpleEconomySaveObject
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
@@ -23,6 +24,11 @@ from jarvis_db.mappers.market.items.product_history_mappers import (
 )
 from jarvis_db.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
+)
+from jarvis_db.mappers.market.service.economy_mappers import (
+    EcomomyResultTableMapper,
+    EconomyRequestTableMapper,
+    EconomyTableToJormMapper,
 )
 
 
@@ -64,3 +70,11 @@ def create_product_history_mapper() -> (
     Mapper[schemas.ProductHistory, ProductHistoryUnit]
 ):
     return ProductHistoryUnitTableToJormMapper(LeftoverTableToJormMapper())
+
+
+def create_economy_table_mapper() -> (
+    Mapper[schemas.UserToEconomy, SimpleEconomySaveObject]
+):
+    return EconomyTableToJormMapper(
+        EconomyRequestTableMapper(), EcomomyResultTableMapper()
+    )

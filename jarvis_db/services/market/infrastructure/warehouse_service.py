@@ -105,7 +105,7 @@ class WarehouseService:
         )
         return list(set(names) - set(existing_names))
 
-    def fileter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
+    def filter_existing_global_ids(self, ids: Iterable[int]) -> list[int]:
         ids = list(ids)
         existing_ids = (
             self.__session.execute(

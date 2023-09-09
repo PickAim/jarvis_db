@@ -3,13 +3,19 @@ from typing import Iterable
 
 from jorm.market.items import StorageDict
 from jorm.support.types import SpecifiedLeftover
+from operator import attrgetter
 
-from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
+from jarvis_db.schemas import Leftover
 
 
-class LeftoverTableToJormMapper(Mapper[Iterable[schemas.Leftover], StorageDict]):
-    def map(self, value: Iterable[schemas.Leftover]) -> StorageDict:
+class LeftoverTableToJormMapper(Mapper[Iterable[Leftover], StorageDict]):
+    def __init__(self):
+        self.__warehouse_global_id_getter: attrgetter[int] = attrgetter(
+            "warehouse.global_id"
+        )
+
+    def map(self, value: Iterable[Leftover]) -> StorageDict:
         return StorageDict(
             {
                 gid: [
@@ -17,18 +23,17 @@ class LeftoverTableToJormMapper(Mapper[Iterable[schemas.Leftover], StorageDict])
                     for leftover in leftovers
                 ]
                 for gid, leftovers in groupby(
-                    value, key=lambda leftover: leftover.warehouse.global_id
+                    sorted(value, key=self.__warehouse_global_id_getter),
+                    key=self.__warehouse_global_id_getter,
                 )
             }
         )
 
 
-class LeftoverJormToTableMapper(Mapper[StorageDict, Iterable[schemas.Leftover]]):
-    def map(self, value: StorageDict) -> Iterable[schemas.Leftover]:
-        result = []
-        for _, leftovers in value.items():
-            for leftover in leftovers:
-                result.append(
-                    schemas.Leftover(type=leftover.specify, quantity=leftover.leftover)
-                )
-        return result
+class LeftoverJormToTableMapper(Mapper[StorageDict, Iterable[Leftover]]):
+    def map(self, value: StorageDict) -> Iterable[Leftover]:
+        return [
+            Leftover(type=leftover.specify, quantity=leftover.leftover)
+            for _, leftovers in value.items()
+            for leftover in leftovers
+        ]

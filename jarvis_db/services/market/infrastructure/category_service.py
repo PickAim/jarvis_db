@@ -82,7 +82,7 @@ class CategoryService:
                 self.__category_query_builder.join(select(Category))
                 .options(*self.__category_query_builder.provide_load_options())
                 .where(Category.marketplace_id == marketplace_id)
-                .distinct()
+                .distinct(Category.id)
             )
             .scalars()
             .unique()

@@ -104,8 +104,8 @@ class CategoryServiceTest(unittest.TestCase):
             seeder.seed_categories(10)
             seeder.seed_niches(40)
             mapper = create_category_table_mapper()
-            expected_categories = [
-                mapper.map(category)
+            expected_categories = {
+                category.id: mapper.map(category)
                 for category in session.execute(
                     select(Category)
                     .outerjoin(Category.niches)
@@ -115,15 +115,12 @@ class CategoryServiceTest(unittest.TestCase):
                 .scalars()
                 .all()
                 if category.marketplace_id == self.__marketplace_id
-            ]
+            }
             service = create_category_service(session)
-            actual_categories = list(
-                service.fetch_all_in_marketplace_atomic(self.__marketplace_id).values()
+            actual_categories = service.fetch_all_in_marketplace_atomic(
+                self.__marketplace_id
             )
-            for expected, actual in zip(
-                expected_categories, actual_categories, strict=True
-            ):
-                self.assertEqual(expected, actual)
+            self.assertDictEqual(expected_categories, actual_categories)
 
     def test_exists_with_name_returns_true(self):
         category_name = "qwerty"

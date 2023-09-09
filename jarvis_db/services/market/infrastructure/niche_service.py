@@ -157,7 +157,7 @@ class NicheService:
 
     def __select_niche_atomic(self) -> Select[tuple[Niche]]:
         return (
-            self.__niche_query_builder.join(select(Niche))
+            self.__niche_query_builder.join(select(Niche).join(Niche.category))
             .options(
                 *self.__niche_query_builder.provide_load_options(),
             )

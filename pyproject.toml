@@ -7,5 +7,5 @@ name = "jarvis_db"
 version = "0.1.24"
 dependencies = [
     "SQLAlchemy",
-    "jorm @ git+https://github.com/PickAim/jorm.git@v.0.1.21",
+    "jorm @ git+https://github.com/PickAim/jorm.git@v.0.1.24",
 ]

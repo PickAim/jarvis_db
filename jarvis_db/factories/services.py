@@ -5,6 +5,7 @@ from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.factories.mappers import (
     create_category_table_mapper,
+    create_economy_table_mapper,
     create_marketplace_table_mapper,
     create_niche_table_mapper,
     create_product_table_mapper,
@@ -27,15 +28,6 @@ from jarvis_db.mappers.market.person import (
     UserTableToJormMapper,
 )
 from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
-from jarvis_db.mappers.market.service import (
-    FrequencyRequestTableToJormMapper,
-)
-from jarvis_db.mappers.market.service.economy_request_mappers import (
-    EconomyRequestTableToJormMapper,
-)
-from jarvis_db.mappers.market.service.economy_result_mappers import (
-    EconomyResultTableToJormMapper,
-)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
@@ -49,7 +41,6 @@ from jarvis_db.services.market.items.product_history_service import (
 from jarvis_db.services.market.person import AccountService, TokenService, UserService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.frequency_service import FrequencyService
 
 
 def create_account_service(session: Session) -> AccountService:
@@ -123,25 +114,10 @@ def create_warehouse_service(
 
 
 def create_economy_service(session: Session) -> EconomyService:
-    niche_mapper = create_niche_table_mapper()
     return EconomyService(
         session,
-        EconomyResultTableToJormMapper(EconomyRequestTableToJormMapper()),
-        create_niche_service(session, niche_mapper),
+        create_economy_table_mapper(),
         create_warehouse_service(session),
-    )
-
-
-def create_frequency_service(
-    session: Session, niche_service: NicheService | None = None
-) -> FrequencyService:
-    niche_service = (
-        create_niche_service(session) if niche_service is None else niche_service
-    )
-    return FrequencyService(
-        session,
-        niche_service,
-        FrequencyRequestTableToJormMapper(),
     )
 
 
