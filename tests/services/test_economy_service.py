@@ -73,7 +73,6 @@ class EconomyServiceTest(unittest.TestCase):
             self.__warehouse_name = warehouse.name
 
     def test_save(self):
-        self.maxDiff = None
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         user_request = SimpleEconomyRequest(
             self.__niche_id,
