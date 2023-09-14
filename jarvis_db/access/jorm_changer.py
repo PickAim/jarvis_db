@@ -16,6 +16,9 @@ from jarvis_db.services.market.items.product_history_service import (
 )
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
+from jarvis_db.services.market.service.transit_economy_service import (
+    TransitEconomyService,
+)
 
 
 class JormChangerImpl(JORMChanger):
@@ -26,6 +29,7 @@ class JormChangerImpl(JORMChanger):
         product_card_service: ProductCardService,
         product_history_service: ProductHistoryService,
         economy_service: EconomyService,
+        transit_serivce: TransitEconomyService,
         user_items_service: UserItemsService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
@@ -36,6 +40,7 @@ class JormChangerImpl(JORMChanger):
         self.__product_card_service = product_card_service
         self.__product_history_service = product_history_service
         self.__economy_service = economy_service
+        self.__transit_serivce = transit_serivce
         self.__user_items_service = user_items_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
@@ -52,10 +57,10 @@ class JormChangerImpl(JORMChanger):
         return super().save_transit_economy_request(save_object, user_id)
 
     def delete_simple_economy_request(self, request_id: int, user_id: int) -> None:
-        return super().delete_simple_economy_request(request_id, user_id)
+        self.__economy_service.delete(request_id)
 
     def delete_transit_economy_request(self, request_id: int, user_id: int) -> None:
-        return super().delete_transit_economy_request(request_id, user_id)
+        self.__transit_serivce.delete(request_id)
 
     # def update_all_niches(self, category_id: int, marketplace_id: int) -> None:
     #     # TODO it will be necessary to implement this method to update niche
