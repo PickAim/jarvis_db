@@ -54,7 +54,7 @@ class JormChangerImpl(JORMChanger):
     def save_transit_economy_request(
         self, save_object: TransitEconomySaveObject, user_id: int
     ) -> int:
-        return super().save_transit_economy_request(save_object, user_id)
+        return self.__transit_serivce.create(save_object, user_id)
 
     def delete_simple_economy_request(self, request_id: int, user_id: int) -> None:
         self.__economy_service.delete(request_id)
