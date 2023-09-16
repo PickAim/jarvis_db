@@ -600,29 +600,28 @@ class UserToEconomy(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), nullable=False)
     user: Mapped[User] = relationship(User)
     economy_request_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyRequest.id),
-        nullable=False,
+        ForeignKey(EconomyRequest.id), nullable=False, unique=True
     )
     economy_request: Mapped[EconomyRequest] = relationship(
         EconomyRequest,
         foreign_keys=[economy_request_id],
     )
     economy_result_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyResult.id), nullable=False
+        ForeignKey(EconomyResult.id), nullable=False, unique=True
     )
     economy_result: Mapped[EconomyResult] = relationship(
         EconomyResult,
         foreign_keys=[economy_result_id],
     )
     recommended_economy_request_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyRequest.id), nullable=False
+        ForeignKey(EconomyRequest.id), nullable=False, unique=True
     )
     recommended_economy_request: Mapped[EconomyRequest] = relationship(
         EconomyRequest,
         foreign_keys=[recommended_economy_request_id],
     )
     recommended_economy_result_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyResult.id), nullable=False
+        ForeignKey(EconomyResult.id), nullable=False, unique=True
     )
     recommended_economy_result: Mapped[EconomyResult] = relationship(
         EconomyResult,

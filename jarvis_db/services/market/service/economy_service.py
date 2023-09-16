@@ -4,6 +4,7 @@ from jorm.market.service import (
     SimpleEconomySaveObject,
 )
 from sqlalchemy import delete, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
@@ -79,32 +80,36 @@ class EconomyService:
         economy_record = self.__session.execute(
             select(UserToEconomy).where(UserToEconomy.id == request_id)
         ).scalar_one_or_none()
-        if economy_record is not None:
-            self.__session.execute(
-                delete(EconomyRequest).where(
-                    EconomyRequest.id.in_(
-                        [
-                            economy_record.economy_request_id,
-                            economy_record.recommended_economy_request_id,
-                        ]
-                    )
-                )
-            )
-            self.__session.execute(
-                delete(EconomyResult).where(
-                    EconomyResult.id.in_(
-                        [
-                            economy_record.economy_result_id,
-                            economy_record.recommended_economy_result_id,
-                        ]
-                    )
-                )
-            )
-            self.__session.delete(economy_record)
-            self.__session.flush()
-            return True
-        else:
+        if economy_record is None:
             return False
+        try:
+            with self.__session.begin_nested():
+                self.__session.delete(economy_record)
+                self.__session.flush()
+                self.__session.execute(
+                    delete(EconomyRequest).where(
+                        EconomyRequest.id.in_(
+                            [
+                                economy_record.economy_request_id,
+                                economy_record.recommended_economy_request_id,
+                            ]
+                        )
+                    )
+                )
+                self.__session.execute(
+                    delete(EconomyResult).where(
+                        EconomyResult.id.in_(
+                            [
+                                economy_record.economy_result_id,
+                                economy_record.recommended_economy_result_id,
+                            ]
+                        )
+                    )
+                )
+                self.__session.flush()
+        except SQLAlchemyError:
+            return False
+        return True
 
     @staticmethod
     def __map_request_to_record(

@@ -1,10 +1,15 @@
-from sqlalchemy import delete, select
-from sqlalchemy.orm import Session, joinedload
 from jorm.market.service import (
-    TransitEconomySaveObject,
     TransitEconomyRequest as TransitEconomyRequestEntity,
+)
+from jorm.market.service import (
     TransitEconomyResult as TransitEconomyResultEntity,
 )
+from jorm.market.service import (
+    TransitEconomySaveObject,
+)
+from sqlalchemy import delete, select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
@@ -81,28 +86,33 @@ class TransitEconomyService:
         ).scalar_one_or_none()
         if user_to_transit is None:
             return False
-        self.__session.execute(
-            delete(TransitEconomyResult).where(
-                TransitEconomyResult.id.in_(
-                    [
-                        user_to_transit.transit_result_id,
-                        user_to_transit.recommended_transit_result_id,
-                    ]
+        try:
+            with self.__session.begin_nested():
+                self.__session.delete(user_to_transit)
+            self.__session.flush()
+            self.__session.execute(
+                delete(TransitEconomyResult).where(
+                    TransitEconomyResult.id.in_(
+                        [
+                            user_to_transit.transit_result_id,
+                            user_to_transit.recommended_transit_result_id,
+                        ]
+                    )
                 )
             )
-        )
-        self.__session.execute(
-            delete(TransitEconomyRequest).where(
-                TransitEconomyRequest.id.in_(
-                    [
-                        user_to_transit.transit_request_id,
-                        user_to_transit.recommended_transit_request_id,
-                    ]
+            self.__session.execute(
+                delete(TransitEconomyRequest).where(
+                    TransitEconomyRequest.id.in_(
+                        [
+                            user_to_transit.transit_request_id,
+                            user_to_transit.recommended_transit_request_id,
+                        ]
+                    )
                 )
             )
-        )
-        self.__session.delete(user_to_transit)
-        self.__session.flush()
+            self.__session.flush()
+        except SQLAlchemyError:
+            return False
         return True
 
     @staticmethod
