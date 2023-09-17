@@ -13,6 +13,9 @@ from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
+from jarvis_db.services.market.service.transit_economy_service import (
+    TransitEconomyService,
+)
 
 
 class JormCollectorImpl(JORMCollector):
@@ -23,6 +26,7 @@ class JormCollectorImpl(JORMCollector):
         category_service: CategoryService,
         warehouse_service: WarehouseService,
         economy_service: EconomyService,
+        transit_serivce: TransitEconomyService,
         user_items_service: UserItemsService,
     ):
         self.__marketplace_service = marketplace_service
@@ -30,6 +34,7 @@ class JormCollectorImpl(JORMCollector):
         self.__category_service = category_service
         self.__warehouse_service = warehouse_service
         self.__economy_service = economy_service
+        self.__transit_serivce = transit_serivce
         self.__user_items_service = user_items_service
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
@@ -104,5 +109,4 @@ class JormCollectorImpl(JORMCollector):
     def get_all_transit_economy_results(
         self, user_id: int
     ) -> list[TransitEconomySaveObject]:
-        # TODO Not implemented
-        return super().get_all_transit_economy_results(user_id)
+        return self.__transit_serivce.find_user_requests(user_id)

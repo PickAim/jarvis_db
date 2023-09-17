@@ -9,6 +9,7 @@ from jarvis_db.factories.mappers import (
     create_marketplace_table_mapper,
     create_niche_table_mapper,
     create_product_table_mapper,
+    create_transit_economy_table_mapper,
 )
 from jarvis_db.factories.queries import (
     create_category_query_builder,
@@ -28,6 +29,11 @@ from jarvis_db.mappers.market.person import (
     UserTableToJormMapper,
 )
 from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
+from jarvis_db.mappers.market.service.transit_mappers import (
+    TransitRequestMapper,
+    TransitResultMapper,
+    TransitTableToJormMapper,
+)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
@@ -41,6 +47,9 @@ from jarvis_db.services.market.items.product_history_service import (
 from jarvis_db.services.market.person import AccountService, TokenService, UserService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
 from jarvis_db.services.market.service.economy_service import EconomyService
+from jarvis_db.services.market.service.transit_economy_service import (
+    TransitEconomyService,
+)
 
 
 def create_account_service(session: Session) -> AccountService:
@@ -118,6 +127,18 @@ def create_economy_service(session: Session) -> EconomyService:
         session,
         create_economy_table_mapper(),
         create_warehouse_service(session),
+    )
+
+
+def create_transit_economy_service(
+    session: Session, warehouse_service: WarehouseService | None = None
+) -> TransitEconomyService:
+    return TransitEconomyService(
+        session,
+        create_transit_economy_table_mapper(),
+        warehouse_service
+        if warehouse_service is not None
+        else create_warehouse_service(session),
     )
 
 

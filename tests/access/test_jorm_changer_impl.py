@@ -27,6 +27,7 @@ class JormChangerTest(unittest.TestCase):
         self.__product_card_service_mock = Mock()
         self.__product_history_service_mock = Mock()
         self.__economy_service_mock = Mock()
+        self.__transit_service_mock = Mock()
         self.__user_items_service_mock = Mock()
         self.__data_provider_without_key_mock = Mock()
         self.__user_market_data_provider_mock = Mock()
@@ -39,6 +40,7 @@ class JormChangerTest(unittest.TestCase):
             self.__product_card_service_mock,
             self.__product_history_service_mock,
             self.__economy_service_mock,
+            self.__transit_service_mock,
             self.__user_items_service_mock,
             self.__data_provider_without_key_mock,
             self.__user_market_data_provider_mock,

@@ -581,7 +581,7 @@ class TransitEconomyResult(Base):
     absolute_margin: Mapped[int] = mapped_column(Integer, nullable=False)
     relative_margin: Mapped[int] = mapped_column(Integer, nullable=False)
     roi: Mapped[int] = mapped_column(Integer, nullable=False)
-    transit_margin_percent: Mapped[int] = mapped_column(Integer, nullable=False)
+    storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
     purchase_investments: Mapped[int] = mapped_column(Integer, nullable=False)
     commercial_expanses: Mapped[int] = mapped_column(Integer, nullable=False)
     tax_expanses: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -600,31 +600,70 @@ class UserToEconomy(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), nullable=False)
     user: Mapped[User] = relationship(User)
     economy_request_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyRequest.id),
-        nullable=False,
+        ForeignKey(EconomyRequest.id), nullable=False, unique=True
     )
     economy_request: Mapped[EconomyRequest] = relationship(
         EconomyRequest,
         foreign_keys=[economy_request_id],
     )
     economy_result_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyResult.id), nullable=False
+        ForeignKey(EconomyResult.id), nullable=False, unique=True
     )
     economy_result: Mapped[EconomyResult] = relationship(
         EconomyResult,
         foreign_keys=[economy_result_id],
     )
     recommended_economy_request_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyRequest.id), nullable=False
+        ForeignKey(EconomyRequest.id), nullable=False, unique=True
     )
     recommended_economy_request: Mapped[EconomyRequest] = relationship(
         EconomyRequest,
         foreign_keys=[recommended_economy_request_id],
     )
     recommended_economy_result_id: Mapped[int] = mapped_column(
-        ForeignKey(EconomyResult.id), nullable=False
+        ForeignKey(EconomyResult.id), nullable=False, unique=True
     )
     recommended_economy_result: Mapped[EconomyResult] = relationship(
         EconomyResult,
         foreign_keys=[recommended_economy_result_id],
+    )
+
+
+class UserToTransitEconomy(Base):
+    __tablename__ = "users_to_transit_econonies"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(512), nullable=False)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), default=datetime.utcnow, nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.id), nullable=False)
+    user: Mapped[User] = relationship(User)
+    transit_request_id: Mapped[int] = mapped_column(
+        ForeignKey(TransitEconomyRequest.id),
+        nullable=False,
+    )
+    transit_request: Mapped[TransitEconomyRequest] = relationship(
+        TransitEconomyRequest,
+        foreign_keys=[transit_request_id],
+    )
+    transit_result_id: Mapped[int] = mapped_column(
+        ForeignKey(TransitEconomyResult.id), nullable=False
+    )
+    transit_result: Mapped[TransitEconomyResult] = relationship(
+        TransitEconomyResult,
+        foreign_keys=[transit_result_id],
+    )
+    recommended_transit_request_id: Mapped[int] = mapped_column(
+        ForeignKey(TransitEconomyRequest.id), nullable=False
+    )
+    recommended_transit_request: Mapped[TransitEconomyRequest] = relationship(
+        TransitEconomyRequest,
+        foreign_keys=[recommended_transit_request_id],
+    )
+    recommended_transit_result_id: Mapped[int] = mapped_column(
+        ForeignKey(TransitEconomyResult.id), nullable=False
+    )
+    recommended_transit_result: Mapped[TransitEconomyResult] = relationship(
+        TransitEconomyResult,
+        foreign_keys=[recommended_transit_result_id],
     )
