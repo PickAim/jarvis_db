@@ -29,7 +29,7 @@ class JormChangerImpl(JORMChanger):
         product_card_service: ProductCardService,
         product_history_service: ProductHistoryService,
         economy_service: EconomyService,
-        transit_serivce: TransitEconomyService,
+        transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
@@ -40,7 +40,7 @@ class JormChangerImpl(JORMChanger):
         self.__product_card_service = product_card_service
         self.__product_history_service = product_history_service
         self.__economy_service = economy_service
-        self.__transit_serivce = transit_serivce
+        self.__transit_serivice = transit_service
         self.__user_items_service = user_items_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
@@ -54,13 +54,13 @@ class JormChangerImpl(JORMChanger):
     def save_transit_economy_request(
         self, save_object: TransitEconomySaveObject, user_id: int
     ) -> int:
-        return self.__transit_serivce.create(save_object, user_id)
+        return self.__transit_serivice.save_request(save_object, user_id)
 
     def delete_simple_economy_request(self, request_id: int, user_id: int) -> None:
         self.__economy_service.delete(request_id)
 
     def delete_transit_economy_request(self, request_id: int, user_id: int) -> None:
-        self.__transit_serivce.delete(request_id)
+        self.__transit_serivice.delete(request_id)
 
     # def update_all_niches(self, category_id: int, marketplace_id: int) -> None:
     #     # TODO it will be necessary to implement this method to update niche

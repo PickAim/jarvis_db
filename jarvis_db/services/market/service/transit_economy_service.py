@@ -32,7 +32,7 @@ class TransitEconomyService:
         self.__table_mapper = table_mapper
         self.__warehouse_service = warehouse_service
 
-    def create(self, save_object: TransitEconomySaveObject, user_id: int) -> int:
+    def save_request(self, save_object: TransitEconomySaveObject, user_id: int) -> int:
         user_tuple = self.__create_transit_tuple(
             save_object.user_result[0],
             save_object.user_result[1],

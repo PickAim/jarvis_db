@@ -91,7 +91,7 @@ class TransitSerivceTest(unittest.TestCase):
         )
         with self.__db_context.session() as session, session.begin():
             service = create_transit_economy_service(session)
-            transit_id = service.create(save_object, self.__user_id)
+            transit_id = service.save_request(save_object, self.__user_id)
             save_object.info.id = transit_id
         with self.__db_context.session() as session:
             actual_transit = session.execute(
