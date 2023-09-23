@@ -9,11 +9,7 @@ from jarvis_db import schemas
 from jarvis_db.factories.mappers import create_product_history_mapper
 from jarvis_db.factories.services import create_product_history_service
 from jarvis_db.schemas import (
-    Address,
-    Category,
     Leftover,
-    Marketplace,
-    Niche,
     ProductCard,
     Warehouse,
 )

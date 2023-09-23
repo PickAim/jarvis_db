@@ -29,11 +29,6 @@ from jarvis_db.mappers.market.person import (
     UserTableToJormMapper,
 )
 from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
-from jarvis_db.mappers.market.service.transit_mappers import (
-    TransitRequestMapper,
-    TransitResultMapper,
-    TransitTableToJormMapper,
-)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
