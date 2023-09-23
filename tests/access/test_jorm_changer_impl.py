@@ -35,16 +35,16 @@ class JormChangerTest(unittest.TestCase):
 
     def create_changer(self) -> JormChangerImpl:
         return JormChangerImpl(
-            self.__category_service_mock,
-            self.__niche_service_mock,
-            self.__product_card_service_mock,
-            self.__product_history_service_mock,
-            self.__economy_service_mock,
-            self.__transit_service_mock,
-            self.__user_items_service_mock,
-            self.__data_provider_without_key_mock,
-            self.__user_market_data_provider_mock,
-            self.__standard_filler_mock,
+            category_service=self.__category_service_mock,
+            niche_service=self.__niche_service_mock,
+            product_card_service=self.__product_card_service_mock,
+            product_history_service=self.__product_history_service_mock,
+            economy_service=self.__economy_service_mock,
+            transit_service=self.__transit_service_mock,
+            user_items_service=self.__user_items_service_mock,
+            data_provider_without_key=self.__data_provider_without_key_mock,
+            user_market_data_provider=self.__user_market_data_provider_mock,
+            standard_filler=self.__standard_filler_mock,
         )
 
     def test_save_unit_economy_request(self):
@@ -52,32 +52,29 @@ class JormChangerTest(unittest.TestCase):
         request_name_to_save = "request name"
         request_info = RequestInfo(date=date_to_save, name=request_name_to_save)
         niche_id = 1
-        category_id = 2
         marketplace_id = 3
-        warehouse_name = "test_warehouse_name"
+        warehouse_id = 147
         user_request = SimpleEconomyRequest(
             niche_id,
-            category_id,
             marketplace_id,
             100,
             110,
-            10,
-            11,
-            12,
-            13,
-            warehouse_name,
+            1.0,
+            1.1,
+            1.2,
+            1.3,
+            warehouse_id,
         )
         recommended_request = SimpleEconomyRequest(
             niche_id,
-            category_id,
             marketplace_id,
             101,
             111,
-            20,
-            21,
-            32,
-            43,
-            warehouse_name,
+            2.0,
+            2.1,
+            3.2,
+            4.3,
+            warehouse_id,
         )
         user_result = SimpleEconomyResult(200, 25, 45, 35, 15, 150, 0.3, 0.2)
         recommended_result = SimpleEconomyResult(220, 35, 55, 75, 25, 170, 0.5, 0.15)

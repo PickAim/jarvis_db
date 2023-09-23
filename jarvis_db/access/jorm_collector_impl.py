@@ -4,6 +4,7 @@ from jorm.market.service import (
     SimpleEconomySaveObject,
     TransitEconomySaveObject,
 )
+from jorm.support.types import EconomyConstants
 
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
@@ -37,6 +38,9 @@ class JormCollectorImpl(JORMCollector):
         self.__transit_serivce = transit_serivce
         self.__user_items_service = user_items_service
 
+    def get_economy_constants(self, marketplace_id: int) -> EconomyConstants | None:
+        return super().get_economy_constants(marketplace_id)
+
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
         return self.__marketplace_service.find_all()
 
@@ -67,16 +71,8 @@ class JormCollectorImpl(JORMCollector):
     def get_niche_by_id(self, niche_id: int) -> Niche | None:
         return self.__niche_service.fetch_by_id_atomic(niche_id)
 
-    def get_warehouse(
-        self, warehouse_name: str, marketplace_id: int
-    ) -> Warehouse | None:
-        warehouse_result = self.__warehouse_service.find_warehouse_by_name(
-            warehouse_name, marketplace_id
-        )
-        if warehouse_result is None:
-            return None
-        warehouse, _ = warehouse_result
-        return warehouse
+    def get_warehouse(self, warehouse_id: int) -> Warehouse | None:
+        return self.__warehouse_service.find_by_id(warehouse_id)
 
     def get_all_warehouses(self, marketplace_id: int) -> dict[int, Warehouse]:
         return self.__warehouse_service.find_all_warehouses(marketplace_id)

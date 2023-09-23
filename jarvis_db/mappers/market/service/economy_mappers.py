@@ -36,15 +36,14 @@ class EconomyRequestTableMapper(Mapper[EconomyRequest, SimpleEconomyRequest]):
     def map(self, value: EconomyRequest) -> SimpleEconomyRequest:
         return SimpleEconomyRequest(
             niche_id=value.niche_id,
-            category_id=value.niche.category_id,
             marketplace_id=value.niche.category.marketplace_id,
             product_exist_cost=value.product_exit_cost,
             cost_price=value.cost_price,
-            length=value.lenght,
-            width=value.width,
-            height=value.height,
-            mass=value.mass,
-            target_warehouse_name=value.warehouse.name,
+            length=float(value.lenght / 100),
+            width=float(value.width / 100),
+            height=float(value.height / 100),
+            mass=float(value.mass / 100),
+            target_warehouse_id=value.warehouse_id,
         )
 
 

@@ -18,54 +18,24 @@ from jarvis_db.schemas import (
     Warehouse,
 )
 from tests.db_context import DbContext
+from tests.fixtures import AlchemySeeder
 
 
 class ProductHistoryServiceTest(unittest.TestCase):
     def setUp(self):
         self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
-            marketplace = Marketplace(name="marketplace#1")
-            category = Category(name="category#1", marketplace=marketplace)
-            niche = Niche(
-                name="niche#1",
-                marketplace_commission=1,
-                partial_client_commission=1,
-                client_commission=1,
-                return_percent=1,
-                category=category,
-            )
-            product = ProductCard(
-                name="product#1",
-                global_id=12,
-                rating=12,
-                cost=230,
-                niche=niche,
-                brand="brand",
-                seller="seller",
-            )
-            session.add(product)
-            session.flush()
-            self.__product_id = product.id
-            address = Address(
-                country="AS", region="QS", street="DD", number="HH", corpus="YU"
-            )
-            warehouse = Warehouse(
-                marketplace=marketplace,
-                global_id=200,
-                type=0,
-                name="qwerty",
-                address=address,
-                basic_logistic_to_customer_commission=0,
-                additional_logistic_to_customer_commission=0,
-                logistic_from_customer_commission=0,
-                basic_storage_commission=0,
-                additional_storage_commission=0,
-                monopalette_storage_commission=0,
-            )
-            session.add(warehouse)
-            session.flush()
-            self.__warehouse_id = warehouse.id
-            self.__warehouse_gid = warehouse.global_id
+            seeder = AlchemySeeder(session)
+            seeder.seed_marketplaces(1)
+            seeder.seed_categories(1)
+            seeder.seed_niches(1)
+            seeder.seed_warehouses(1)
+            seeder.seed_products(1)
+            self.__product_id = session.execute(select(ProductCard.id)).scalar_one()
+            self.__warehouse_id = session.execute(select(Warehouse.id)).scalar_one()
+            self.__warehouse_gid = session.execute(
+                select(Warehouse.global_id)
+            ).scalar_one()
 
     def test_create(self):
         with self.__db_context.session() as session, session.begin():

@@ -6,6 +6,7 @@ from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
 )
+from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
@@ -46,6 +47,30 @@ class JormChangerImpl(JORMChanger):
         self.__user_market_data_provider = user_market_data_provider
         self.__standard_filler = standard_filler
 
+    def update_niche(
+        self, niche_id: int, category_id: int, marketplace_id: int
+    ) -> Niche | None:
+        if self.__data_provider_without_key is None:
+            return None
+        niche = self.__niche_service.find_by_id(niche_id)
+        if niche is None:
+            return None
+        category = self.__category_service.find_by_id(category_id)
+        if category is None:
+            return None
+        niche_tuple = self.__niche_service.find_by_name_atomic(niche.name, category_id)
+        if niche_tuple is None:
+            return None
+        niche, _ = niche_tuple
+        return self.__update_niche(
+            (niche, niche_id), category, self.__data_provider_without_key
+        )
+
+    def update_economy_constants(
+        self, marketplace_id: int, economy_constants: EconomyConstants
+    ) -> None:
+        return super().update_economy_constants(marketplace_id, economy_constants)
+
     def save_simple_economy_request(
         self, save_object: SimpleEconomySaveObject, user_id: int
     ) -> int:
@@ -67,25 +92,6 @@ class JormChangerImpl(JORMChanger):
     #     commissions as example
     #     https://github.com/PickAim/jdu/issues/55
     #     return
-
-    def update_niche(
-        self, niche_id: int, category_id: int, marketplace_id: int
-    ) -> Niche | None:
-        if self.__data_provider_without_key is None:
-            return None
-        niche = self.__niche_service.find_by_id(niche_id)
-        if niche is None:
-            return None
-        category = self.__category_service.find_by_id(category_id)
-        if category is None:
-            return None
-        niche_tuple = self.__niche_service.find_by_name_atomic(niche.name, category_id)
-        if niche_tuple is None:
-            return None
-        niche, _ = niche_tuple
-        return self.__update_niche(
-            (niche, niche_id), category, self.__data_provider_without_key
-        )
 
     def load_new_niche(self, niche_name: str, marketplace_id: int) -> Niche | None:
         if self.__data_provider_without_key is None or self.__standard_filler is None:

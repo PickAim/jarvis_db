@@ -130,14 +130,7 @@ class WarehouseService:
             marketplace_id=marketplace_id,
             global_id=warehouse.global_id,
             name=warehouse.name,
-            basic_logistic_to_customer_commission=warehouse.basic_logistic_to_customer_commission,
-            additional_logistic_to_customer_commission=warehouse.additional_logistic_to_customer_commission,
-            logistic_from_customer_commission=warehouse.logistic_from_customer_commission,
-            basic_storage_commission=warehouse.basic_storage_commission,
-            additional_storage_commission=int(
-                warehouse.additional_storage_commission * 100
-            ),
-            monopalette_storage_commission=warehouse.mono_palette_storage_commission,
             type=handler_type_code,
+            main_coefficient=int(warehouse.main_coefficient * 100),
             address=Address(country="", region="", street="", number="", corpus=""),
         )

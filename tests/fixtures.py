@@ -255,12 +255,7 @@ def create_warehouses(
             type=1,
             name=f"warehouse_name_{i}",
             address=addresses[i % len(addresses)],
-            basic_logistic_to_customer_commission=0,
-            additional_logistic_to_customer_commission=0,
-            logistic_from_customer_commission=0,
-            basic_storage_commission=0,
-            additional_storage_commission=0,
-            monopalette_storage_commission=0,
+            main_coefficient=100 + i * 10,
         )
         for i in range(quantity)
     ]

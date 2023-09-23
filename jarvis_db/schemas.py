@@ -369,18 +369,7 @@ class Warehouse(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    basic_logistic_to_customer_commission: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )
-    additional_logistic_to_customer_commission: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )
-    logistic_from_customer_commission: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )
-    basic_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
-    additional_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
-    monopalette_storage_commission: Mapped[int] = mapped_column(Integer, nullable=False)
+    main_coefficient: Mapped[int] = mapped_column(Integer, nullable=False)
 
     __table_args__ = (UniqueConstraint(marketplace_id, global_id),)
 
@@ -390,13 +379,7 @@ class Warehouse(Base):
             f"global_id={self.global_id!r}, "
             f"type={self.type!r}, "
             f"name={self.name!r}, "
-            f"logistic_to_customer_commission="
-            "{self.basic_logistic_to_customer_commission!r}, "
-            f"logistic_from_customer_commission="
-            "{self.logistic_from_customer_commission!r}, "
-            f"basic_storage_commission={self.basic_storage_commission!r}, "
-            f"additional_storage_commission={self.additional_storage_commission!r}, "
-            f"monopalette_storage_commission={self.monopalette_storage_commission!r}"
+            f"main_coefficient={self.main_coefficient!r}"
             ")"
         )
 
@@ -539,8 +522,9 @@ class TransitEconomyRequest(Base):
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     mass: Mapped[int] = mapped_column(Integer, nullable=False)
-    transit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
-    transit_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    logistic_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    logistic_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    transit_cost_for_cubic_meter: Mapped[int] = mapped_column(Integer, nullable=False)
     warehouse_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(Warehouse.id), nullable=True
     )
