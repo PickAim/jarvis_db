@@ -16,6 +16,9 @@ from jarvis_db.services.market.items.product_history_service import (
     ProductHistoryService,
 )
 from jarvis_db.services.market.person.user_items_service import UserItemsService
+from jarvis_db.services.market.service.economy_constants_service import (
+    EconomyConstantsService,
+)
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.transit_economy_service import (
     TransitEconomyService,
@@ -25,6 +28,7 @@ from jarvis_db.services.market.service.transit_economy_service import (
 class JormChangerImpl(JORMChanger):
     def __init__(
         self,
+        economy_constants_service: EconomyConstantsService,
         category_service: CategoryService,
         niche_service: NicheService,
         product_card_service: ProductCardService,
@@ -36,6 +40,7 @@ class JormChangerImpl(JORMChanger):
         user_market_data_provider: UserMarketDataProvider,
         standard_filler: StandardDbFiller,
     ):
+        self.__economy_constants_service = economy_constants_service
         self.__category_service = category_service
         self.__niche_service = niche_service
         self.__product_card_service = product_card_service
@@ -69,7 +74,9 @@ class JormChangerImpl(JORMChanger):
     def update_economy_constants(
         self, marketplace_id: int, economy_constants: EconomyConstants
     ) -> None:
-        return super().update_economy_constants(marketplace_id, economy_constants)
+        self.__economy_constants_service.upsert_constants(
+            marketplace_id, economy_constants
+        )
 
     def save_simple_economy_request(
         self, save_object: SimpleEconomySaveObject, user_id: int

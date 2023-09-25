@@ -248,9 +248,41 @@ class Marketplace(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    economy_constants: Mapped["EconomyConstants"] = relationship(
+        "EconomyConstants",
+        back_populates="marketplace",
+        cascade="delete",
+        passive_deletes=True,
+    )
 
     def __repr__(self) -> str:
         return f"Marketplace(id={self.id!r}, name={self.name!r})"
+
+
+class EconomyConstants(Base):
+    __tablename__ = "economy_constants"
+    marketplace_id: Mapped[int] = mapped_column(
+        ForeignKey(Marketplace.id, ondelete="CASCADE"), primary_key=True
+    )
+    marketplace: Mapped[Marketplace] = relationship(
+        Marketplace, back_populates="economy_constants"
+    )
+    max_mass: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_side_sum: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_side_length: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_standard_volume_in_liters: Mapped[int] = mapped_column(Integer, nullable=False)
+    return_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    oversize_logistic_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    oversize_storage_price: Mapped[int] = mapped_column(Integer, nullable=False)
+    standard_warehouse_logistic_price: Mapped[int] = mapped_column(
+        Integer, nullable=False
+    )
+    standard_warehouse_storage_price: Mapped[int] = mapped_column(
+        Integer, nullable=False
+    )
+    nds_tax: Mapped[int] = mapped_column(Integer, nullable=False)
+    commercial_tax: Mapped[int] = mapped_column(Integer, nullable=False)
+    self_employed_tax: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 class MarketplaceApiKey(Base):

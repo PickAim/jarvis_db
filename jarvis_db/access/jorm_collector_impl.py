@@ -13,6 +13,9 @@ from jarvis_db.services.market.infrastructure.marketplace_service import (
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
+from jarvis_db.services.market.service.economy_constants_service import (
+    EconomyConstantsService,
+)
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.transit_economy_service import (
     TransitEconomyService,
@@ -23,6 +26,7 @@ class JormCollectorImpl(JORMCollector):
     def __init__(
         self,
         marketplace_service: MarketplaceService,
+        economy_constants_service: EconomyConstantsService,
         niche_service: NicheService,
         category_service: CategoryService,
         warehouse_service: WarehouseService,
@@ -31,6 +35,7 @@ class JormCollectorImpl(JORMCollector):
         user_items_service: UserItemsService,
     ):
         self.__marketplace_service = marketplace_service
+        self.__economy_constants_service = economy_constants_service
         self.__niche_service = niche_service
         self.__category_service = category_service
         self.__warehouse_service = warehouse_service
@@ -39,7 +44,7 @@ class JormCollectorImpl(JORMCollector):
         self.__user_items_service = user_items_service
 
     def get_economy_constants(self, marketplace_id: int) -> EconomyConstants | None:
-        return super().get_economy_constants(marketplace_id)
+        return self.__economy_constants_service.find_by_marketplace_id(marketplace_id)
 
     def get_all_marketplaces(self) -> dict[int, Marketplace]:
         return self.__marketplace_service.find_all()

@@ -22,6 +22,7 @@ from jarvis_db.access.jorm_changer import JormChangerImpl
 
 class JormChangerTest(unittest.TestCase):
     def setUp(self):
+        self.__economy_constants_service_mock = Mock()
         self.__category_service_mock = Mock()
         self.__niche_service_mock = Mock()
         self.__product_card_service_mock = Mock()
@@ -35,6 +36,7 @@ class JormChangerTest(unittest.TestCase):
 
     def create_changer(self) -> JormChangerImpl:
         return JormChangerImpl(
+            economy_constants_service=self.__economy_constants_service_mock,
             category_service=self.__category_service_mock,
             niche_service=self.__niche_service_mock,
             product_card_service=self.__product_card_service_mock,

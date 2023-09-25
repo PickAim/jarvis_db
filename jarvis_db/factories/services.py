@@ -29,6 +29,9 @@ from jarvis_db.mappers.market.person import (
     UserTableToJormMapper,
 )
 from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
+from jarvis_db.mappers.market.service.economy_constants_mappers import (
+    EconomyConstantsTableToJormMapper,
+)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
@@ -41,6 +44,9 @@ from jarvis_db.services.market.items.product_history_service import (
 )
 from jarvis_db.services.market.person import AccountService, TokenService, UserService
 from jarvis_db.services.market.person.user_items_service import UserItemsService
+from jarvis_db.services.market.service.economy_constants_service import (
+    EconomyConstantsService,
+)
 from jarvis_db.services.market.service.economy_service import EconomyService
 from jarvis_db.services.market.service.transit_economy_service import (
     TransitEconomyService,
@@ -157,3 +163,7 @@ def create_product_card_service(
         history_service,
         create_product_table_mapper(),
     )
+
+
+def create_economy_constants_service(session: Session) -> EconomyConstantsService:
+    return EconomyConstantsService(session, EconomyConstantsTableToJormMapper())
