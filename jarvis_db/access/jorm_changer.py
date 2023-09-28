@@ -6,6 +6,10 @@ from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
 )
+from jorm.support.calculation import (
+    GreenTradeZoneCalculateResult,
+    NicheCharacteristicsCalculateResult,
+)
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
@@ -69,6 +73,20 @@ class JormChangerImpl(JORMChanger):
         niche, _ = niche_tuple
         return self.__update_niche(
             (niche, niche_id), category, self.__data_provider_without_key
+        )
+
+    def update_green_zone_cache(
+        self, niche_id: int, green_trade_zone_calc_result: GreenTradeZoneCalculateResult
+    ) -> None:
+        return super().update_green_zone_cache(niche_id, green_trade_zone_calc_result)
+
+    def update_niche_characteristics_cache(
+        self,
+        niche_id: int,
+        niche_characteristics_calc_result: NicheCharacteristicsCalculateResult,
+    ) -> None:
+        return super().update_niche_characteristics_cache(
+            niche_id, niche_characteristics_calc_result
         )
 
     def update_economy_constants(
