@@ -181,12 +181,6 @@ class StandardDbFillerImpl(StandardDbFiller):
             global_id,
             HandlerType.MARKETPLACE,
             Address(),
-            basic_logistic_to_customer_commission=0,
-            additional_logistic_to_customer_commission=0,
-            logistic_from_customer_commission=0,
-            basic_storage_commission=0,
-            additional_storage_commission=0,
-            mono_palette_storage_commission=0,
         )
 
     def __fill_warehouses(self, warehouses: list[Warehouse]):

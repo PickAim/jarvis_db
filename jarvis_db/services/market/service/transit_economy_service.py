@@ -56,7 +56,6 @@ class TransitEconomyService:
 
     def find_user_requests(self, user_id: int) -> list[TransitEconomySaveObject]:
         transit_request_options = [
-            joinedload(TransitEconomyRequest.warehouse),
             joinedload(TransitEconomyRequest.niche).joinedload(Niche.category),
         ]
         results = (
@@ -89,28 +88,28 @@ class TransitEconomyService:
         try:
             with self.__session.begin_nested():
                 self.__session.delete(user_to_transit)
-            self.__session.flush()
-            self.__session.execute(
-                delete(TransitEconomyResult).where(
-                    TransitEconomyResult.id.in_(
-                        [
-                            user_to_transit.transit_result_id,
-                            user_to_transit.recommended_transit_result_id,
-                        ]
+                self.__session.flush()
+                self.__session.execute(
+                    delete(TransitEconomyResult).where(
+                        TransitEconomyResult.id.in_(
+                            [
+                                user_to_transit.transit_result_id,
+                                user_to_transit.recommended_transit_result_id,
+                            ]
+                        )
                     )
                 )
-            )
-            self.__session.execute(
-                delete(TransitEconomyRequest).where(
-                    TransitEconomyRequest.id.in_(
-                        [
-                            user_to_transit.transit_request_id,
-                            user_to_transit.recommended_transit_request_id,
-                        ]
+                self.__session.execute(
+                    delete(TransitEconomyRequest).where(
+                        TransitEconomyRequest.id.in_(
+                            [
+                                user_to_transit.transit_request_id,
+                                user_to_transit.recommended_transit_request_id,
+                            ]
+                        )
                     )
                 )
-            )
-            self.__session.flush()
+                self.__session.flush()
         except SQLAlchemyError:
             return False
         return True
@@ -124,12 +123,15 @@ class TransitEconomyService:
             product_exit_cost=request.product_exist_cost,
             warehouse_id=warehouse_id,
             cost_price=request.cost_price,
-            lenght=request.length,
-            width=request.width,
-            height=request.height,
-            mass=request.mass,
-            transit_cost=request.transit_price,
-            transit_count=request.transit_count,
+            lenght=int(request.length * 100),
+            width=int(request.width * 100),
+            height=int(request.height * 100),
+            mass=int(request.mass * 100),
+            logistic_price=request.logistic_price,
+            logistic_count=request.logistic_count,
+            transit_cost_for_cubic_meter=int(
+                request.transit_cost_for_cubic_meter * 100
+            ),
         )
 
     @staticmethod
@@ -154,17 +156,13 @@ class TransitEconomyService:
     def __create_transit_tuple(
         self, request: TransitEconomyRequestEntity, result: TransitEconomyResultEntity
     ) -> tuple[TransitEconomyRequest, TransitEconomyResult]:
-        warehouse_tuple = self.__warehouse_service.find_warehouse_by_name(
-            request.target_warehouse_name, request.marketplace_id
-        )
-        if warehouse_tuple is None:
+        warehouse = self.__warehouse_service.find_by_id(request.target_warehouse_id)
+        if warehouse is None:
             raise Exception(
-                f"No warehouse with name '{request.target_warehouse_name}'"
-                f"was found in marketplace with id: {request.marketplace_id}"
+                f"No warehouse with id '{request.target_warehouse_id}' was not found"
             )
-        _, warehouse_id = warehouse_tuple
         request_record = TransitEconomyService.__map_request_to_record(
-            request, warehouse_id
+            request, request.target_warehouse_id
         )
         result_record = TransitEconomyService.__map_result_to_record(result)
         return request_record, result_record

@@ -52,31 +52,31 @@ class TransitSerivceTest(unittest.TestCase):
         request_info = RequestInfo(date=datetime(2020, 10, 23), name="name")
         user_request = TransitEconomyRequest(
             self.__niche_id,
-            self.__category_id,
             self.__marketplace_id,
             100,
             150,
-            10,
-            12,
-            15,
-            20,
-            self.__warehouse_name,
+            1.0,
+            1.2,
+            1.5,
+            2.0,
+            self.__warehouse_id,
             432,
             11,
+            2.7,
         )
         recommended_request = TransitEconomyRequest(
             self.__niche_id,
-            self.__category_id,
             self.__marketplace_id,
             101,
             151,
-            11,
-            13,
-            27,
-            30,
-            self.__warehouse_name,
+            1.1,
+            1.3,
+            2.7,
+            3.0,
+            self.__warehouse_id,
             532,
             51,
+            2.2,
         )
         user_result = TransitEconomyResult(
             111, 222, 333, 400, 50, 90, 0.2, 0.3, 235, 125, 56, 88, 0.45, 0.66
@@ -121,8 +121,9 @@ class TransitSerivceTest(unittest.TestCase):
                 width=20,
                 height=20,
                 mass=50,
-                transit_cost=1000,
-                transit_count=34,
+                logistic_price=1000,
+                logistic_count=34,
+                transit_cost_for_cubic_meter=270,
             )
             recommended_request = user_request = schemas.TransitEconomyRequest(
                 niche_id=self.__niche_id,
@@ -133,8 +134,9 @@ class TransitSerivceTest(unittest.TestCase):
                 width=20,
                 height=20,
                 mass=50,
-                transit_cost=2000,
-                transit_count=74,
+                logistic_price=2000,
+                logistic_count=74,
+                transit_cost_for_cubic_meter=170,
             )
             user_result = schemas.TransitEconomyResult(
                 result_cost=300,

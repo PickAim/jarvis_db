@@ -78,12 +78,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 address=Address(
                     country="AS", region="QS", street="DD", number="HH", corpus="YU"
                 ),
-                basic_logistic_to_customer_commission=0,
-                additional_logistic_to_customer_commission=0,
-                logistic_from_customer_commission=0,
-                basic_storage_commission=0,
-                additional_storage_commission=0,
-                monopalette_storage_commission=0,
+                main_coefficient=270,
             )
             session.add(warehouse)
             session.flush()
@@ -105,12 +100,7 @@ class WarehouseServiceTest(unittest.TestCase):
                     address=Address(
                         country="AS", region="QS", street="DD", number="HH", corpus="YU"
                     ),
-                    basic_logistic_to_customer_commission=0,
-                    additional_logistic_to_customer_commission=0,
-                    logistic_from_customer_commission=0,
-                    basic_storage_commission=0,
-                    additional_storage_commission=0,
-                    monopalette_storage_commission=0,
+                    main_coefficient=270,
                 )
             )
         with self.__db_context.session() as session:
@@ -134,12 +124,7 @@ class WarehouseServiceTest(unittest.TestCase):
                     address=Address(
                         country="AS", region="QS", street="DD", number="HH", corpus="YU"
                     ),
-                    basic_logistic_to_customer_commission=0,
-                    additional_logistic_to_customer_commission=0,
-                    logistic_from_customer_commission=0,
-                    basic_storage_commission=0,
-                    additional_storage_commission=0,
-                    monopalette_storage_commission=0,
+                    main_coefficient=270,
                 )
             )
         with self.__db_context.session() as session:
@@ -165,31 +150,22 @@ class WarehouseServiceTest(unittest.TestCase):
                     address=Address(
                         country="AS", region="QS", street="DD", number="HH", corpus="YU"
                     ),
-                    basic_logistic_to_customer_commission=i,
-                    additional_logistic_to_customer_commission=i * 2,
-                    logistic_from_customer_commission=i + 1,
-                    basic_storage_commission=i + 3,
-                    additional_storage_commission=i * 4,
-                    monopalette_storage_commission=i + 6,
+                    main_coefficient=270 + i * 10,
                 )
                 for i in range(1, 21)
             ]
-            mapper = WarehouseTableToJormMapper()
             session.add_all(db_warehouses)
-            expected_warehouses = [
-                mapper.map(warehouse)
+            session.flush()
+            mapper = WarehouseTableToJormMapper()
+            expected_warehouses = {
+                warehouse.id: mapper.map(warehouse)
                 for warehouse in db_warehouses
                 if warehouse.marketplace_id == self.__marketplace_id
-            ]
+            }
         with self.__db_context.session() as session:
             service = create_warehouse_service(session)
-            actual_warehouses = service.find_all_warehouses(
-                self.__marketplace_id
-            ).values()
-            for expected, actual in zip(
-                expected_warehouses, actual_warehouses, strict=True
-            ):
-                self.assertEqual(expected, actual)
+            actual_warehouses = service.find_all_warehouses(self.__marketplace_id)
+            self.assertDictEqual(expected_warehouses, actual_warehouses)
 
     def test_exists_with_name_returns_true(self):
         warehouse_name = "warehouse_1"
@@ -203,12 +179,7 @@ class WarehouseServiceTest(unittest.TestCase):
                     address=Address(
                         country="AS", region="QS", street="DD", number="HH", corpus="YU"
                     ),
-                    basic_logistic_to_customer_commission=0,
-                    additional_logistic_to_customer_commission=0,
-                    logistic_from_customer_commission=0,
-                    basic_storage_commission=0,
-                    additional_storage_commission=0,
-                    monopalette_storage_commission=0,
+                    main_coefficient=270,
                 )
             )
         with self.__db_context.session() as session:
@@ -240,12 +211,7 @@ class WarehouseServiceTest(unittest.TestCase):
                             number="HH",
                             corpus="YU",
                         ),
-                        basic_logistic_to_customer_commission=0,
-                        additional_logistic_to_customer_commission=0,
-                        logistic_from_customer_commission=0,
-                        basic_storage_commission=0,
-                        additional_storage_commission=0,
-                        monopalette_storage_commission=0,
+                        main_coefficient=270,
                     )
                     for i, warehouse_name in enumerate(existing_names)
                 )
@@ -274,12 +240,7 @@ class WarehouseServiceTest(unittest.TestCase):
                             number="HH",
                             corpus="YU",
                         ),
-                        basic_logistic_to_customer_commission=0,
-                        additional_logistic_to_customer_commission=0,
-                        logistic_from_customer_commission=0,
-                        basic_storage_commission=0,
-                        additional_storage_commission=0,
-                        monopalette_storage_commission=0,
+                        main_coefficient=270,
                     )
                     for global_id in existing_ids
                 )

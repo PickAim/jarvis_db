@@ -53,19 +53,20 @@ class EconomyService:
         return user_to_economy.id
 
     def find_user_requests(self, user_id: int) -> list[SimpleEconomySaveObject]:
+        economy_request_options = [
+            joinedload(EconomyRequest.niche).joinedload(Niche.category)
+        ]
         results = (
             self.__session.execute(
                 select(UserToEconomy)
                 .where(UserToEconomy.user_id == user_id)
                 .options(
                     joinedload(UserToEconomy.economy_request).options(
-                        joinedload(EconomyRequest.warehouse),
-                        joinedload(EconomyRequest.niche).joinedload(Niche.category),
+                        *economy_request_options,
                     ),
                     joinedload(UserToEconomy.economy_result),
                     joinedload(UserToEconomy.recommended_economy_request).options(
-                        joinedload(EconomyRequest.warehouse),
-                        joinedload(EconomyRequest.niche).joinedload(Niche.category),
+                        *economy_request_options,
                     ),
                     joinedload(UserToEconomy.recommended_economy_result),
                 )
@@ -121,10 +122,10 @@ class EconomyService:
             product_exit_cost=request.product_exist_cost,
             warehouse_id=warehouse_id,
             cost_price=request.cost_price,
-            lenght=request.length,
-            width=request.width,
-            height=request.height,
-            mass=request.mass,
+            lenght=int(request.length * 100),
+            width=int(request.width * 100),
+            height=int(request.height * 100),
+            mass=int(request.mass * 100),
         )
 
     @staticmethod
@@ -145,15 +146,13 @@ class EconomyService:
         request: SimpleEconomyRequest,
         result: SimpleEconomyResult,
     ) -> tuple[EconomyRequest, EconomyResult]:
-        warehouse_result = self.__warehouse_service.find_warehouse_by_name(
-            request.target_warehouse_name, request.marketplace_id
-        )
-        if warehouse_result is None:
+        warehouse = self.__warehouse_service.find_by_id(request.target_warehouse_id)
+        if warehouse is None:
             raise Exception(
-                f"No warehouse with name '{request.target_warehouse_name}'"
-                f"was found in marketplace with id: {request.marketplace_id}"
+                f"No warehouse with id '{request.target_warehouse_id}' was found"
             )
-        _, warehouse_id = warehouse_result
-        request_record = EconomyService.__map_request_to_record(warehouse_id, request)
+        request_record = EconomyService.__map_request_to_record(
+            request.target_warehouse_id, request
+        )
         result_record = EconomyService.__map_result_to_record(result)
         return request_record, result_record
