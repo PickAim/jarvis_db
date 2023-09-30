@@ -550,7 +550,7 @@ class TransitEconomyRequest(Base):
     niche: Mapped[Niche] = relationship(Niche, uselist=False)
     product_exit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     cost_price: Mapped[int] = mapped_column(Integer, nullable=False)
-    lenght: Mapped[int] = mapped_column(Integer, nullable=False)
+    length: Mapped[int] = mapped_column(Integer, nullable=False)
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     mass: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -646,7 +646,7 @@ class UserToEconomy(Base):
 
 
 class UserToTransitEconomy(Base):
-    __tablename__ = "users_to_transit_econonies"
+    __tablename__ = "users_to_transit_economies"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     date: Mapped[datetime] = mapped_column(
@@ -683,3 +683,28 @@ class UserToTransitEconomy(Base):
         TransitEconomyResult,
         foreign_keys=[recommended_transit_result_id],
     )
+
+
+class NicheCharacteristicsCalculationResult(Base):
+    __tablename__ = "niche_characteristics_calculation_results"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    niche_id: Mapped[int] = mapped_column(
+        ForeignKey(Niche.id, ondelete="CASCADE"), nullable=False, unique=True
+    )
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow
+    )
+    niche: Mapped[Niche] = relationship(Niche)
+    card_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    niche_profit: Mapped[int] = mapped_column(Integer, nullable=True)
+    card_trade_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    mean_card_rating: Mapped[int] = mapped_column(Integer, nullable=True)
+    card_with_trades_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    daily_mean_niche_profit: Mapped[int] = mapped_column(Integer, nullable=True)
+    daily_mean_trade_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    mean_traded_card_cost: Mapped[int] = mapped_column(Integer, nullable=True)
+    month_mean_niche_profit_per_card: Mapped[int] = mapped_column(
+        Integer, nullable=True
+    )
+    monopoly_percent: Mapped[int] = mapped_column(Integer, nullable=True)
+    maximum_profit_idx: Mapped[int] = mapped_column(Integer, nullable=True)

@@ -15,6 +15,9 @@ from jarvis_db.factories.queries import (
     create_category_query_builder,
     create_niche_query_builder,
 )
+from jarvis_db.mappers.cache.niche_characteristics_mappers import (
+    NicheCharacteristicsTableToJormMapper,
+)
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
@@ -31,6 +34,9 @@ from jarvis_db.mappers.market.person import (
 from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
 from jarvis_db.mappers.market.service.economy_constants_mappers import (
     EconomyConstantsTableToJormMapper,
+)
+from jarvis_db.services.cache.niche_characteristics_service import (
+    NicheCharacteristicsService,
 )
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
@@ -167,3 +173,9 @@ def create_product_card_service(
 
 def create_economy_constants_service(session: Session) -> EconomyConstantsService:
     return EconomyConstantsService(session, EconomyConstantsTableToJormMapper())
+
+
+def create_niche_characteristics_service(
+    session: Session,
+) -> NicheCharacteristicsService:
+    return NicheCharacteristicsService(session, NicheCharacteristicsTableToJormMapper())

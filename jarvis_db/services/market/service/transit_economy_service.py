@@ -123,7 +123,7 @@ class TransitEconomyService:
             product_exit_cost=request.product_exist_cost,
             warehouse_id=warehouse_id,
             cost_price=request.cost_price,
-            lenght=int(request.length * 100),
+            length=int(request.length * 100),
             width=int(request.width * 100),
             height=int(request.height * 100),
             mass=int(request.mass * 100),

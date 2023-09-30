@@ -4,6 +4,10 @@ from jorm.market.service import (
     SimpleEconomySaveObject,
     TransitEconomySaveObject,
 )
+from jorm.support.calculation import (
+    GreenTradeZoneCalculateResult,
+    NicheCharacteristicsCalculateResult,
+)
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
@@ -31,7 +35,7 @@ class JormCollectorImpl(JORMCollector):
         category_service: CategoryService,
         warehouse_service: WarehouseService,
         economy_service: EconomyService,
-        transit_serivce: TransitEconomyService,
+        transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
     ):
         self.__marketplace_service = marketplace_service
@@ -40,7 +44,7 @@ class JormCollectorImpl(JORMCollector):
         self.__category_service = category_service
         self.__warehouse_service = warehouse_service
         self.__economy_service = economy_service
-        self.__transit_serivce = transit_serivce
+        self.__transit_service = transit_service
         self.__user_items_service = user_items_service
 
     def get_economy_constants(self, marketplace_id: int) -> EconomyConstants | None:
@@ -76,6 +80,14 @@ class JormCollectorImpl(JORMCollector):
     def get_niche_by_id(self, niche_id: int) -> Niche | None:
         return self.__niche_service.fetch_by_id_atomic(niche_id)
 
+    def get_niche_without_history(self, niche_id: int) -> Niche | None:
+        return super().get_niche_without_history(niche_id)
+
+    def get_niche_characteristics_cache(
+        self, niche_id: int
+    ) -> NicheCharacteristicsCalculateResult | None:
+        return super().get_niche_characteristics_cache(niche_id)
+
     def get_warehouse(self, warehouse_id: int) -> Warehouse | None:
         return self.__warehouse_service.find_by_id(warehouse_id)
 
@@ -110,4 +122,9 @@ class JormCollectorImpl(JORMCollector):
     def get_all_transit_economy_results(
         self, user_id: int
     ) -> list[TransitEconomySaveObject]:
-        return self.__transit_serivce.find_user_requests(user_id)
+        return self.__transit_service.find_user_requests(user_id)
+
+    def get_green_zone_cache(
+        self, niche_id: int
+    ) -> GreenTradeZoneCalculateResult | None:
+        return super().get_green_zone_cache(niche_id)

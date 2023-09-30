@@ -20,21 +20,21 @@ from jarvis_db.schemas import (
 class TransitTableToJormMapper(Mapper[UserToTransitEconomy, TransitEconomySaveObject]):
     def __init__(
         self,
-        requset_mapper: Mapper[TransitEconomyRequest, TransitEconomyRequestEntity],
+        request_mapper: Mapper[TransitEconomyRequest, TransitEconomyRequestEntity],
         result_mapper: Mapper[TransitEconomyResult, TransitEconomyResultEntity],
     ):
-        self.__requset_mapper = requset_mapper
+        self.__request_mapper = request_mapper
         self.__result_mapper = result_mapper
 
     def map(self, value: UserToTransitEconomy) -> TransitEconomySaveObject:
         return TransitEconomySaveObject(
             info=RequestInfo(value.id, value.date, value.name),
             user_result=(
-                self.__requset_mapper.map(value.transit_request),
+                self.__request_mapper.map(value.transit_request),
                 self.__result_mapper.map(value.transit_result),
             ),
             recommended_result=(
-                self.__requset_mapper.map(value.recommended_transit_request),
+                self.__request_mapper.map(value.recommended_transit_request),
                 self.__result_mapper.map(value.recommended_transit_result),
             ),
         )
@@ -47,7 +47,7 @@ class TransitRequestMapper(Mapper[TransitEconomyRequest, TransitEconomyRequestEn
             marketplace_id=value.niche.category.marketplace_id,
             product_exist_cost=value.product_exit_cost,
             cost_price=value.cost_price,
-            length=float(value.lenght / 100),
+            length=float(value.length / 100),
             width=float(value.width / 100),
             height=float(value.height / 100),
             mass=float(value.mass / 100),

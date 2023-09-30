@@ -6,9 +6,16 @@ from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
 )
+from jorm.support.calculation import (
+    GreenTradeZoneCalculateResult,
+    NicheCharacteristicsCalculateResult,
+)
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
+from jarvis_db.services.cache.niche_characteristics_service import (
+    NicheCharacteristicsService,
+)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.niche_service import NicheService
 from jarvis_db.services.market.items.product_card_service import ProductCardService
@@ -36,6 +43,7 @@ class JormChangerImpl(JORMChanger):
         economy_service: EconomyService,
         transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
+        niche_characteristics_service: NicheCharacteristicsService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
         standard_filler: StandardDbFiller,
@@ -48,6 +56,7 @@ class JormChangerImpl(JORMChanger):
         self.__economy_service = economy_service
         self.__transit_service = transit_service
         self.__user_items_service = user_items_service
+        self.__niche_characteristics_service = niche_characteristics_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
         self.__standard_filler = standard_filler
@@ -69,6 +78,20 @@ class JormChangerImpl(JORMChanger):
         niche, _ = niche_tuple
         return self.__update_niche(
             (niche, niche_id), category, self.__data_provider_without_key
+        )
+
+    def update_green_zone_cache(
+        self, niche_id: int, green_trade_zone_calc_result: GreenTradeZoneCalculateResult
+    ) -> None:
+        return super().update_green_zone_cache(niche_id, green_trade_zone_calc_result)
+
+    def update_niche_characteristics_cache(
+        self,
+        niche_id: int,
+        niche_characteristics_calc_result: NicheCharacteristicsCalculateResult,
+    ) -> None:
+        self.__niche_characteristics_service.upsert(
+            niche_id, niche_characteristics_calc_result
         )
 
     def update_economy_constants(
