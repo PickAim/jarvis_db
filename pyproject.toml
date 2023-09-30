@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jarvis_db"
-version = "0.1.26"
+version = "0.1.27"
 dependencies = [
     "SQLAlchemy",
     "jorm @ git+https://github.com/PickAim/jorm.git@v.0.1.25",
