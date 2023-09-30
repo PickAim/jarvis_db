@@ -4,10 +4,6 @@ from jorm.market.service import (
     SimpleEconomySaveObject,
     TransitEconomySaveObject,
 )
-from jorm.support.calculation import (
-    GreenTradeZoneCalculateResult,
-    NicheCharacteristicsCalculateResult,
-)
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
@@ -80,14 +76,6 @@ class JormCollectorImpl(JORMCollector):
     def get_niche_by_id(self, niche_id: int) -> Niche | None:
         return self.__niche_service.fetch_by_id_atomic(niche_id)
 
-    def get_niche_without_history(self, niche_id: int) -> Niche | None:
-        return super().get_niche_without_history(niche_id)
-
-    def get_niche_characteristics_cache(
-        self, niche_id: int
-    ) -> NicheCharacteristicsCalculateResult | None:
-        return super().get_niche_characteristics_cache(niche_id)
-
     def get_warehouse(self, warehouse_id: int) -> Warehouse | None:
         return self.__warehouse_service.find_by_id(warehouse_id)
 
@@ -123,8 +111,3 @@ class JormCollectorImpl(JORMCollector):
         self, user_id: int
     ) -> list[TransitEconomySaveObject]:
         return self.__transit_serivce.find_user_requests(user_id)
-
-    def get_green_zone_cache(
-        self, niche_id: int
-    ) -> GreenTradeZoneCalculateResult | None:
-        return super().get_green_zone_cache(niche_id)
