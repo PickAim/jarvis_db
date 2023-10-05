@@ -81,7 +81,7 @@ class JormCollectorImpl(JORMCollector):
         return self.__niche_service.fetch_by_id_atomic(niche_id)
 
     def get_niche_without_history(self, niche_id: int) -> Niche | None:
-        return super().get_niche_without_history(niche_id)
+        return self.__niche_service.find_by_id_without_histories(niche_id)
 
     def get_niche_characteristics_cache(
         self, niche_id: int
