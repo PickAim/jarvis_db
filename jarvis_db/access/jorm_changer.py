@@ -13,6 +13,7 @@ from jorm.support.calculation import (
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
+from jarvis_db.services.cache.green_zone_trade_service import GreenZoneTradeService
 from jarvis_db.services.cache.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
@@ -44,6 +45,7 @@ class JormChangerImpl(JORMChanger):
         transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
         niche_characteristics_service: NicheCharacteristicsService,
+        green_zone_trade_service: GreenZoneTradeService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
         standard_filler: StandardDbFiller,
@@ -57,6 +59,7 @@ class JormChangerImpl(JORMChanger):
         self.__transit_service = transit_service
         self.__user_items_service = user_items_service
         self.__niche_characteristics_service = niche_characteristics_service
+        self.__green_zone_trade_service = green_zone_trade_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
         self.__standard_filler = standard_filler
@@ -83,7 +86,7 @@ class JormChangerImpl(JORMChanger):
     def update_green_zone_cache(
         self, niche_id: int, green_trade_zone_calc_result: GreenTradeZoneCalculateResult
     ) -> None:
-        return super().update_green_zone_cache(niche_id, green_trade_zone_calc_result)
+        self.__green_zone_trade_service.upsert(niche_id, green_trade_zone_calc_result)
 
     def update_niche_characteristics_cache(
         self,

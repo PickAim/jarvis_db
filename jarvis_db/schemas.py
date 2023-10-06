@@ -10,6 +10,7 @@ from sqlalchemy import (
     String,
     Table,
     UniqueConstraint,
+    JSON,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -708,3 +709,26 @@ class NicheCharacteristicsCalculationResult(Base):
     )
     monopoly_percent: Mapped[int] = mapped_column(Integer, nullable=True)
     maximum_profit_idx: Mapped[int] = mapped_column(Integer, nullable=True)
+
+
+class GreenTradeZoneCalculationResult(Base):
+    __tablename__ = "green_zone_calculation_results"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    niche_id: Mapped[int] = mapped_column(
+        ForeignKey(Niche.id, ondelete="CASCADE"), nullable=False, unique=True
+    )
+    date: Mapped[datetime] = mapped_column(
+        DateTime(), nullable=False, default=datetime.utcnow
+    )
+    niche: Mapped[Niche] = relationship(Niche)
+    best_segment_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    best_segment_profit_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    best_mean_segment_profit_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    best_mean_product_profit_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    best_segment_product_count_index: Mapped[int] = mapped_column(
+        Integer, nullable=False
+    )
+    best_segment_product_with_trades_count_index: Mapped[int] = mapped_column(
+        Integer, nullable=False
+    )
+    segment_data: Mapped[dict] = mapped_column(JSON, nullable=False)
