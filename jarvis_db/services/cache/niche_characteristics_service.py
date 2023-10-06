@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TypedDict
 
 from jorm.support.calculation import NicheCharacteristicsCalculateResult
@@ -41,24 +42,18 @@ class NicheCharacteristicsService:
                 NicheCharacteristicsCalculationResult.niche_id == niche_id
             )
         ).scalar_one_or_none()
+        typed_dict = NicheCharacteristicsService.__map_entity_to_record(
+            niche_characteristics
+        )
         if existing_characteristics is None:
             self.__session.add(
-                NicheCharacteristicsCalculationResult(
-                    niche_id=niche_id,
-                    **NicheCharacteristicsService.__map_entity_to_record(
-                        niche_characteristics
-                    )
-                )
+                NicheCharacteristicsCalculationResult(niche_id=niche_id, **typed_dict)
             )
         else:
             self.__session.execute(
                 update(NicheCharacteristicsCalculationResult)
                 .where(NicheCharacteristicsCalculationResult.niche_id == niche_id)
-                .values(
-                    **NicheCharacteristicsService.__map_entity_to_record(
-                        niche_characteristics
-                    )
-                )
+                .values(date=datetime.utcnow(), **typed_dict)
             )
         self.__session.flush()
 

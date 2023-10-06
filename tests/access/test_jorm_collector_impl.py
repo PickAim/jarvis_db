@@ -14,6 +14,8 @@ class JormCollectorImplTest(unittest.TestCase):
         self.__economy_service_mock = Mock()
         self.__transit_service_mock = Mock()
         self.__user_items_service_mock = Mock()
+        self.__niche_characteristics_service_mock = Mock()
+        self.__green_zone_trade_service_mock = Mock()
         self.__collector = JormCollectorImpl(
             marketplace_service=self.__marketplace_service_mock,
             economy_constants_service=self.__economy_service_mock,
@@ -23,6 +25,8 @@ class JormCollectorImplTest(unittest.TestCase):
             economy_service=self.__economy_service_mock,
             transit_service=self.__transit_service_mock,
             user_items_service=self.__user_items_service_mock,
+            green_zone_trade_service=self.__green_zone_trade_service_mock,
+            niche_characteristics_service=self.__niche_characteristics_service_mock,
         )
 
     def test_create(self):

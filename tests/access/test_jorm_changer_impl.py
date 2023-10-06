@@ -1,3 +1,4 @@
+from tkinter import NO
 import unittest
 from datetime import datetime
 from unittest.mock import Mock
@@ -34,6 +35,7 @@ class JormChangerTest(unittest.TestCase):
         self.__user_market_data_provider_mock = Mock()
         self.__standard_filler_mock = Mock()
         self.__niche_characteristics_service_mock = Mock()
+        self.__green_zone_trade_service_mock = Mock()
         self.__changer = JormChangerImpl(
             economy_constants_service=self.__economy_constants_service_mock,
             category_service=self.__category_service_mock,
@@ -47,6 +49,7 @@ class JormChangerTest(unittest.TestCase):
             user_market_data_provider=self.__user_market_data_provider_mock,
             standard_filler=self.__standard_filler_mock,
             niche_characteristics_service=self.__niche_characteristics_service_mock,
+            green_zone_trade_service=self.__green_zone_trade_service_mock
         )
 
     def test_save_unit_economy_request(self):
