@@ -13,7 +13,13 @@ from jarvis_db.factories.mappers import (
 )
 from jarvis_db.factories.queries import (
     create_category_query_builder,
-    create_niche_query_builder,
+)
+from sqlalchemy.orm import Load
+from jarvis_db.mappers.cache.green_zone_trade_mappers import (
+    GreenZoneTradeTableToJormMapper,
+)
+from jarvis_db.mappers.cache.niche_characteristics_mappers import (
+    NicheCharacteristicsTableToJormMapper,
 )
 from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
     WarehouseTableToJormMapper,
@@ -32,11 +38,18 @@ from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
 from jarvis_db.mappers.market.service.economy_constants_mappers import (
     EconomyConstantsTableToJormMapper,
 )
+from jarvis_db.services.cache.green_zone_trade_service import GreenZoneTradeService
+from jarvis_db.services.cache.niche_characteristics_service import (
+    NicheCharacteristicsService,
+)
 from jarvis_db.services.market.infrastructure.category_service import CategoryService
 from jarvis_db.services.market.infrastructure.marketplace_service import (
     MarketplaceService,
 )
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
+from jarvis_db.services.market.infrastructure.niche_service import (
+    NicheLoadOptions,
+    NicheService,
+)
 from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
 from jarvis_db.services.market.items.product_card_service import ProductCardService
 from jarvis_db.services.market.items.product_history_service import (
@@ -108,7 +121,22 @@ def create_niche_service(
     niche_mapper = create_niche_table_mapper() if niche_mapper is None else niche_mapper
     return NicheService(
         session,
-        create_niche_query_builder(),
+        NicheLoadOptions(
+            atomic_options=[
+                Load(schemas.Niche).joinedload(schemas.Niche.category),
+                Load(schemas.Niche)
+                .joinedload(schemas.Niche.products)
+                .joinedload(schemas.ProductCard.histories)
+                .joinedload(schemas.ProductHistory.leftovers)
+                .joinedload(schemas.Leftover.warehouse),
+            ],
+            no_history_options=[
+                Load(schemas.Niche).joinedload(schemas.Niche.category),
+                Load(schemas.Niche)
+                .joinedload(schemas.Niche.products)
+                .noload(schemas.ProductCard.histories),
+            ],
+        ),
         niche_mapper,
     )
 
@@ -167,3 +195,13 @@ def create_product_card_service(
 
 def create_economy_constants_service(session: Session) -> EconomyConstantsService:
     return EconomyConstantsService(session, EconomyConstantsTableToJormMapper())
+
+
+def create_niche_characteristics_service(
+    session: Session,
+) -> NicheCharacteristicsService:
+    return NicheCharacteristicsService(session, NicheCharacteristicsTableToJormMapper())
+
+
+def create_green_zone_trade_service(session: Session) -> GreenZoneTradeService:
+    return GreenZoneTradeService(session, GreenZoneTradeTableToJormMapper())
