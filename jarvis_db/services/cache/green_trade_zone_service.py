@@ -28,7 +28,7 @@ class _GreenTradeZoneTypedDict(TypedDict):
     best_segment_product_with_trades_count_index: int
 
 
-class GreenZoneTradeService:
+class GreenTradeZoneService:
     def __init__(
         self,
         session: Session,
@@ -55,7 +55,7 @@ class GreenZoneTradeService:
             segment_product_count=green_zone_trade_result.segment_product_count,
             segment_product_with_trades_count=green_zone_trade_result.segment_product_with_trades_count,
         )
-        typed_dict = GreenZoneTradeService.__map_entity_to_typed_dict(
+        typed_dict = GreenTradeZoneService.__map_entity_to_typed_dict(
             green_zone_trade_result
         )
         if existing_result is None:

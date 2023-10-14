@@ -1,19 +1,19 @@
 import unittest
 
+from jorm.support.calculation import GreenTradeZoneCalculateResult
 from sqlalchemy import select
-from jarvis_db.factories.services import create_green_zone_trade_service
-from jarvis_db.mappers.cache.green_zone_trade_mappers import (
-    GreenZoneTradeTableToJormMapper,
+
+from jarvis_db.factories.services import create_green_trade_zone_service
+from jarvis_db.mappers.cache.green_trade_zone_mappers import (
+    GreenTradeZoneTableToJormMapper,
 )
 from jarvis_db.schemas import GreenTradeZoneCalculationResult, Niche
-from jarvis_db.services.cache.green_zone_trade_service import GreenZoneSegmentData
-
+from jarvis_db.services.cache.green_trade_zone_service import GreenZoneSegmentData
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
-from jorm.support.calculation import GreenTradeZoneCalculateResult
 
 
-class GreenZoneTradeServiceTest(unittest.TestCase):
+class GreenTradeZoneServiceTest(unittest.TestCase):
     def setUp(self) -> None:
         self.__db_context = DbContext(echo=True)
         with self.__db_context.session() as session, session.begin():
@@ -37,7 +37,7 @@ class GreenZoneTradeServiceTest(unittest.TestCase):
             best_segment_profit_idx=6,
         )
         with self.__db_context.session() as session, session.begin():
-            service = create_green_zone_trade_service(session)
+            service = create_green_trade_zone_service(session)
             service.upsert(self.__niche_id, expected)
         with self.__db_context.session() as session:
             db_result = session.execute(
@@ -45,12 +45,12 @@ class GreenZoneTradeServiceTest(unittest.TestCase):
                     Niche.id == self.__niche_id
                 )
             ).scalar_one()
-            mapper = GreenZoneTradeTableToJormMapper()
+            mapper = GreenTradeZoneTableToJormMapper()
             actual = mapper.map(db_result)
             self.assertEqual(expected, actual)
 
     def test_upsert_updates_if_exists(self):
-        mapper = GreenZoneTradeTableToJormMapper()
+        mapper = GreenTradeZoneTableToJormMapper()
         with self.__db_context.session() as session, session.begin():
             db_result = GreenTradeZoneCalculationResult(
                 niche_id=self.__niche_id,
@@ -85,7 +85,7 @@ class GreenZoneTradeServiceTest(unittest.TestCase):
                 best_segment_product_with_trades_count_idx=50,
                 best_segment_profit_idx=60,
             )
-            service = create_green_zone_trade_service(session)
+            service = create_green_trade_zone_service(session)
             service.upsert(self.__niche_id, expected)
         with self.__db_context.session() as session:
             db_result = session.execute(
@@ -93,12 +93,12 @@ class GreenZoneTradeServiceTest(unittest.TestCase):
                     GreenTradeZoneCalculationResult.niche_id == self.__niche_id
                 )
             ).scalar_one()
-            mapper = GreenZoneTradeTableToJormMapper()
+            mapper = GreenTradeZoneTableToJormMapper()
             actual = mapper.map(db_result)
             self.assertEqual(expected, actual)
 
     def test_find_by_id(self):
-        mapper = GreenZoneTradeTableToJormMapper()
+        mapper = GreenTradeZoneTableToJormMapper()
         with self.__db_context.session() as session, session.begin():
             db_result = GreenTradeZoneCalculationResult(
                 niche_id=self.__niche_id,
@@ -121,7 +121,7 @@ class GreenZoneTradeServiceTest(unittest.TestCase):
             session.flush()
             expected = mapper.map(db_result)
         with self.__db_context.session() as session:
-            service = create_green_zone_trade_service(session)
+            service = create_green_trade_zone_service(session)
             actual = service.find_by_niche_id(self.__niche_id)
             self.assertEqual(expected, actual)
 

@@ -1,5 +1,5 @@
 from jorm.market.infrastructure import Marketplace, Niche, Product, Warehouse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Load, Session
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
@@ -14,9 +14,8 @@ from jarvis_db.factories.mappers import (
 from jarvis_db.factories.queries import (
     create_category_query_builder,
 )
-from sqlalchemy.orm import Load
-from jarvis_db.mappers.cache.green_zone_trade_mappers import (
-    GreenZoneTradeTableToJormMapper,
+from jarvis_db.mappers.cache.green_trade_zone_mappers import (
+    GreenTradeZoneTableToJormMapper,
 )
 from jarvis_db.mappers.cache.niche_characteristics_mappers import (
     NicheCharacteristicsTableToJormMapper,
@@ -38,7 +37,7 @@ from jarvis_db.mappers.market.person.token_mappers import TokenTableMapper
 from jarvis_db.mappers.market.service.economy_constants_mappers import (
     EconomyConstantsTableToJormMapper,
 )
-from jarvis_db.services.cache.green_zone_trade_service import GreenZoneTradeService
+from jarvis_db.services.cache.green_trade_zone_service import GreenTradeZoneService
 from jarvis_db.services.cache.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
@@ -203,5 +202,5 @@ def create_niche_characteristics_service(
     return NicheCharacteristicsService(session, NicheCharacteristicsTableToJormMapper())
 
 
-def create_green_zone_trade_service(session: Session) -> GreenZoneTradeService:
-    return GreenZoneTradeService(session, GreenZoneTradeTableToJormMapper())
+def create_green_trade_zone_service(session: Session) -> GreenTradeZoneService:
+    return GreenTradeZoneService(session, GreenTradeZoneTableToJormMapper())
