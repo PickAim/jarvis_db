@@ -2,6 +2,7 @@ from datetime import datetime
 
 from jorm.market.person import UserPrivilege
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -10,7 +11,6 @@ from sqlalchemy import (
     String,
     Table,
     UniqueConstraint,
-    JSON,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -529,7 +529,7 @@ class EconomyRequest(Base):
     niche: Mapped[Niche] = relationship(Niche, uselist=False)
     product_exit_cost: Mapped[int] = mapped_column(Integer, nullable=False)
     cost_price: Mapped[int] = mapped_column(Integer, nullable=False)
-    lenght: Mapped[int] = mapped_column(Integer, nullable=False)
+    length: Mapped[int] = mapped_column(Integer, nullable=False)
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     mass: Mapped[int] = mapped_column(Integer, nullable=False)

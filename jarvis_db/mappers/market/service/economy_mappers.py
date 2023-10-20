@@ -39,7 +39,7 @@ class EconomyRequestTableMapper(Mapper[EconomyRequest, SimpleEconomyRequest]):
             marketplace_id=value.niche.category.marketplace_id,
             product_exist_cost=value.product_exit_cost,
             cost_price=value.cost_price,
-            length=float(value.lenght / 100),
+            length=float(value.length / 100),
             width=float(value.width / 100),
             height=float(value.height / 100),
             mass=float(value.mass / 100),
