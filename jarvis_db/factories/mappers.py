@@ -26,7 +26,7 @@ from jarvis_db.mappers.market.items.product_mappers import (
     ProductTableToJormMapper,
 )
 from jarvis_db.mappers.market.service.economy_mappers import (
-    EcomomyResultTableMapper,
+    EconomyResultTableMapper,
     EconomyRequestTableMapper,
     EconomyTableToJormMapper,
 )
@@ -81,7 +81,7 @@ def create_economy_table_mapper() -> (
     Mapper[schemas.UserToEconomy, SimpleEconomySaveObject]
 ):
     return EconomyTableToJormMapper(
-        EconomyRequestTableMapper(), EcomomyResultTableMapper()
+        EconomyRequestTableMapper(), EconomyResultTableMapper()
     )
 
 

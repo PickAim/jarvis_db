@@ -12,6 +12,7 @@ from jarvis_db.schemas import (
     Pay,
     ProductCard,
     ProductHistory,
+    ProductToNiche,
     TokenSet,
     User,
     Warehouse,
@@ -115,6 +116,13 @@ class AlchemySeeder:
             niches = retrieve_niches()
         products = create_products(quantity, niches)
         self.__session.add_all(products)
+        self.__session.flush()
+        self.__session.add_all(
+            ProductToNiche(product_id=product.id, niche_id=niche.id)
+            for product in products
+            for niche in niches
+            if (product.id + niche.id) % 2 == 0
+        )
         self.__session.flush()
 
     def seed_product_histories(self, quantity: int):
@@ -239,7 +247,6 @@ def create_products(quantity: int, niches: list[Niche]) -> list[ProductCard]:
             rating=i % 100,
             brand=f"brand_{i}",
             seller=f"seller_{i}",
-            niche=niches[i % len(niches)],
         )
         for i in range(quantity)
     ]

@@ -47,7 +47,7 @@ class EconomyRequestTableMapper(Mapper[EconomyRequest, SimpleEconomyRequest]):
         )
 
 
-class EcomomyResultTableMapper(Mapper[EconomyResult, SimpleEconomyResult]):
+class EconomyResultTableMapper(Mapper[EconomyResult, SimpleEconomyResult]):
     def map(self, value: EconomyResult) -> SimpleEconomyResult:
         return SimpleEconomyResult(
             result_cost=value.result_cost,

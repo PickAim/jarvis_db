@@ -335,6 +335,16 @@ class Category(Base):
         return f"Category(id={self.id}, name={self.name!r})"
 
 
+class ProductToNiche(Base):
+    __tablename__ = "products_to_niches"
+    product_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("product_cards.id", ondelete="CASCADE"), primary_key=True
+    )
+    niche_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("niches.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
 class Niche(Base):
     __tablename__ = "niches"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -351,10 +361,7 @@ class Niche(Base):
         DateTime(), nullable=False, default=datetime.utcnow
     )
     products: Mapped[list["ProductCard"]] = relationship(
-        "ProductCard",
-        back_populates="niche",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
+        secondary=ProductToNiche.__table__, back_populates="niches"
     )
 
     __table_args__ = (UniqueConstraint(name, category_id),)
@@ -369,6 +376,39 @@ class Niche(Base):
             f"return_percent={self.return_percent!r}, "
             f"update_date={self.update_date!r}"
             ")"
+        )
+
+
+class ProductCard(Base):
+    __tablename__ = "product_cards"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    global_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    cost: Mapped[int] = mapped_column(Integer, nullable=False)
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    brand: Mapped[str] = mapped_column(String(255), nullable=False)
+    seller: Mapped[str] = mapped_column(String(255), nullable=False)
+    niches: Mapped[list[Niche]] = relationship(
+        secondary=ProductToNiche.__table__, back_populates="products"
+    )
+    histories: Mapped[list["ProductHistory"]] = relationship(
+        "ProductHistory",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    storage_info: Mapped["StorageInfo"] = relationship(
+        "StorageInfo",
+        back_populates="product_card",
+        uselist=False,
+        passive_deletes=True,
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"ProductCard(id={self.id!r}, name={self.name!r}, "
+            "global_id={self.global_id!r}, "
+            "cost={self.cost!r})"
         )
 
 
@@ -414,42 +454,6 @@ class Warehouse(Base):
             f"name={self.name!r}, "
             f"main_coefficient={self.main_coefficient!r}"
             ")"
-        )
-
-
-class ProductCard(Base):
-    __tablename__ = "product_cards"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    global_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    cost: Mapped[int] = mapped_column(Integer, nullable=False)
-    rating: Mapped[int] = mapped_column(Integer, nullable=False)
-    brand: Mapped[str] = mapped_column(String(255), nullable=False)
-    seller: Mapped[str] = mapped_column(String(255), nullable=False)
-    niche_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey(Niche.id, ondelete="CASCADE"), nullable=False
-    )
-    niche: Mapped[Niche] = relationship(Niche, back_populates="products")
-    histories: Mapped[list["ProductHistory"]] = relationship(
-        "ProductHistory",
-        back_populates="product",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-    storage_info: Mapped["StorageInfo"] = relationship(
-        "StorageInfo",
-        back_populates="product_card",
-        uselist=False,
-        passive_deletes=True,
-    )
-
-    __table_args__ = (UniqueConstraint(global_id, niche_id),)
-
-    def __repr__(self) -> str:
-        return (
-            f"ProductCard(id={self.id!r}, name={self.name!r}, "
-            "global_id={self.global_id!r}, "
-            "cost={self.cost!r})"
         )
 
 

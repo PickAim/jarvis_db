@@ -53,7 +53,7 @@ class UserItemServiceTest(unittest.TestCase):
             ).scalar_one()
             self.assertEqual(0, len(user.products))
 
-    def test_append_wareouse(self):
+    def test_append_warehouse(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_warehouses(1)
@@ -101,7 +101,12 @@ class UserItemServiceTest(unittest.TestCase):
             expected = {
                 product.id: mapper.map(product)
                 for product in products
-                if product.niche.category.marketplace_id == marketplace_id
+                if any(
+                    (
+                        niche.category.marketplace_id == marketplace_id
+                        for niche in product.niches
+                    )
+                )
             }
             self.assertTrue(
                 all(
@@ -144,7 +149,12 @@ class UserItemServiceTest(unittest.TestCase):
             expected = {
                 product.id: mapper.map(product)
                 for product in products
-                if product.niche.category.marketplace_id == marketplace_id
+                if any(
+                    (
+                        niche.category.marketplace_id == marketplace_id
+                        for niche in product.niches
+                    )
+                )
             }
             self.assertTrue(
                 all(

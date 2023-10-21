@@ -46,16 +46,17 @@ class UserItemsService:
             self.__session.execute(
                 select(ProductCard)
                 .join(UserToProduct, ProductCard.id == UserToProduct.product_id)
-                .join(ProductCard.niche)
+                .join(ProductCard.niches)
                 .join(Niche.category)
                 .where(Category.marketplace_id == marketplace_id)
                 .where(UserToProduct.user_id == user_id)
-                .distinct()
+                .distinct(ProductCard.id)
                 .options(
                     noload(ProductCard.histories),
-                    joinedload(ProductCard.niche).joinedload(Niche.category),
+                    joinedload(ProductCard.niches).joinedload(Niche.category),
                 )
             )
+            .unique()
             .scalars()
             .all()
         )
@@ -68,13 +69,13 @@ class UserItemsService:
             self.__session.execute(
                 select(ProductCard)
                 .join(UserToProduct, ProductCard.id == UserToProduct.product_id)
-                .join(ProductCard.niche)
+                .join(ProductCard.niches)
                 .join(Niche.category)
                 .where(Category.marketplace_id == marketplace_id)
                 .where(UserToProduct.user_id == user_id)
                 .distinct()
                 .options(
-                    joinedload(ProductCard.niche).joinedload(Niche.category),
+                    joinedload(ProductCard.niches).joinedload(Niche.category),
                     joinedload(ProductCard.histories)
                     .joinedload(ProductHistory.leftovers)
                     .joinedload(Leftover.warehouse),
