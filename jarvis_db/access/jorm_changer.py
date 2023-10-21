@@ -205,7 +205,7 @@ class JormChangerImpl(JORMChanger):
         to_create, to_update = self.__split_products_to_create_and_update(
             niche.products, new_products
         )
-        self.__product_card_service.create_products(to_create, niche_id)
+        self.__product_card_service.create_products(to_create, [niche_id])
         for product in to_update:
             product_tuple = self.__product_card_service.find_by_global_id(
                 product.global_id, niche_id
@@ -283,7 +283,7 @@ class JormChangerImpl(JORMChanger):
             if found_info is None:
                 continue
             niche_id: int = found_info[1]
-            product_id = self.__product_card_service.create_product(product, niche_id)
+            product_id = self.__product_card_service.create_product(product, [niche_id])
             self.__user_items_service.append_product(user_id, product_id)
         for product in to_update:
             found_info = self.__category_service.find_by_name(
