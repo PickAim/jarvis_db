@@ -44,7 +44,13 @@ class StandardDbFiller(ABC):
         pass
 
     @abstractmethod
-    def fill_warehouse(
+    def fill_user_warehouse(
         self, provider_with_key: UserMarketDataProvider
+    ) -> list[Warehouse]:
+        pass
+
+    @abstractmethod
+    def fill_all_user_warehouses(
+        self, provider_without_key: DataProviderWithoutKey
     ) -> list[Warehouse]:
         pass

@@ -162,13 +162,18 @@ class JormChangerTest(unittest.TestCase):
     def test_load_user_warehouse(self):
         fill_warehouses_mock = Mock()
         fill_warehouses_mock.return_value = [
-            Warehouse(f"warehouse_name_{i}", i + 200, HandlerType.CLIENT, Address())
+            Warehouse(
+                f"warehouse_name_{i}",
+                i + 200,
+                HandlerType.CLIENT,
+                Address(f"region_{i}", f"street_{i}"),
+            )
             for i in range(20)
         ]
         self.__standard_filler_mock.fill_warehouse = fill_warehouses_mock
         user_id = 100
         marketplace_id = 2
-        result = self.__changer.load_user_warehouse(user_id, marketplace_id)
+        result = self.__changer.load_user_warehouses(user_id, marketplace_id)
         fill_warehouses_mock.assert_called_once_with(
             self.__user_market_data_provider_mock
         )

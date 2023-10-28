@@ -159,10 +159,19 @@ class JormChangerImpl(JORMChanger):
         )
         return user_products
 
-    def load_user_warehouse(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
+    def load_user_warehouses(
+        self, user_id: int, marketplace_id: int
+    ) -> list[Warehouse]:
         if self.__user_market_data_provider is None or self.__standard_filler is None:
             return []
-        return self.__standard_filler.fill_warehouse(self.__user_market_data_provider)
+        return self.__standard_filler.fill_user_warehouse(
+            self.__user_market_data_provider
+        )
+
+    def load_all_warehouses(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
+        return self.__standard_filler.fill_all_user_warehouses(
+            self.__data_provider_without_key
+        )
 
     @staticmethod
     def __get_products_category_and_niche(

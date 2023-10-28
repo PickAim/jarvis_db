@@ -18,6 +18,6 @@ class WarehouseTableToJormMapper(Mapper[schemas.Warehouse, Warehouse]):
             handler_type=WarehouseTableToJormMapper.__code_to_handler_type_dict.get(
                 value.type, HandlerType.CLIENT
             ),
-            address=Address(),
+            address=Address(value.address.region, value.address.street),
             main_coefficient=float(value.main_coefficient / 100),
         )

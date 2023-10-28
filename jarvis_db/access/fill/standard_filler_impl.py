@@ -89,10 +89,18 @@ class StandardDbFillerImpl(StandardDbFiller):
             )
             niche_service.create_all(niches, category_id)
 
-    def fill_warehouse(
+    def fill_user_warehouse(
         self, provider_with_key: UserMarketDataProvider
     ) -> list[Warehouse]:
-        return super().fill_warehouse(provider_with_key)
+        warehouses: list[Warehouse] = provider_with_key.get_warehouses()
+        self.__warehouse_service.create_all(warehouses, self.__marketplace_id)
+        return warehouses
+
+    def fill_all_user_warehouses(
+        self, provider_without_key: DataProviderWithoutKey
+    ) -> list[Warehouse]:
+        # TODO Not implemented
+        return []
 
     def __get_niche(
         self,
@@ -179,7 +187,7 @@ class StandardDbFillerImpl(StandardDbFiller):
             f"unfilled{global_id}",
             global_id,
             HandlerType.MARKETPLACE,
-            Address(),
+            Address("", ""),
         )
 
     def __fill_warehouses(self, warehouses: list[Warehouse]):

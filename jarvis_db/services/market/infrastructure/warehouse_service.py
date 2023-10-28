@@ -3,13 +3,19 @@ from typing import Iterable
 from jorm.market.infrastructure import HandlerType
 from jorm.market.infrastructure import Warehouse as WarehouseEntity
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core import Mapper
 from jarvis_db.schemas import Address, Warehouse
 
 
 class WarehouseService:
+    __handler_type_to_int = {
+        HandlerType.MARKETPLACE: 0,
+        HandlerType.PARTIAL_CLIENT: 1,
+        HandlerType.CLIENT: 2,
+    }
+
     def __init__(
         self,
         session: Session,
@@ -37,7 +43,9 @@ class WarehouseService:
 
     def find_by_id(self, warehouse_id: int) -> WarehouseEntity | None:
         warehouse = self.__session.execute(
-            select(Warehouse).where(Warehouse.id == warehouse_id)
+            select(Warehouse)
+            .where(Warehouse.id == warehouse_id)
+            .options(joinedload(Warehouse.name))
         ).scalar_one_or_none()
         return self.__table_mapper.map(warehouse) if warehouse is not None else None
 
@@ -46,9 +54,9 @@ class WarehouseService:
     ) -> tuple[WarehouseEntity, int] | None:
         warehouse = self.__session.execute(
             select(Warehouse)
-            .join(Warehouse.address)
             .where(Warehouse.marketplace_id == marketplace_id)
             .where(Warehouse.name.ilike(name))
+            .options(joinedload(Warehouse.address))
         ).scalar_one_or_none()
         return (
             (self.__table_mapper.map(warehouse), warehouse.id)
@@ -63,6 +71,7 @@ class WarehouseService:
             select(Warehouse)
             .where(Warehouse.marketplace_id == marketplace_id)
             .where(Warehouse.global_id == global_id)
+            .options(joinedload(Warehouse.address))
         ).scalar_one_or_none()
         return (
             (warehouse.id, self.__table_mapper.map(warehouse))
@@ -74,8 +83,8 @@ class WarehouseService:
         warehouses = (
             self.__session.execute(
                 select(Warehouse)
-                .join(Warehouse.address)
                 .where(Warehouse.marketplace_id == marketplace_id)
+                .options(joinedload(Warehouse.address))
             )
             .scalars()
             .all()
@@ -120,17 +129,20 @@ class WarehouseService:
     def __create_warehouse_entity(
         warehouse: WarehouseEntity, marketplace_id: int
     ) -> Warehouse:
-        handler_type_to_int = {
-            HandlerType.MARKETPLACE: 0,
-            HandlerType.PARTIAL_CLIENT: 1,
-            HandlerType.CLIENT: 2,
-        }
-        handler_type_code = handler_type_to_int[warehouse.handler_type]
+        handler_type_code = WarehouseService.__handler_type_to_int.get(
+            warehouse.handler_type, 0
+        )
         return Warehouse(
             marketplace_id=marketplace_id,
             global_id=warehouse.global_id,
             name=warehouse.name,
             type=handler_type_code,
             main_coefficient=int(warehouse.main_coefficient * 100),
-            address=Address(country="", region="", street="", number="", corpus=""),
+            address=Address(
+                country="",
+                region=warehouse.address.region,
+                street=warehouse.address.street,
+                number="",
+                corpus="",
+            ),
         )
