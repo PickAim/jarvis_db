@@ -267,3 +267,52 @@ class ProductCardServiceTest(unittest.TestCase):
             mapper = create_product_table_mapper()
             actual = mapper.map(product)
             self.assertEqual(expected, actual)
+
+    def test_add_niche_to_product(self):
+        with self.__db_context.session() as session, session.begin():
+            product_id = 1
+            session.add(
+                ProductCard(
+                    id=product_id,
+                    name="product_100",
+                    global_id=20,
+                    cost=10,
+                    rating=5.0,
+                    brand="brand",
+                    seller="seller",
+                )
+            )
+            niche_id = session.execute(select(Niche.id).limit(1)).scalar_one()
+        with self.__db_context.session() as session, session.begin():
+            service = create_product_card_service(session)
+            service.add_niche_to_product(product_id, niche_id)
+        with self.__db_context.session() as session:
+            product = session.execute(
+                select(ProductCard).where(ProductCard.id == product_id)
+            ).scalar_one()
+            self.assertIn(niche_id, (niche.id for niche in product.niches))
+
+    def test_remove_niche_from_product(self):
+        with self.__db_context.session() as session, session.begin():
+            product_id = 1
+            session.add(
+                ProductCard(
+                    id=product_id,
+                    name="product_100",
+                    global_id=20,
+                    cost=10,
+                    rating=5.0,
+                    brand="brand",
+                    seller="seller",
+                )
+            )
+            niche_id = session.execute(select(Niche.id).limit(1)).scalar_one()
+            session.add(ProductToNiche(product_id=product_id, niche_id=niche_id))
+        with self.__db_context.session() as session, session.begin():
+            service = create_product_card_service(session)
+            service.remove_niche_from_product(product_id, niche_id)
+        with self.__db_context.session() as session:
+            product = session.execute(
+                select(ProductCard).where(ProductCard.id == product_id)
+            ).scalar_one()
+            self.assertNotIn(niche_id, (niche.id for niche in product.niches))

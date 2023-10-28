@@ -45,7 +45,7 @@ class WarehouseService:
         warehouse = self.__session.execute(
             select(Warehouse)
             .where(Warehouse.id == warehouse_id)
-            .options(joinedload(Warehouse.name))
+            .options(joinedload(Warehouse.address))
         ).scalar_one_or_none()
         return self.__table_mapper.map(warehouse) if warehouse is not None else None
 

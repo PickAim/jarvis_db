@@ -1,7 +1,8 @@
 from typing import Iterable, TypedDict
 
 from jorm.market.items import Product
-from sqlalchemy import select, update
+from requests import session
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session, joinedload, noload
 
 from jarvis_db.core.mapper import Mapper
@@ -135,6 +136,27 @@ class ProductCardService:
             product.id: self.__table_mapper.map(product) for product in niche_products
         }
 
+    def update(self, product_id: int, product: Product):
+        self.__session.execute(
+            update(ProductCard)
+            .where(ProductCard.id == product_id)
+            .values(**ProductCardService.__map_entity_to_typed_dict(product))
+        )
+        self.__session.flush()
+
+    def add_niche_to_product(self, product_id: int, niche_id: int) -> None:
+        self.__session.add(ProductToNiche(product_id=product_id, niche_id=niche_id))
+        self.__session.flush()
+
+    def remove_niche_from_product(self, product_id: int, niche_id: int) -> None:
+        self.__session.execute(
+            delete(ProductToNiche).where(
+                ProductToNiche.product_id == product_id,
+                ProductToNiche.niche_id == niche_id,
+            )
+        )
+        self.__session.flush()
+
     def filter_existing_global_ids(
         self, niche_id: int, ids: Iterable[int]
     ) -> list[int]:
@@ -150,14 +172,6 @@ class ProductCardService:
             .all()
         )
         return list(set(ids) - set(existing_ids))
-
-    def update(self, product_id: int, product: Product):
-        self.__session.execute(
-            update(ProductCard)
-            .where(ProductCard.id == product_id)
-            .values(**ProductCardService.__map_entity_to_typed_dict(product))
-        )
-        self.__session.flush()
 
     @staticmethod
     def __map_entity_to_typed_dict(product: Product) -> _ProductTypedDict:
