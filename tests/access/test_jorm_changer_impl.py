@@ -170,7 +170,7 @@ class JormChangerTest(unittest.TestCase):
             )
             for i in range(20)
         ]
-        self.__standard_filler_mock.fill_warehouse = fill_warehouses_mock
+        self.__standard_filler_mock.fill_user_warehouse = fill_warehouses_mock
         user_id = 100
         marketplace_id = 2
         result = self.__changer.load_user_warehouses(user_id, marketplace_id)
