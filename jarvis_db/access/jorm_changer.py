@@ -196,15 +196,17 @@ class JormChangerImpl(JORMChanger):
         data_provider_without_key: DataProviderWithoutKey,
     ) -> Niche:
         niche, niche_id = niche_info
-        all_products_ids = data_provider_without_key.get_products_globals_ids(
+        all_products_ids: set[int] = data_provider_without_key.get_products_globals_ids(
             niche.name
         )
+        all_products_ids.union({product.global_id for product in niche.products})
         new_products = data_provider_without_key.get_products(
             niche.name, category.name, all_products_ids
         )
         to_create, to_update = self.__split_products_to_create_and_update(
             niche.products, new_products
         )
+        self.__standard_filler.check_warehouse_filled(to_create)
         self.__product_card_service.create_products(to_create, niche_id)
         for product in to_update:
             product_tuple = self.__product_card_service.find_by_global_id(
