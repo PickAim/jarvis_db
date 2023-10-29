@@ -128,7 +128,7 @@ class StandardDbFillerImpl(StandardDbFiller):
         if niche_tuple is None:
             raise Exception("unexpected None niche_tuple")
         _, loaded_niche_id = niche_tuple
-        self.__check_warehouse_filled(loaded_niche.products)
+        self.check_warehouse_filled(loaded_niche.products)
         product_card_service.create_products(loaded_niche.products, [loaded_niche_id])
         return loaded_niche
 
@@ -165,7 +165,7 @@ class StandardDbFillerImpl(StandardDbFiller):
             )
         return list(products_global_ids)
 
-    def __check_warehouse_filled(self, products: list[Product]):
+    def check_warehouse_filled(self, products: list[Product]):
         warehouse_ids: set[int] = set()
         for product in products:
             for history_unit in product.history.get_history():

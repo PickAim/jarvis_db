@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from jorm.market.infrastructure import Niche, Warehouse
+from jorm.market.items import Product
 from jorm.server.providers.providers import (
     DataProviderWithoutKey,
     UserMarketDataProvider,
@@ -53,4 +54,8 @@ class StandardDbFiller(ABC):
     def fill_all_user_warehouses(
         self, provider_without_key: DataProviderWithoutKey
     ) -> list[Warehouse]:
+        pass
+
+    @abstractmethod
+    def check_warehouse_filled(self, products: list[Product]):
         pass
