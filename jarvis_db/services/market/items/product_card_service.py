@@ -1,7 +1,6 @@
 from typing import Iterable, TypedDict
 
 from jorm.market.items import Product
-from requests import session
 from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session, joinedload, noload
 
