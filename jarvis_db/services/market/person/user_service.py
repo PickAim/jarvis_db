@@ -1,12 +1,17 @@
 from jorm.market.person import User as UserEntity
 from sqlalchemy import delete, select
-from sqlalchemy.orm import Session, selectinload, joinedload
+from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import Account, MarketplaceApiKey, User
 
 
 class UserService:
+    __user_select_options = [
+        joinedload(User.account),
+        joinedload(User.marketplace_api_keys),
+    ]
+
     def __init__(self, session: Session, table_mapper: Mapper[User, UserEntity]):
         self.__session = session
         self.__table_mapper = table_mapper
@@ -29,9 +34,7 @@ class UserService:
         user = (
             self.__session.execute(
                 select(User)
-                .options(
-                    joinedload(User.account), joinedload(User.marketplace_api_keys)
-                )
+                .options(*UserService.__user_select_options)
                 .where(User.id == user_id)
             )
             .unique()
@@ -43,11 +46,9 @@ class UserService:
         user = (
             self.__session.execute(
                 select(User)
-                .options(
-                    joinedload(User.account), joinedload(User.marketplace_api_keys)
-                )
+                .options(*UserService.__user_select_options)
                 .where(User.account_id == account_id)
-                .distinct()
+                .distinct(User.id)
             )
             .unique()
             .scalar_one_or_none()
@@ -58,10 +59,8 @@ class UserService:
         users = (
             self.__session.execute(
                 select(User)
-                .options(
-                    joinedload(User.account), selectinload(User.marketplace_api_keys)
-                )
-                .distinct()
+                .options(*UserService.__user_select_options)
+                .distinct(User.id)
             )
             .scalars()
             .unique()
