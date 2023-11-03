@@ -14,6 +14,7 @@ from jarvis_db.factories.mappers import (
 from jarvis_db.factories.queries import (
     create_category_query_builder,
 )
+from jarvis_db.input.account.account_input_formatter import AccountInputFormatter
 from jarvis_db.mappers.cache.green_trade_zone_mappers import (
     GreenTradeZoneTableToJormMapper,
 )
@@ -65,8 +66,14 @@ from jarvis_db.services.market.service.transit_economy_service import (
 )
 
 
-def create_account_service(session: Session) -> AccountService:
-    return AccountService(session, AccountTableToJormMapper())
+def create_account_service(
+    session: Session, input_formatter: AccountInputFormatter | None = None
+) -> AccountService:
+    return AccountService(
+        session,
+        AccountTableToJormMapper(),
+        input_formatter if input_formatter is not None else AccountInputFormatter(),
+    )
 
 
 def create_user_service(session: Session) -> UserService:
