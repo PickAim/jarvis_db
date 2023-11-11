@@ -13,7 +13,9 @@ from jorm.support.calculation import (
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
-from jarvis_db.cache.green_trade_zone.green_trade_zone_service import GreenTradeZoneService
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import (
+    GreenTradeZoneService,
+)
 from jarvis_db.cache.niche_characteristics.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
@@ -164,12 +166,12 @@ class JormChangerImpl(JORMChanger):
     ) -> list[Warehouse]:
         if self.__user_market_data_provider is None or self.__standard_filler is None:
             return []
-        return self.__standard_filler.fill_user_warehouse(
+        return self.__standard_filler.fill_user_warehouses(
             self.__user_market_data_provider
         )
 
     def load_all_warehouses(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
-        return self.__standard_filler.fill_all_user_warehouses(
+        return self.__standard_filler.fill_all_warehouses(
             self.__data_provider_without_key
         )
 
