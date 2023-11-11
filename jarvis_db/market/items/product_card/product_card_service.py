@@ -12,7 +12,7 @@ from jarvis_db.schemas import (
     ProductHistory,
     ProductToNiche,
 )
-from jarvis_db.services.market.items.product_history_service import (
+from jarvis_db.market.items.product_card_history.product_history_service import (
     ProductHistoryService,
 )
 

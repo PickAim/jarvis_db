@@ -4,7 +4,7 @@ from jorm.market.person import Account as AccountEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_account_service
-from jarvis_db.mappers.market.person.account_mappers import AccountTableToJormMapper
+from jarvis_db.market.person.account.account_mappers import AccountTableToJormMapper
 from jarvis_db.schemas import Account
 from tests.db_context import DbContext
 
@@ -97,7 +97,7 @@ class AccountServiceTest(unittest.TestCase):
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(email, account.email)
-            self.assertEqual("", account.phone_number)
+            self.assertIsNone(account.phone_number)
 
     def test_find_by_email_or_phone_should_work_correct_with_unfilled_email(self):
         phone = "+7987654321"
@@ -112,7 +112,7 @@ class AccountServiceTest(unittest.TestCase):
             assert account_result is not None
             account, _ = account_result
             self.assertEqual(phone, account.phone_number)
-            self.assertEqual("", account.email)
+            self.assertIsNone(account.email)
 
 
 if __name__ == "__main__":

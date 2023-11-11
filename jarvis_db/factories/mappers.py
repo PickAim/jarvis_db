@@ -4,33 +4,33 @@ from jorm.market.service import SimpleEconomySaveObject, TransitEconomySaveObjec
 
 from jarvis_db import schemas
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.mappers.market.infrastructure.category_mappers import (
+from jarvis_db.market.infrastructure.category.category_mappers import (
     CategoryTableToJormMapper,
 )
-from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
+from jarvis_db.market.infrastructure.marketplace.marketplace_mappers import (
     MarketplaceTableToJormMapper,
 )
-from jarvis_db.mappers.market.infrastructure.niche_mappers import (
+from jarvis_db.market.infrastructure.niche.niche_mappers import (
     NicheTableToJormMapper,
 )
-from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.market.infrastructure.warehouse.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
-from jarvis_db.mappers.market.items.leftover_mappers import (
-    LeftoverTableToJormMapper,
-)
-from jarvis_db.mappers.market.items.product_history_mappers import (
-    ProductHistoryUnitTableToJormMapper,
-)
-from jarvis_db.mappers.market.items.product_mappers import (
+from jarvis_db.market.items.product_card.product_mappers import (
     ProductTableToJormMapper,
 )
-from jarvis_db.mappers.market.service.economy_mappers import (
-    EconomyResultTableMapper,
+from jarvis_db.market.items.product_card_history.leftover_mappers import (
+    LeftoverTableToJormMapper,
+)
+from jarvis_db.market.items.product_card_history.product_history_mappers import (
+    ProductHistoryUnitTableToJormMapper,
+)
+from jarvis_db.market.service.economy.economy_mappers import (
     EconomyRequestTableMapper,
+    EconomyResultTableMapper,
     EconomyTableToJormMapper,
 )
-from jarvis_db.mappers.market.service.transit_mappers import (
+from jarvis_db.market.service.transit.transit_mappers import (
     TransitRequestMapper,
     TransitResultMapper,
     TransitTableToJormMapper,

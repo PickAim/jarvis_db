@@ -2,7 +2,7 @@ import unittest
 
 from sqlalchemy import select
 from jarvis_db.factories.services import create_niche_characteristics_service
-from jarvis_db.mappers.cache.niche_characteristics_mappers import (
+from jarvis_db.cache.niche_characteristics.niche_characteristics_mappers import (
     NicheCharacteristicsTableToJormMapper,
 )
 

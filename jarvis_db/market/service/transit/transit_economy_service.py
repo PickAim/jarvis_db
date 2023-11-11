@@ -18,7 +18,7 @@ from jarvis_db.schemas import (
     TransitEconomyResult,
     UserToTransitEconomy,
 )
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
 
 
 class TransitEconomyService:

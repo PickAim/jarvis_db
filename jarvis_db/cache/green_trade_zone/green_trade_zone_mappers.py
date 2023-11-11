@@ -2,7 +2,7 @@ from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import GreenTradeZoneCalculationResult
 from jorm.support.calculation import GreenTradeZoneCalculateResult
 
-from jarvis_db.services.cache.green_trade_zone_service import GreenZoneSegmentData
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import GreenZoneSegmentData
 
 
 class GreenTradeZoneTableToJormMapper(

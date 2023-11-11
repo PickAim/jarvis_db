@@ -7,9 +7,9 @@ from jorm.server.providers.providers import (
     UserMarketDataProvider,
 )
 
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.items.product_card_service import ProductCardService
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.items.product_card.product_card_service import ProductCardService
 
 
 class StandardDbFiller(ABC):

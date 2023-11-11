@@ -1,8 +1,9 @@
-from jarvis_db.core.mapper import Mapper
-from jarvis_db.schemas import EconomyConstants
 from jorm.support.types import (
     EconomyConstants as EconomyConstantsEntity,
 )
+
+from jarvis_db.core.mapper import Mapper
+from jarvis_db.schemas import EconomyConstants
 
 
 class EconomyConstantsTableToJormMapper(

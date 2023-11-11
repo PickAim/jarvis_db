@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session, noload
 
 from jarvis_db.core.mapper import Mapper
-from jarvis_db.queries.query_builder import QueryBuilder
+from jarvis_db.core.query_builder import QueryBuilder
 from jarvis_db.schemas import Category
 
 

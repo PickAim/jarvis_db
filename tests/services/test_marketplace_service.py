@@ -6,10 +6,10 @@ from sqlalchemy import select
 from jarvis_db.factories.mappers import create_marketplace_table_mapper
 
 from jarvis_db.factories.services import create_marketplace_service
-from jarvis_db.mappers.market.infrastructure.marketplace_mappers import (
+from jarvis_db.market.infrastructure.marketplace.marketplace_mappers import (
     MarketplaceTableToJormMapper,
 )
-from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.market.infrastructure.warehouse.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
 from jarvis_db.schemas import Marketplace

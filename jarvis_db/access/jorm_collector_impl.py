@@ -10,22 +10,22 @@ from jorm.support.calculation import (
 )
 from jorm.support.types import EconomyConstants
 
-from jarvis_db.services.cache.green_trade_zone_service import GreenTradeZoneService
-from jarvis_db.services.cache.niche_characteristics_service import (
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import GreenTradeZoneService
+from jarvis_db.cache.niche_characteristics.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.marketplace_service import (
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.marketplace.marketplace_service import (
     MarketplaceService,
 )
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.person.user_items_service import UserItemsService
-from jarvis_db.services.market.service.economy_constants_service import (
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
+from jarvis_db.market.person.user.user_items_service import UserItemsService
+from jarvis_db.market.service.economy_constants.economy_constants_service import (
     EconomyConstantsService,
 )
-from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.transit_economy_service import (
+from jarvis_db.market.service.economy.economy_service import EconomyService
+from jarvis_db.market.service.transit.transit_economy_service import (
     TransitEconomyService,
 )
 

@@ -2,7 +2,7 @@ import unittest
 
 from sqlalchemy import select
 
-from jarvis_db.mappers.market.items.leftover_mappers import LeftoverTableToJormMapper
+from jarvis_db.market.items.product_card_history.leftover_mappers import LeftoverTableToJormMapper
 from jarvis_db.schemas import Leftover
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder

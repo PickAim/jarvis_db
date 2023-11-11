@@ -5,7 +5,7 @@ from jorm.market.person import UserPrivilege
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_user_service
-from jarvis_db.mappers.market.person.user_mappers import (
+from jarvis_db.market.person.user.user_mappers import (
     UserTableToJormMapper,
 )
 from jarvis_db.schemas import Account, Marketplace, MarketplaceApiKey, User

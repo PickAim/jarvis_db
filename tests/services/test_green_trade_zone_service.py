@@ -4,11 +4,11 @@ from jorm.support.calculation import GreenTradeZoneCalculateResult
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_green_trade_zone_service
-from jarvis_db.mappers.cache.green_trade_zone_mappers import (
+from jarvis_db.cache.green_trade_zone.green_trade_zone_mappers import (
     GreenTradeZoneTableToJormMapper,
 )
 from jarvis_db.schemas import GreenTradeZoneCalculationResult, Niche
-from jarvis_db.services.cache.green_trade_zone_service import GreenZoneSegmentData
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import GreenZoneSegmentData
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 

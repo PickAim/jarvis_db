@@ -16,10 +16,10 @@ from jorm.support.constants import DEFAULT_CATEGORY_NAME
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
 from jarvis_db.access.fill.support.constants import NICHE_TO_CATEGORY
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.items.product_card_service import ProductCardService
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
+from jarvis_db.market.items.product_card.product_card_service import ProductCardService
 
 
 class StandardDbFillerImpl(StandardDbFiller):

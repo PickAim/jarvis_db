@@ -4,7 +4,7 @@ from sqlalchemy import Select
 from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm.strategy_options import _AbstractLoad
 
-from jarvis_db.queries.query_builder import _S, QueryBuilder
+from jarvis_db.core.query_builder import _S, QueryBuilder
 from jarvis_db.schemas import Category, Niche
 
 

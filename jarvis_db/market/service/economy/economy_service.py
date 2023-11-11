@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import EconomyRequest, EconomyResult, Niche, UserToEconomy
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
 
 
 class EconomyService:
