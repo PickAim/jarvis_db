@@ -76,6 +76,21 @@ class ProductCardService:
                 self.__history_service.create(product.history, db_product.id)
             self.__session.flush()
 
+    def upsert_product(self, product: Product, niche_ids: Iterable[int]):
+        found_product = self.__session.execute(
+            select(ProductCard).where(ProductCard.global_id == product.global_id)
+        ).scalar_one_or_none()
+        if found_product is None:
+            self.create_product(product, niche_ids)
+        else:
+            self.__session.add_all(
+                (
+                    ProductToNiche(product_id=found_product.id, niche_id=niche_id)
+                    for niche_id in niche_ids
+                )
+            )
+            self.__session.flush()
+
     def find_by_id(self, product_id: int) -> Product | None:
         product = self.__session.execute(
             select(ProductCard)
