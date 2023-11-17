@@ -6,6 +6,8 @@ class AccountInputFormatter:
     __UPPER_CASE_PATTERN = re.compile(r"[A-ZА-Я]")
 
     def format_phone_number(self, phone_number: str) -> str:
+        if phone_number is None:
+            return ""
         phone_number = phone_number.replace("-", "").replace(" ", "")
         if re.search(
             AccountInputFormatter.__LOWER_CASE_PATTERN, phone_number
