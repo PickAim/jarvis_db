@@ -13,22 +13,24 @@ from jorm.support.calculation import (
 from jorm.support.types import EconomyConstants
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
-from jarvis_db.services.cache.green_zone_trade_service import GreenZoneTradeService
-from jarvis_db.services.cache.niche_characteristics_service import (
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import (
+    GreenTradeZoneService,
+)
+from jarvis_db.cache.niche_characteristics.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.items.product_card_service import ProductCardService
-from jarvis_db.services.market.items.product_history_service import (
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.items.product_card.product_card_service import ProductCardService
+from jarvis_db.market.items.product_card_history.product_history_service import (
     ProductHistoryService,
 )
-from jarvis_db.services.market.person.user_items_service import UserItemsService
-from jarvis_db.services.market.service.economy_constants_service import (
+from jarvis_db.market.person.user.user_items_service import UserItemsService
+from jarvis_db.market.service.economy_constants.economy_constants_service import (
     EconomyConstantsService,
 )
-from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.transit_economy_service import (
+from jarvis_db.market.service.economy.economy_service import EconomyService
+from jarvis_db.market.service.transit.transit_economy_service import (
     TransitEconomyService,
 )
 
@@ -45,7 +47,7 @@ class JormChangerImpl(JORMChanger):
         transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
         niche_characteristics_service: NicheCharacteristicsService,
-        green_zone_trade_service: GreenZoneTradeService,
+        green_trade_zone_service: GreenTradeZoneService,
         data_provider_without_key: DataProviderWithoutKey,
         user_market_data_provider: UserMarketDataProvider,
         standard_filler: StandardDbFiller,
@@ -59,7 +61,7 @@ class JormChangerImpl(JORMChanger):
         self.__transit_service = transit_service
         self.__user_items_service = user_items_service
         self.__niche_characteristics_service = niche_characteristics_service
-        self.__green_zone_trade_service = green_zone_trade_service
+        self.__green_trade_zone_service = green_trade_zone_service
         self.__data_provider_without_key = data_provider_without_key
         self.__user_market_data_provider = user_market_data_provider
         self.__standard_filler = standard_filler
@@ -86,7 +88,7 @@ class JormChangerImpl(JORMChanger):
     def update_green_zone_cache(
         self, niche_id: int, green_trade_zone_calc_result: GreenTradeZoneCalculateResult
     ) -> None:
-        self.__green_zone_trade_service.upsert(niche_id, green_trade_zone_calc_result)
+        self.__green_trade_zone_service.upsert(niche_id, green_trade_zone_calc_result)
 
     def update_niche_characteristics_cache(
         self,
@@ -159,10 +161,19 @@ class JormChangerImpl(JORMChanger):
         )
         return user_products
 
-    def load_user_warehouse(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
+    def load_user_warehouses(
+        self, user_id: int, marketplace_id: int
+    ) -> list[Warehouse]:
         if self.__user_market_data_provider is None or self.__standard_filler is None:
             return []
-        return self.__standard_filler.fill_warehouse(self.__user_market_data_provider)
+        return self.__standard_filler.fill_user_warehouses(
+            self.__user_market_data_provider
+        )
+
+    def load_all_warehouses(self, user_id: int, marketplace_id: int) -> list[Warehouse]:
+        return self.__standard_filler.fill_all_warehouses(
+            self.__data_provider_without_key
+        )
 
     @staticmethod
     def __get_products_category_and_niche(
@@ -207,7 +218,7 @@ class JormChangerImpl(JORMChanger):
             niche.products, new_products
         )
         self.__standard_filler.check_warehouse_filled(to_create)
-        self.__product_card_service.create_products(to_create, niche_id)
+        self.__product_card_service.create_products(to_create, [niche_id])
         for product in to_update:
             product_tuple = self.__product_card_service.find_by_global_id(
                 product.global_id, niche_id
@@ -285,7 +296,7 @@ class JormChangerImpl(JORMChanger):
             if found_info is None:
                 continue
             niche_id: int = found_info[1]
-            product_id = self.__product_card_service.create_product(product, niche_id)
+            product_id = self.__product_card_service.create_product(product, [niche_id])
             self.__user_items_service.append_product(user_id, product_id)
         for product in to_update:
             found_info = self.__category_service.find_by_name(

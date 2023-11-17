@@ -15,11 +15,11 @@ from jorm.server.providers.providers import (
 from jorm.support.constants import DEFAULT_CATEGORY_NAME
 
 from jarvis_db.access.fill.fillers import StandardDbFiller
-from jarvis_db.access.fill.support.constatns import NICHE_TO_CATEGORY
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.items.product_card_service import ProductCardService
+from jarvis_db.access.fill.support.constants import NICHE_TO_CATEGORY
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
+from jarvis_db.market.items.product_card.product_card_service import ProductCardService
 
 
 class StandardDbFillerImpl(StandardDbFiller):
@@ -89,10 +89,19 @@ class StandardDbFillerImpl(StandardDbFiller):
             )
             niche_service.create_all(niches, category_id)
 
-    def fill_warehouse(
+    def fill_user_warehouses(
         self, provider_with_key: UserMarketDataProvider
     ) -> list[Warehouse]:
-        return super().fill_warehouse(provider_with_key)
+        warehouses: list[Warehouse] = provider_with_key.get_user_warehouses()
+        self.__warehouse_service.create_all(warehouses, self.__marketplace_id)
+        return warehouses
+
+    def fill_all_warehouses(
+        self, provider_without_key: DataProviderWithoutKey
+    ) -> list[Warehouse]:
+        warehouses = provider_without_key.get_warehouses()
+        self.__warehouse_service.create_all(warehouses, self.__marketplace_id)
+        return warehouses
 
     def __get_niche(
         self,
@@ -121,7 +130,7 @@ class StandardDbFillerImpl(StandardDbFiller):
             raise Exception("unexpected None niche_tuple")
         _, loaded_niche_id = niche_tuple
         self.check_warehouse_filled(loaded_niche.products)
-        product_card_service.create_products(loaded_niche.products, loaded_niche_id)
+        product_card_service.create_products(loaded_niche.products, [loaded_niche_id])
         return loaded_niche
 
     def __get_new_products(
@@ -138,7 +147,6 @@ class StandardDbFillerImpl(StandardDbFiller):
         ] = data_provider_without_key.get_products_globals_ids(
             niche_name, product_number
         )
-        print(f"{len(products_global_ids)} products in {niche_name} niche")
         filtered_products_globals_ids = self.__filter_product_ids(
             product_card_service, products_global_ids, niche_id
         )
@@ -180,7 +188,7 @@ class StandardDbFillerImpl(StandardDbFiller):
             f"unfilled{global_id}",
             global_id,
             HandlerType.MARKETPLACE,
-            Address(),
+            Address("", ""),
         )
 
     def __fill_warehouses(self, warehouses: list[Warehouse]):

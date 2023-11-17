@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from jarvis_db.factories.mappers import create_product_table_mapper
 from jarvis_db.factories.services import create_user_items_service
-from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.market.infrastructure.warehouse.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
 from jarvis_db.schemas import Marketplace, ProductCard, User, Warehouse
@@ -53,7 +53,7 @@ class UserItemServiceTest(unittest.TestCase):
             ).scalar_one()
             self.assertEqual(0, len(user.products))
 
-    def test_append_wareouse(self):
+    def test_append_warehouse(self):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_warehouses(1)
@@ -101,7 +101,12 @@ class UserItemServiceTest(unittest.TestCase):
             expected = {
                 product.id: mapper.map(product)
                 for product in products
-                if product.niche.category.marketplace_id == marketplace_id
+                if any(
+                    (
+                        niche.category.marketplace_id == marketplace_id
+                        for niche in product.niches
+                    )
+                )
             }
             self.assertTrue(
                 all(
@@ -144,7 +149,12 @@ class UserItemServiceTest(unittest.TestCase):
             expected = {
                 product.id: mapper.map(product)
                 for product in products
-                if product.niche.category.marketplace_id == marketplace_id
+                if any(
+                    (
+                        niche.category.marketplace_id == marketplace_id
+                        for niche in product.niches
+                    )
+                )
             }
             self.assertTrue(
                 all(

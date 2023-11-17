@@ -1,13 +1,13 @@
-from jarvis_db.queries.implementations.category_atomic_query_builder import (
+from jarvis_db.market.infrastructure.category.category_atomic_query_builder import (
     CategoryAtomicJoinQueryBuilder,
 )
-from jarvis_db.queries.implementations.niche_atomic_query_builder import (
+from jarvis_db.market.infrastructure.niche.niche_atomic_query_builder import (
     NicheAtomicJoinQueryBuilder,
 )
-from jarvis_db.queries.implementations.product_atomic_query_builder import (
+from jarvis_db.market.items.product_card.product_atomic_query_builder import (
     ProductCardAtomicJoinQueryBuilder,
 )
-from jarvis_db.queries.query_builder import QueryBuilder
+from jarvis_db.core.query_builder import QueryBuilder
 from jarvis_db.schemas import Category, Niche, ProductCard
 
 

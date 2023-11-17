@@ -2,7 +2,7 @@ import unittest
 
 from sqlalchemy import select
 from jarvis_db.factories.services import create_economy_constants_service
-from jarvis_db.mappers.market.service.economy_constants_mappers import (
+from jarvis_db.market.service.economy_constants.economy_constants_mappers import (
     EconomyConstantsTableToJormMapper,
 )
 from jarvis_db.schemas import EconomyConstants, Marketplace

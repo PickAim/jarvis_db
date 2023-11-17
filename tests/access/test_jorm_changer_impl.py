@@ -1,4 +1,3 @@
-from tkinter import NO
 import unittest
 from datetime import datetime
 from unittest.mock import Mock
@@ -35,7 +34,7 @@ class JormChangerTest(unittest.TestCase):
         self.__user_market_data_provider_mock = Mock()
         self.__standard_filler_mock = Mock()
         self.__niche_characteristics_service_mock = Mock()
-        self.__green_zone_trade_service_mock = Mock()
+        self.__green_trade_zone_service_mock = Mock()
         self.__changer = JormChangerImpl(
             economy_constants_service=self.__economy_constants_service_mock,
             category_service=self.__category_service_mock,
@@ -49,7 +48,7 @@ class JormChangerTest(unittest.TestCase):
             user_market_data_provider=self.__user_market_data_provider_mock,
             standard_filler=self.__standard_filler_mock,
             niche_characteristics_service=self.__niche_characteristics_service_mock,
-            green_zone_trade_service=self.__green_zone_trade_service_mock
+            green_trade_zone_service=self.__green_trade_zone_service_mock,
         )
 
     def test_save_unit_economy_request(self):
@@ -163,13 +162,18 @@ class JormChangerTest(unittest.TestCase):
     def test_load_user_warehouse(self):
         fill_warehouses_mock = Mock()
         fill_warehouses_mock.return_value = [
-            Warehouse(f"warehouse_name_{i}", i + 200, HandlerType.CLIENT, Address())
+            Warehouse(
+                f"warehouse_name_{i}",
+                i + 200,
+                HandlerType.CLIENT,
+                Address(f"region_{i}", f"street_{i}"),
+            )
             for i in range(20)
         ]
-        self.__standard_filler_mock.fill_warehouse = fill_warehouses_mock
+        self.__standard_filler_mock.fill_user_warehouses = fill_warehouses_mock
         user_id = 100
         marketplace_id = 2
-        result = self.__changer.load_user_warehouse(user_id, marketplace_id)
+        result = self.__changer.load_user_warehouses(user_id, marketplace_id)
         fill_warehouses_mock.assert_called_once_with(
             self.__user_market_data_provider_mock
         )

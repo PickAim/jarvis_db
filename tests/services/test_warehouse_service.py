@@ -6,7 +6,7 @@ from jorm.market.infrastructure import Warehouse as WarehouseEntity
 from sqlalchemy import select
 
 from jarvis_db.factories.services import create_warehouse_service
-from jarvis_db.mappers.market.infrastructure.warehouse_mappers import (
+from jarvis_db.market.infrastructure.warehouse.warehouse_mappers import (
     WarehouseTableToJormMapper,
 )
 from jarvis_db.schemas import Address, Marketplace, Warehouse
@@ -29,7 +29,7 @@ class WarehouseServiceTest(unittest.TestCase):
                 warehouse_name,
                 200,
                 HandlerType.CLIENT,
-                AddressEntity(""),
+                AddressEntity("region_name", "street_name"),
             )
             service = create_warehouse_service(session)
             service.create_warehouse(warehouse_entity, self.__marketplace_id)
@@ -44,7 +44,10 @@ class WarehouseServiceTest(unittest.TestCase):
     def test_create_many(self):
         expected_warehouses = [
             WarehouseEntity(
-                f"warehouse_{i}", 200 + i, HandlerType.CLIENT, AddressEntity()
+                f"warehouse_{i}",
+                200 + i,
+                HandlerType.CLIENT,
+                AddressEntity(f"region_{i}", f"street_{i}"),
             )
             for i in range(10)
         ]

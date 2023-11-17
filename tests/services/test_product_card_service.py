@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from jarvis_db.factories.mappers import create_product_table_mapper
 from jarvis_db.factories.services import create_product_card_service
-from jarvis_db.schemas import Niche, ProductCard
+from jarvis_db.schemas import Niche, ProductCard, ProductToNiche
 from tests.db_context import DbContext
 from tests.fixtures import AlchemySeeder
 from tests.helpers import sort_product
@@ -17,11 +17,7 @@ class ProductCardServiceTest(unittest.TestCase):
         with self.__db_context.session() as session, session.begin():
             seeder = AlchemySeeder(session)
             seeder.seed_marketplaces(1)
-            seeder.seed_niches(1)
-            niche = session.execute(select(Niche)).scalar_one()
-            self.__niche_id = niche.id
-            self.__niche_name = niche.name
-            self.__category_name = niche.category.name
+            seeder.seed_niches(3)
 
     def test_create(self):
         expected = Product(
@@ -31,13 +27,14 @@ class ProductCardServiceTest(unittest.TestCase):
             5.0,
             "brand",
             "seller",
-            self.__niche_name,
-            self.__category_name,
+            "",
+            "",
         )
         mapper = create_product_table_mapper()
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
-            product_id = service.create_product(expected, self.__niche_id)
+            niche_ids = session.execute(select(Niche.id)).scalars().all()
+            product_id = service.create_product(expected, niche_ids)
         with self.__db_context.session() as session:
             found = session.execute(
                 select(ProductCard).where(ProductCard.id == product_id)
@@ -55,22 +52,17 @@ class ProductCardServiceTest(unittest.TestCase):
                 5.0 + i,
                 f"brand_{i}",
                 f"seller_{i}",
-                self.__niche_name,
-                self.__category_name,
+                "",
+                "",
             )
             for i in range(10)
         ]
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
-            service.create_products(expected_products, self.__niche_id)
+            niche_ids = session.execute(select(Niche.id)).scalars().all()
+            service.create_products(expected_products, niche_ids)
         with self.__db_context.session() as session:
-            found = (
-                session.execute(
-                    select(ProductCard).where(ProductCard.niche_id == self.__niche_id)
-                )
-                .scalars()
-                .all()
-            )
+            found = session.execute(select(ProductCard)).scalars().all()
             mapper = create_product_table_mapper()
             actual_products = [mapper.map(product) for product in found]
             for expected, actual in zip(
@@ -88,7 +80,6 @@ class ProductCardServiceTest(unittest.TestCase):
                 global_id=200,
                 cost=1000,
                 rating=5.0,
-                niche_id=self.__niche_id,
                 brand="brand_name",
                 seller="seller_name",
             )
@@ -114,7 +105,6 @@ class ProductCardServiceTest(unittest.TestCase):
                 global_id=200,
                 cost=1000,
                 rating=5.0,
-                niche_id=self.__niche_id,
                 brand="brand_name",
                 seller="seller_name",
             )
@@ -159,11 +149,18 @@ class ProductCardServiceTest(unittest.TestCase):
                 global_id=global_id,
                 cost=1000,
                 rating=5.0,
-                niche_id=self.__niche_id,
                 brand="brand_name",
                 seller="seller_name",
             )
+            niche_ids = list(session.execute(select(Niche.id)).scalars().all())
             session.add(product)
+            session.flush()
+            session.add_all(
+                (
+                    ProductToNiche(product_id=product.id, niche_id=niche_id)
+                    for niche_id in niche_ids
+                )
+            )
             session.flush()
             expected = mapper.map(product)
             self.assertEqual(0, len(expected.history.get_history()))
@@ -171,7 +168,7 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_product_histories(200)
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual = service.find_by_global_id(global_id, self.__niche_id)
+            actual = service.find_by_global_id(global_id, niche_ids[0])
             assert actual is not None
             self.assertTupleEqual((expected, product_id), actual)
 
@@ -182,10 +179,13 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_niches(2)
             seeder.seed_products(100)
             products = session.execute(select(ProductCard)).scalars().all()
+            niche_id = session.execute(
+                select(Niche.id).order_by(Niche.id).limit(1)
+            ).scalar_one()
             expected_products = {
                 product.id: mapper.map(product)
                 for product in products
-                if product.niche_id == self.__niche_id
+                if niche_id in (niche.id for niche in product.niches)
             }
             self.assertTrue(
                 all(
@@ -197,31 +197,40 @@ class ProductCardServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
-            actual_products = service.find_all_in_niche(self.__niche_id)
+            actual_products = service.find_all_in_niche(niche_id)
             self.assertDictEqual(expected_products, actual_products)
 
     def test_filter_existing_ids(self):
         existing_ids = [i for i in range(100, 111)]
         with self.__db_context.session() as session, session.begin():
-            products = (
+            niche_id = session.execute(
+                select(Niche.id).order_by(Niche.id).limit(1)
+            ).scalar_one()
+            products = [
                 ProductCard(
                     id=index,
                     name=f"product_{global_id}",
                     global_id=global_id,
                     cost=100 * global_id,
                     rating=5.0 + global_id,
-                    niche_id=self.__niche_id,
                     brand=f"brand_{index}",
                     seller=f"seller_{index}",
                 )
                 for index, global_id in enumerate(existing_ids, start=1)
-            )
+            ]
             session.add_all(products)
+            session.flush()
+            session.add_all(
+                (
+                    ProductToNiche(product_id=product.id, niche_id=niche_id)
+                    for product in products
+                )
+            )
         new_ids = [i for i in range(200, 211)]
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
             filtered_ids = service.filter_existing_global_ids(
-                self.__niche_id, [*existing_ids, *new_ids]
+                niche_id, [*existing_ids, *new_ids]
             )
             self.assertEqual(sorted(new_ids), sorted(filtered_ids))
 
@@ -235,7 +244,6 @@ class ProductCardServiceTest(unittest.TestCase):
                     global_id=20,
                     cost=10,
                     rating=5.0,
-                    niche_id=self.__niche_id,
                     brand="brand",
                     seller="seller",
                 )
@@ -249,8 +257,8 @@ class ProductCardServiceTest(unittest.TestCase):
                 8.0,
                 "new_brand",
                 "new_seller",
-                self.__niche_name,
-                self.__category_name,
+                "",
+                "",
             )
             service.update(product_id, expected)
             product = session.execute(
@@ -259,3 +267,52 @@ class ProductCardServiceTest(unittest.TestCase):
             mapper = create_product_table_mapper()
             actual = mapper.map(product)
             self.assertEqual(expected, actual)
+
+    def test_add_niche_to_product(self):
+        with self.__db_context.session() as session, session.begin():
+            product_id = 1
+            session.add(
+                ProductCard(
+                    id=product_id,
+                    name="product_100",
+                    global_id=20,
+                    cost=10,
+                    rating=5.0,
+                    brand="brand",
+                    seller="seller",
+                )
+            )
+            niche_id = session.execute(select(Niche.id).limit(1)).scalar_one()
+        with self.__db_context.session() as session, session.begin():
+            service = create_product_card_service(session)
+            service.add_niche_to_product(product_id, niche_id)
+        with self.__db_context.session() as session:
+            product = session.execute(
+                select(ProductCard).where(ProductCard.id == product_id)
+            ).scalar_one()
+            self.assertIn(niche_id, (niche.id for niche in product.niches))
+
+    def test_remove_niche_from_product(self):
+        with self.__db_context.session() as session, session.begin():
+            product_id = 1
+            session.add(
+                ProductCard(
+                    id=product_id,
+                    name="product_100",
+                    global_id=20,
+                    cost=10,
+                    rating=5.0,
+                    brand="brand",
+                    seller="seller",
+                )
+            )
+            niche_id = session.execute(select(Niche.id).limit(1)).scalar_one()
+            session.add(ProductToNiche(product_id=product_id, niche_id=niche_id))
+        with self.__db_context.session() as session, session.begin():
+            service = create_product_card_service(session)
+            service.remove_niche_from_product(product_id, niche_id)
+        with self.__db_context.session() as session:
+            product = session.execute(
+                select(ProductCard).where(ProductCard.id == product_id)
+            ).scalar_one()
+            self.assertNotIn(niche_id, (niche.id for niche in product.niches))

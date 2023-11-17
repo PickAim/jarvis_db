@@ -9,23 +9,23 @@ from jorm.support.calculation import (
     NicheCharacteristicsCalculateResult,
 )
 from jorm.support.types import EconomyConstants
-from jarvis_db.services.cache.green_zone_trade_service import GreenZoneTradeService
-from jarvis_db.services.cache.niche_characteristics_service import (
+
+from jarvis_db.cache.green_trade_zone.green_trade_zone_service import GreenTradeZoneService
+from jarvis_db.cache.niche_characteristics.niche_characteristics_service import (
     NicheCharacteristicsService,
 )
-
-from jarvis_db.services.market.infrastructure.category_service import CategoryService
-from jarvis_db.services.market.infrastructure.marketplace_service import (
+from jarvis_db.market.infrastructure.category.category_service import CategoryService
+from jarvis_db.market.infrastructure.marketplace.marketplace_service import (
     MarketplaceService,
 )
-from jarvis_db.services.market.infrastructure.niche_service import NicheService
-from jarvis_db.services.market.infrastructure.warehouse_service import WarehouseService
-from jarvis_db.services.market.person.user_items_service import UserItemsService
-from jarvis_db.services.market.service.economy_constants_service import (
+from jarvis_db.market.infrastructure.niche.niche_service import NicheService
+from jarvis_db.market.infrastructure.warehouse.warehouse_service import WarehouseService
+from jarvis_db.market.person.user.user_items_service import UserItemsService
+from jarvis_db.market.service.economy_constants.economy_constants_service import (
     EconomyConstantsService,
 )
-from jarvis_db.services.market.service.economy_service import EconomyService
-from jarvis_db.services.market.service.transit_economy_service import (
+from jarvis_db.market.service.economy.economy_service import EconomyService
+from jarvis_db.market.service.transit.transit_economy_service import (
     TransitEconomyService,
 )
 
@@ -42,7 +42,7 @@ class JormCollectorImpl(JORMCollector):
         transit_service: TransitEconomyService,
         user_items_service: UserItemsService,
         niche_characteristics_service: NicheCharacteristicsService,
-        green_zone_trade_service: GreenZoneTradeService,
+        green_trade_zone_service: GreenTradeZoneService,
     ):
         self.__marketplace_service = marketplace_service
         self.__economy_constants_service = economy_constants_service
@@ -53,7 +53,7 @@ class JormCollectorImpl(JORMCollector):
         self.__transit_service = transit_service
         self.__user_items_service = user_items_service
         self.__niche_characteristics_service = niche_characteristics_service
-        self.__green_zone_trade_service = green_zone_trade_service
+        self.__green_trade_zone_service = green_trade_zone_service
 
     def get_economy_constants(self, marketplace_id: int) -> EconomyConstants | None:
         return self.__economy_constants_service.find_by_marketplace_id(marketplace_id)
@@ -135,4 +135,4 @@ class JormCollectorImpl(JORMCollector):
     def get_green_zone_cache(
         self, niche_id: int
     ) -> GreenTradeZoneCalculateResult | None:
-        return self.__green_zone_trade_service.find_by_niche_id(niche_id)
+        return self.__green_trade_zone_service.find_by_niche_id(niche_id)
