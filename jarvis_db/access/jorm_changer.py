@@ -1,5 +1,5 @@
 from jorm.jarvis.db_update import JORMChanger
-from jorm.market.infrastructure import Category, Niche, Warehouse
+from jorm.market.infrastructure import Category, Niche, Warehouse, HandlerType
 from jorm.market.items import Product, ProductHistory
 from jorm.market.service import SimpleEconomySaveObject, TransitEconomySaveObject
 from jorm.server.providers.providers import (
@@ -284,34 +284,23 @@ class JormChangerImpl(JORMChanger):
             existing_products, new_products
         )
         for product in to_create:
-            found_info = self.__category_service.find_by_name(
-                product.category_name, marketplace_id
-            )
-            if found_info is None:
-                continue
-            category_id: int = found_info[1]
-            found_info = self.__niche_service.find_by_name(
-                product.niche_name, category_id
-            )
-            if found_info is None:
-                continue
-            niche_id: int = found_info[1]
+            niche_id: int = self.__get_niche_id_for_product(product, marketplace_id)
             product_id = self.__product_card_service.create_product(product, [niche_id])
             self.__user_items_service.append_product(user_id, product_id)
         for product in to_update:
-            found_info = self.__category_service.find_by_name(
+            found_info: tuple[Category, int] = self.__category_service.find_by_name(
                 product.category_name, marketplace_id
             )
             if found_info is None:
                 continue
             category_id: int = found_info[1]
-            found_info = self.__niche_service.find_by_name(
+            found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
                 product.niche_name, category_id
             )
             if found_info is None:
                 continue
             niche_id: int = found_info[1]
-            found_info = self.__product_card_service.find_by_global_id(
+            found_info: tuple[Product, int] = self.__product_card_service.find_by_global_id(
                 product.global_id, niche_id
             )
             if found_info is None:
@@ -320,6 +309,35 @@ class JormChangerImpl(JORMChanger):
             self.__product_card_service.update(product_id, product)
             self.__user_items_service.append_product(user_id, product_id)
         return [*to_create, *to_update]
+
+    def __get_niche_id_for_product(self, product: Product, marketplace_id: int) -> int:
+        found_info = self.__category_service.find_by_name(
+            product.category_name, marketplace_id
+        )
+        if found_info is None:
+            self.__category_service.create(Category(product.category_name), marketplace_id=marketplace_id)
+            found_info: tuple[Category, int] = self.__category_service.find_by_name(
+                product.category_name, marketplace_id
+            )
+        category_id: int = found_info[1]
+        found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
+            product.niche_name, category_id
+        )
+        if found_info is None:
+            self.__niche_service.create(Niche(product.niche_name, self.__create_empty_commissions(), 0),
+                                        category_id=category_id)
+            found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
+                product.niche_name, category_id
+            )
+        return found_info[1]
+
+    @staticmethod
+    def __create_empty_commissions() -> dict[HandlerType, float]:
+        return {
+            HandlerType.MARKETPLACE: 0,
+            HandlerType.CLIENT: 0,
+            HandlerType.PARTIAL_CLIENT: 0
+        }
 
     def __get_user_products(
         self,
