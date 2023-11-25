@@ -283,6 +283,7 @@ class JormChangerImpl(JORMChanger):
         to_create, to_update = self.__split_products_to_create_and_update(
             existing_products, new_products
         )
+        self.__standard_filler.check_warehouse_filled(to_create)
         for product in to_create:
             niche_id: int = self.__get_niche_id_for_product(product, marketplace_id)
             product_id = self.__product_card_service.create_product(product, [niche_id])
