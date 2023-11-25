@@ -20,16 +20,7 @@ class ProductCardServiceTest(unittest.TestCase):
             seeder.seed_niches(3)
 
     def test_create(self):
-        expected = Product(
-            "qwerty",
-            100,
-            200,
-            5.0,
-            "brand",
-            "seller",
-            "",
-            "",
-        )
+        expected = Product("qwerty", 100, 200, 5.0, "brand", "seller", [])
         mapper = create_product_table_mapper()
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
@@ -41,6 +32,14 @@ class ProductCardServiceTest(unittest.TestCase):
             ).scalar_one()
             mapper = create_product_table_mapper()
             actual = mapper.map(found)
+            expected.category_niche_list = [
+                (niche.category.name, niche.name)
+                for niche in session.execute(
+                    select(ProductCard).where(ProductCard.id == product_id)
+                )
+                .scalar_one()
+                .niches
+            ]
             self.assertEqual(expected, actual)
 
     def test_create_many(self):
@@ -52,8 +51,7 @@ class ProductCardServiceTest(unittest.TestCase):
                 5.0 + i,
                 f"brand_{i}",
                 f"seller_{i}",
-                "",
-                "",
+                [],
             )
             for i in range(10)
         ]
@@ -68,6 +66,16 @@ class ProductCardServiceTest(unittest.TestCase):
             for expected, actual in zip(
                 expected_products, actual_products, strict=True
             ):
+                expected.category_niche_list = [
+                    (niche.category.name, niche.name)
+                    for niche in session.execute(
+                        select(ProductCard).where(
+                            ProductCard.global_id == expected.global_id
+                        )
+                    )
+                    .scalar_one()
+                    .niches
+                ]
                 self.assertEqual(expected, actual)
 
     def test_find_by_id(self):
@@ -92,6 +100,14 @@ class ProductCardServiceTest(unittest.TestCase):
         with self.__db_context.session() as session:
             service = create_product_card_service(session)
             actual = service.find_by_id(product_id)
+            expected.category_niche_list = [
+                (niche.category.name, niche.name)
+                for niche in session.execute(
+                    select(ProductCard).where(ProductCard.id == product_id)
+                )
+                .scalar_one()
+                .niches
+            ]
             assert actual is not None
             self.assertEqual(expected, actual)
 
@@ -250,16 +266,7 @@ class ProductCardServiceTest(unittest.TestCase):
             )
         with self.__db_context.session() as session, session.begin():
             service = create_product_card_service(session)
-            expected = Product(
-                "product_1",
-                100,
-                25,
-                8.0,
-                "new_brand",
-                "new_seller",
-                "",
-                "",
-            )
+            expected = Product("product_1", 100, 25, 8.0, "new_brand", "new_seller", [])
             service.update(product_id, expected)
             product = session.execute(
                 select(ProductCard).where(ProductCard.id == product_id)
