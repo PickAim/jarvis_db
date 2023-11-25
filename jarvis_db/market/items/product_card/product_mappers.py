@@ -34,6 +34,7 @@ class ProductTableToJormMapper(Mapper[schemas.ProductCard, Product]):
             rating=float(value.rating) / 100,
             brand=value.brand,
             seller=value.seller,
-            niche_name="",
-            category_name="",
+            category_niche_list=[
+                (niche.category.name, niche.name) for niche in value.niches
+            ],
         )

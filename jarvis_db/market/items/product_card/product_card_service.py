@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, joinedload, noload
 
 from jarvis_db.core.mapper import Mapper
 from jarvis_db.schemas import (
+    Category,
     Leftover,
     Niche,
     ProductCard,
@@ -27,6 +28,13 @@ class _ProductTypedDict(TypedDict):
 
 
 class ProductCardService:
+    __load_options = [
+        noload(ProductCard.histories),
+        joinedload(ProductCard.niches)
+        .joinedload(Niche.category)
+        .load_only(Category.name),
+    ]
+
     def __init__(
         self,
         session: Session,
@@ -92,11 +100,15 @@ class ProductCardService:
             self.__session.flush()
 
     def find_by_id(self, product_id: int) -> Product | None:
-        product = self.__session.execute(
-            select(ProductCard)
-            .where(ProductCard.id == product_id)
-            .options(noload(ProductCard.histories))
-        ).scalar_one_or_none()
+        product = (
+            self.__session.execute(
+                select(ProductCard)
+                .where(ProductCard.id == product_id)
+                .options(*ProductCardService.__load_options)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return self.__table_mapper.map(product) if product is not None else None
 
     def find_by_id_atomic(self, product_id: int) -> Product | None:
@@ -122,13 +134,17 @@ class ProductCardService:
     def find_by_global_id(
         self, global_id: int, niche_id: int
     ) -> tuple[Product, int] | None:
-        product = self.__session.execute(
-            select(ProductCard)
-            .join(ProductCard.niches)
-            .where(ProductCard.global_id == global_id)
-            .where(Niche.id == niche_id)
-            .options(noload(ProductCard.histories))
-        ).scalar_one_or_none()
+        product = (
+            self.__session.execute(
+                select(ProductCard)
+                .join(ProductCard.niches)
+                .where(ProductCard.global_id == global_id)
+                .where(Niche.id == niche_id)
+                .options(*ProductCardService.__load_options)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
         return (
             (self.__table_mapper.map(product), product.id)
             if product is not None
@@ -141,8 +157,9 @@ class ProductCardService:
                 select(ProductCard)
                 .join(ProductToNiche, ProductCard.id == ProductToNiche.product_id)
                 .where(ProductToNiche.niche_id == niche_id)
-                .options(noload(ProductCard.histories))
+                .options(*ProductCardService.__load_options)
             )
+            .unique()
             .scalars()
             .all()
         )
