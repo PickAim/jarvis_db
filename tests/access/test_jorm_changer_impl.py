@@ -140,8 +140,7 @@ class JormChangerTest(unittest.TestCase):
                         0.1 * i % 5,
                         f"test_brand_{i}",
                         f"test_seller_{i}",
-                        niche.name,
-                        category.name,
+                        [],
                     )
                     for i in range(10)
                 ],
