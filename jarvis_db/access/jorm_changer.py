@@ -26,10 +26,10 @@ from jarvis_db.market.items.product_card_history.product_history_service import 
     ProductHistoryService,
 )
 from jarvis_db.market.person.user.user_items_service import UserItemsService
+from jarvis_db.market.service.economy.economy_service import EconomyService
 from jarvis_db.market.service.economy_constants.economy_constants_service import (
     EconomyConstantsService,
 )
-from jarvis_db.market.service.economy.economy_service import EconomyService
 from jarvis_db.market.service.transit.transit_economy_service import (
     TransitEconomyService,
 )
@@ -220,15 +220,14 @@ class JormChangerImpl(JORMChanger):
         self.__standard_filler.check_warehouse_filled(to_create)
         self.__product_card_service.create_products(to_create, [niche_id])
         for product in to_update:
-            product_tuple = self.__product_card_service.find_by_global_id(
+            product_id = self.__product_card_service.find_id_by_global_id(
                 product.global_id, niche_id
             )
-            if product_tuple is None:
+            if product_id is None:
                 raise Exception(
                     "unexpected None result"
                     f"for product with global id {product.global_id}"
                 )
-            _, product_id = product_tuple
             self.__product_card_service.update(product_id, product)
             self.__product_history_service.create(product.history, product_id)
         all_updated_products = [*to_update, *to_create]
@@ -303,12 +302,11 @@ class JormChangerImpl(JORMChanger):
             if found_info is None:
                 continue
             niche_id: int = found_info[1]
-            found_info: tuple[Product, int] = self.__product_card_service.find_by_global_id(
+            product_id = self.__product_card_service.find_id_by_global_id(
                 product.global_id, niche_id
             )
-            if found_info is None:
+            if product_id is None:
                 continue
-            product_id = found_info[1]
             self.__product_card_service.update(product_id, product)
         return [*to_create, *to_update]
 

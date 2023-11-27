@@ -151,6 +151,18 @@ class ProductCardService:
             else None
         )
 
+    def find_id_by_global_id(self, global_id: int, niche_id: int) -> int | None:
+        return (
+            self.__session.execute(
+                select(ProductCard.id)
+                .join(ProductCard.niches)
+                .where(ProductCard.global_id == global_id)
+                .where(Niche.id == niche_id)
+            )
+            .unique()
+            .scalar_one_or_none()
+        )
+
     def find_all_in_niche(self, niche_id: int) -> dict[int, Product]:
         niche_products = (
             self.__session.execute(
