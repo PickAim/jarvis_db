@@ -289,14 +289,16 @@ class JormChangerImpl(JORMChanger):
             product_id = self.__product_card_service.create_product(product, [niche_id])
             self.__user_items_service.append_product(user_id, product_id)
         for product in to_update:
+            category_name = product.category_niche_list[0][0]
+            niche_name = product.category_niche_list[0][1]
             found_info: tuple[Category, int] = self.__category_service.find_by_name(
-                product.category_name, marketplace_id
+                category_name, marketplace_id
             )
             if found_info is None:
                 continue
             category_id: int = found_info[1]
             found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
-                product.niche_name, category_id
+                niche_name, category_id
             )
             if found_info is None:
                 continue
@@ -308,27 +310,28 @@ class JormChangerImpl(JORMChanger):
                 continue
             product_id = found_info[1]
             self.__product_card_service.update(product_id, product)
-            self.__user_items_service.append_product(user_id, product_id)
         return [*to_create, *to_update]
 
     def __get_niche_id_for_product(self, product: Product, marketplace_id: int) -> int:
+        category_name = product.category_niche_list[0][0]
+        niche_name = product.category_niche_list[0][1]
         found_info = self.__category_service.find_by_name(
-            product.category_name, marketplace_id
+            category_name, marketplace_id
         )
         if found_info is None:
-            self.__category_service.create(Category(product.category_name), marketplace_id=marketplace_id)
+            self.__category_service.create(Category(category_name), marketplace_id=marketplace_id)
             found_info: tuple[Category, int] = self.__category_service.find_by_name(
-                product.category_name, marketplace_id
+                category_name, marketplace_id
             )
         category_id: int = found_info[1]
         found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
-            product.niche_name, category_id
+            niche_name, category_id
         )
         if found_info is None:
-            self.__niche_service.create(Niche(product.niche_name, self.__create_empty_commissions(), 0),
+            self.__niche_service.create(Niche(niche_name, self.__create_empty_commissions(), 0),
                                         category_id=category_id)
             found_info: tuple[Niche, int] = self.__niche_service.find_by_name(
-                product.niche_name, category_id
+                niche_name, category_id
             )
         return found_info[1]
 
