@@ -354,6 +354,5 @@ class JormChangerImpl(JORMChanger):
         for product in base_products:
             if product.global_id in products_id_to_cat_niche_name:
                 category_and_niche = products_id_to_cat_niche_name[product.global_id]
-                product.category_name = category_and_niche[0]
-                product.niche_name = category_and_niche[1]
+                product.category_niche_list = [category_and_niche]
         return base_products
